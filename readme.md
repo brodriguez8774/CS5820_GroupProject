@@ -19,3 +19,8 @@ Then in a terminal with said environment created, change to project root and run
 ## Running the Project
 In a terminal with the above virtual environment loaded, change to project root and run:
     python ./main.py
+
+
+## Helper Documentation/Tutorials
+* <https://pysdl2.readthedocs.io/en/rel_0_9_7/tutorial/pong.html>
+* <http://www.roguebasin.com/index.php/Complete_Roguelike_Tutorial,_using_python3%2Bpysdl2>
