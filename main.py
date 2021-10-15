@@ -6,6 +6,7 @@ Virtual roomba/vacuum AI project.
 import sdl2.ext
 
 # User Imports.
+from src.entities import Roomba
 from src.tiles import TileSet
 
 
@@ -13,6 +14,29 @@ from src.tiles import TileSet
 # Initialize window width/height.
 WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
+
+
+class SoftwareRenderSystem(sdl2.ext.SoftwareSpriteRenderSystem):
+    def __init__(self, window):
+        super().__init__(window)
+
+    def render(self, components):
+        # sdl2.ext.fill(self.surface, sdl2.ext.Color(0, 0, 0))
+        super().render(components)
+
+    def process(self, world, components):
+        """
+
+        :param world:
+        :param components:
+        :return:
+        """
+        # print('processing things!')
+        # for sprite in components:
+        #     print('sprite: "{0}"'.format(sprite))
+        # import time
+        # time.sleep(5)
+
 
 
 def main():
@@ -25,21 +49,55 @@ def main():
     # Initialize sprite factory, which is what draws our images (aka "sprites") to window.
     factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
 
-    # Initialize window and basic sprites.
-    window = initialize_window(factory)
+    # Initialize render window and basic background sprites.
+    window, sprite_renderer, roomba = initialize_window(factory)
 
-    # Force program to wait, so we actually see output.
-    processor = sdl2.ext.TestEventProcessor()
-    processor.run(window)
+    # Initialize "world". This appears to be what does most of the work "behind the scenes" for the SDL2 library.
+    world = sdl2.ext.World()
+
+    # Initialize "world data tracking" for SDL2 library.
+    world.add_system(sprite_renderer)
+
+    # Run program loop.
+    run_program = True
+    while run_program:
+
+        # Special handling for any events.
+        events = sdl2.ext.get_events()
+        for event in events:
+
+            # Handle for exiting program.
+            if event.type == sdl2.SDL_QUIT:
+                run_program = False
+                break
+
+            # Handle for key up.
+            if event.type == sdl2.SDL_KEYDOWN:
+
+                if event.key.keysym.sym in [sdl2.SDLK_UP, sdl2.SDLK_w]:
+                    roomba.move_up()
+
+                elif event.key.keysym.sym in [sdl2.SDLK_RIGHT, sdl2.SDLK_d]:
+                    roomba.move_right()
+
+                elif event.key.keysym.sym in [sdl2.SDLK_DOWN, sdl2.SDLK_s]:
+                    roomba.move_down()
+
+                elif event.key.keysym.sym in [sdl2.SDLK_LEFT, sdl2.SDLK_a]:
+                    roomba.move_left()
+
+        # Update render window.
+        world.process()
+        # window.refresh()
 
     # Call final library teardown logic.
     sdl2.ext.quit()
 
 
-def initialize_window(factory):
+def initialize_window(sprite_factory):
     """
     Initializes render window for user.
-    :param factory: SpriteFactory object which renders sprites to window.
+    :param sprite_factory: SpriteFactory object which renders sprites to window.
     :return: Initialized window.
     """
     # Initialize render window.
@@ -47,7 +105,8 @@ def initialize_window(factory):
     window.show()
 
     # Create sprite renderer factory.
-    sprite_renderer = factory.create_sprite_render_system(window)
+    sprite_renderer = SoftwareRenderSystem(window)
+    # sprite_renderer = factory.create_sprite_render_system(window)
 
     # Calculate sprite counts to fit into rendered window.
     window_center_w = int(WINDOW_WIDTH / 2)
@@ -97,11 +156,14 @@ def initialize_window(factory):
     print('sprite_data[max_pixel_left]: {0}'.format(sprite_data['max_pixel_left']))
     print('\n\n')
 
+    # Initialize roomba object.
+    roomba = Roomba(sprite_factory, sprite_renderer, sprite_data, 0, 0)
+
     # Generate all sprite tiles.
-    TileSet(factory, sprite_renderer, window_data, sprite_data)
+    TileSet(sprite_factory, sprite_renderer, window_data, sprite_data, roomba)
 
     # Return generated window object.
-    return window
+    return window, sprite_renderer, roomba
 
 
 if __name__ == '__main__':
