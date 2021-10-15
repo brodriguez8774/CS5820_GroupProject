@@ -6,7 +6,9 @@ Virtual roomba/vacuum AI project.
 import sdl2.ext
 
 # User Imports.
+from src.abstract import DataManager
 from src.entities import Roomba
+from src.systems import EntityMovementSystem, SoftwareRenderSystem
 from src.tiles import TileSet
 
 
@@ -16,29 +18,6 @@ WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
 
 
-class SoftwareRenderSystem(sdl2.ext.SoftwareSpriteRenderSystem):
-    def __init__(self, window):
-        super().__init__(window)
-
-    def render(self, components):
-        # sdl2.ext.fill(self.surface, sdl2.ext.Color(0, 0, 0))
-        super().render(components)
-
-    def process(self, world, components):
-        """
-
-        :param world:
-        :param components:
-        :return:
-        """
-        # print('processing things!')
-        # for sprite in components:
-        #     print('sprite: "{0}"'.format(sprite))
-        # import time
-        # time.sleep(5)
-
-
-
 def main():
     """
     Project start.
@@ -46,17 +25,12 @@ def main():
     # Initialize sdl2 library.
     sdl2.ext.init()
 
-    # Initialize sprite factory, which is what draws our images (aka "sprites") to window.
-    factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
-
     # Initialize render window and basic background sprites.
-    window, sprite_renderer, roomba = initialize_window(factory)
+    data_manager, roomba = initialize_data()
 
-    # Initialize "world". This appears to be what does most of the work "behind the scenes" for the SDL2 library.
-    world = sdl2.ext.World()
-
-    # Initialize "world data tracking" for SDL2 library.
-    world.add_system(sprite_renderer)
+    # Initialize "world systems" for SDL2 library.
+    # data_manager.world.add_system(EntityMovementSystem())
+    data_manager.world.add_system(data_manager.sprite_renderer)
 
     # Run program loop.
     run_program = True
@@ -87,26 +61,30 @@ def main():
                     roomba.move_left()
 
         # Update render window.
-        world.process()
+        data_manager.world.process()
         # window.refresh()
 
     # Call final library teardown logic.
     sdl2.ext.quit()
 
 
-def initialize_window(sprite_factory):
+def initialize_data():
     """
-    Initializes render window for user.
-    :param sprite_factory: SpriteFactory object which renders sprites to window.
-    :return: Initialized window.
+    Initializes data for program start.
+    :return: (DataManager object with all starting data, Roomba/Vacuum object).
     """
     # Initialize render window.
     window = sdl2.ext.Window('CS 5820 - Virtual Roomba/Vacuum AI Project', size=(WINDOW_WIDTH, WINDOW_HEIGHT))
     window.show()
 
-    # Create sprite renderer factory.
+    # Initialize "world". This appears to be what does most of the work "behind the scenes" for the SDL2 library.
+    world = sdl2.ext.World()
+
+    # Initialize sprite factory, which is what generates our sprite objects.
+    sprite_factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
+
+    # Create sprite renderer, which is what draws our images (aka "sprites") to window.
     sprite_renderer = SoftwareRenderSystem(window)
-    # sprite_renderer = factory.create_sprite_render_system(window)
 
     # Calculate sprite counts to fit into rendered window.
     window_center_w = int(WINDOW_WIDTH / 2)
@@ -156,14 +134,17 @@ def initialize_window(sprite_factory):
     print('sprite_data[max_pixel_left]: {0}'.format(sprite_data['max_pixel_left']))
     print('\n\n')
 
+    # Initialize data manager object.
+    data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, sprite_data)
+
     # Initialize roomba object.
-    roomba = Roomba(sprite_factory, sprite_renderer, sprite_data, 0, 0)
+    roomba = Roomba(data_manager, 0, 0)
 
     # Generate all sprite tiles.
-    TileSet(sprite_factory, sprite_renderer, window_data, sprite_data, roomba)
+    TileSet(data_manager, roomba)
 
     # Return generated window object.
-    return window, sprite_renderer, roomba
+    return data_manager, roomba
 
 
 if __name__ == '__main__':

@@ -12,13 +12,26 @@ from abc import ABC, abstractmethod
 RESOURCES = sdl2.ext.Resources(__file__, './images/')
 
 
+class DataManager:
+    """
+    Stores and manages general data, to minimize values needing to be passed back and forth between classes.
+    """
+    def __init__(self, world, window, sprite_factory, sprite_renderer, window_data, sprite_data):
+        self.world = world
+        self.window = window
+        self.sprite_factory = sprite_factory
+        self.sprite_renderer = sprite_renderer
+        self.window_data = window_data
+        self.sprite_data = sprite_data
+
+
 class BaseEntity(ABC):
     """
     Base object class for universal handling/managing of tile/object display.
     All entity objects should inherit from this, both static and dynamic.
     """
     @abstractmethod
-    def __init__(self, sprite_factory, sprite_renderer, sprite_data, tile_x_pos, tile_y_pos, sprite=None):
+    def __init__(self, data_manager, tile_x_pos, tile_y_pos, sprite=None):
         print('tile_x_pos: {0}'.format(tile_x_pos))
         print('tile_y_pos: {0}'.format(tile_y_pos))
         print('sprite: "{0}"'.format(sprite))
@@ -27,9 +40,9 @@ class BaseEntity(ABC):
             raise ValueError('Sprite name must be provided.')
 
         # Initialize class variables.
-        self.sprite_factory = sprite_factory
-        self.sprite_renderer = sprite_renderer
-        self.sprite_data = sprite_data
+        self.sprite_factory = data_manager.sprite_factory
+        self.sprite_renderer = data_manager.sprite_renderer
+        self.sprite_data = data_manager.sprite_data
         self.sprite = sprite
         self._tile_position = (0, 0)    # Position in regards to tile x/y index. Each tile is 50 px.
         self._pix_position = (0, 0)     # Position in regards to literal pixel location, in window.

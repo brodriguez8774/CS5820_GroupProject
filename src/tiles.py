@@ -19,7 +19,7 @@ class TileSet:
     """
     Holds set of all sprite tiles.
     """
-    def __init__(self, sprite_factory, sprite_renderer, window_data, sprite_data, roomba):
+    def __init__(self, data_manager, roomba):
         """
         :param sprite_factory: Generates sprite objects for SDL2 display.
         :param sprite_renderer: Renders sprite objects to window.
@@ -28,28 +28,25 @@ class TileSet:
         :param roomba: Roomba/vacuum entity.
         """
         # Save class variables.
-        self.sprite_renderer = sprite_renderer
-        self.window_data = window_data
-        self.sprite_data = sprite_data
+        self.sprite_renderer = data_manager.sprite_renderer
+        self.window_data = data_manager.window_data
+        self.sprite_data = data_manager.sprite_data
         self.tile_set = []
         self.roomba = roomba
 
         # Initialize all tiles.
-        for row_index in range(sprite_data['sprite_h_count']):
+        for row_index in range(self.sprite_data['sprite_h_count']):
 
             # Initialize row of tiles.
             curr_row = []
-            y_coord = (row_index * 50) + sprite_data['max_pixel_top']
+            y_coord = (row_index * 50) + self.sprite_data['max_pixel_top']
 
             # Initialize each tile in row.
-            for col_index in range(sprite_data['sprite_w_count']):
-                x_coord = (col_index * 50) + sprite_data['max_pixel_left']
+            for col_index in range(self.sprite_data['sprite_w_count']):
+                x_coord = (col_index * 50) + self.sprite_data['max_pixel_left']
                 curr_row.append(
                     Tile(
-                        sprite_factory,
-                        sprite_renderer,
-                        window_data,
-                        sprite_data,
+                        data_manager,
                         x_coord,
                         y_coord,
                         row_index,
@@ -66,27 +63,19 @@ class Tile:
     """
     A single tile, representing a single location in the environment.
     """
-    def __init__(
-        self,
-        sprite_factory, sprite_renderer, window_data, sprite_data,
-        window_x_coord, window_y_coord, row_index, col_index,
-        roomba,
-    ):
+    def __init__(self, data_manager, window_x_coord, window_y_coord, row_index, col_index, roomba):
         """
-        :param sprite_factory: Generates sprite objects for SDL2 display.
-        :param sprite_renderer: Renders sprite objects to window.
-        :param window_data: Dict of general window data.
-        :param sprite_data: Dict of general sprite data.
+        :param data_manager:
         :param window_x_coord:
         :param window_y_coord:
         :param row_index:
         :param col_index:
         :param roomba: Roomba/vacuum entity.
         """
-        self.sprite_factory = sprite_factory
-        self.sprite_renderer = sprite_renderer
-        self.window_data = window_data
-        self.sprite_data = sprite_data
+        self.sprite_factory = data_manager.sprite_factory
+        self.sprite_renderer = data_manager.sprite_renderer
+        self.window_data = data_manager.window_data
+        self.sprite_data = data_manager.sprite_data
         self.row_index = row_index
         self.col_index = col_index
         self.x = window_x_coord
@@ -104,7 +93,7 @@ class Tile:
         print('x: {0}    y: {1}'.format(self.col_index, self.row_index))
 
         # Render base tile background.
-        sprite_background = sprite_factory.from_image(RESOURCES.get_path('background.png'))
+        sprite_background = self.sprite_factory.from_image(RESOURCES.get_path('background.png'))
         sprite_background.x = self.x
         sprite_background.y = self.y
         sprite_background.depth = 0
