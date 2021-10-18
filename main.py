@@ -6,7 +6,7 @@ Virtual roomba/vacuum AI project.
 import sdl2.ext
 
 # User Imports.
-from src.entities import Roomba
+from src.entities import Roomba, TileSet
 from src.misc import DataManager
 from src.systems import MovementSystem, SoftwareRendererSystem
 
@@ -28,12 +28,11 @@ def main():
 
     # Initialize general program data to data manager object.
     data_manager, roomba = initialize_data()
-    window = data_manager.window
     world = data_manager.world
+    sprite_renderer = data_manager.sprite_renderer
 
     # Initialize subsystems of world manager.
-    movement = MovementSystem(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
-    sprite_renderer = SoftwareRendererSystem(window)
+    movement = MovementSystem(data_manager, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 
     # Add subsystems to world manager.
     world.add_system(movement)
@@ -108,6 +107,11 @@ def initialize_data():
     sprite_h_start = int(window_center_h - (int(sprite_h_count / 2) * 50))
     sprite_w_end = int(window_center_w + (int(sprite_w_count / 2) * 50))
     sprite_h_end = int(window_center_h + (int(sprite_h_count / 2) * 50))
+    # Account for calculations being off for certain resolutions.
+    if (WINDOW_WIDTH % 100) < 50:
+        sprite_w_end += 50
+    if (WINDOW_HEIGHT % 100) < 50:
+        sprite_h_end += 50
 
     # Correct spacing if width sprite count is odd number.
     if (sprite_w_count % 2) == 1:
@@ -129,10 +133,10 @@ def initialize_data():
     sprite_data = {
         'sprite_w_count': sprite_w_count,
         'sprite_h_count': sprite_h_count,
-        'max_pixel_top': sprite_h_start,
-        'max_pixel_right': sprite_w_end,
-        'max_pixel_bottom': sprite_h_end,
-        'max_pixel_left': sprite_w_start,
+        'max_pixel_north': sprite_h_start,
+        'max_pixel_east': sprite_w_end,
+        'max_pixel_south': sprite_h_end,
+        'max_pixel_west': sprite_w_start,
     }
     print('\n\n')
     print('window_data[total_pixel_w]: {0}'.format(window_data['total_pixel_w']))
@@ -141,10 +145,10 @@ def initialize_data():
     print('window_data[center_pixel_h]: {0}'.format(window_data['center_pixel_h']))
     print('sprite_data[sprite_w_count]: {0}'.format(sprite_data['sprite_w_count']))
     print('sprite_data[sprite_h_count]: {0}'.format(sprite_data['sprite_h_count']))
-    print('sprite_data[max_pixel_top]: {0}'.format(sprite_data['max_pixel_top']))
-    print('sprite_data[max_pixel_right]: {0}'.format(sprite_data['max_pixel_right']))
-    print('sprite_data[max_pixel_bottom]: {0}'.format(sprite_data['max_pixel_bottom']))
-    print('sprite_data[max_pixel_left]: {0}'.format(sprite_data['max_pixel_left']))
+    print('sprite_data[max_pixel_north]: {0}'.format(sprite_data['max_pixel_north']))
+    print('sprite_data[max_pixel_east]: {0}'.format(sprite_data['max_pixel_east']))
+    print('sprite_data[max_pixel_south]: {0}'.format(sprite_data['max_pixel_south']))
+    print('sprite_data[max_pixel_west]: {0}'.format(sprite_data['max_pixel_west']))
     print('\n\n')
 
     # Initialize data manager object.
@@ -153,10 +157,10 @@ def initialize_data():
     # # Initialize roomba object.
     # roomba = Roomba(data_manager.world, data_manager, 0, 0)
     roomba_sprite = sprite_factory.from_image(RESOURCES.get_path('roomba.png'))
-    roomba = Roomba(world, roomba_sprite, 125, 125)
+    roomba = Roomba(world, roomba_sprite, data_manager, 0, 0)
 
     # Generate all sprite tiles.
-    # TileSet(data_manager, roomba)
+    TileSet(data_manager, roomba)
 
     # Return generated window object.
     return data_manager, roomba

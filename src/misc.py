@@ -1,10 +1,9 @@
 """
-
+Misc helper classes.
 """
 
 # System Imports.
 import sdl2.ext
-from abc import ABC, abstractmethod
 
 
 # Module Variables.

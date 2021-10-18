@@ -26,9 +26,15 @@ class MovementSystem(sdl2.ext.Applicator):
     """
     System that handles movement of entities.
     """
-    def __init__(self, min_x, min_y, max_x, max_y):
-        super(MovementSystem, self).__init__()
+    def __init__(self, data_manager, min_x, min_y, max_x, max_y):
+        # Call parent logic.
+        super().__init__()
+
+        # Save component types values. Necessary for SDL2 system handling.
         self.componenttypes = Movement, sdl2.ext.Sprite
+
+        # Save class variables.
+        self.data_manager = data_manager
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
@@ -59,14 +65,25 @@ class MovementSystem(sdl2.ext.Applicator):
             movement_tick.south = False
             movement_tick.west = False
 
-            # Verify that sprite is still within left/upper screen bounds.
-            sprite.x = max(self.min_x, sprite.x)
-            sprite.y = max(self.min_y, sprite.y)
+            # For below, we verify that sprite's new location is within bounds.
+            # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
 
-            # Verify that sprite is still within right/lower screen bounds.
-            pmaxx = sprite.x + sprite_width
-            pmaxy = sprite.y + sprite_height
-            if pmaxx > self.max_x:
-                sprite.x = self.max_x - sprite_width
-            if pmaxy > self.max_y:
-                sprite.y = self.max_y - sprite_height
+            # Verify that sprite is still within north (upper) screen bounds.
+            north_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_north'])
+            sprite.y = max(north_max, sprite.y)
+
+            # Verify that sprite is still within east (right) screen bounds.
+            sprite_right = sprite.x + sprite_width
+            east_max = min(self.max_x, self.data_manager.sprite_data['max_pixel_east'])
+            if sprite_right > east_max:
+                sprite.x = east_max - sprite_width
+
+            # Verify that sprite is still within south (bottom) screen bounds.
+            sprite_lower = sprite.y + sprite_height
+            south_max = min(self.max_y, self.data_manager.sprite_data['max_pixel_south'])
+            if sprite_lower > south_max:
+                sprite.y = south_max - sprite_height
+
+            # Verify that sprite is still within west (left) screen bounds.
+            west_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_west'])
+            sprite.x = max(west_max, sprite.x)
