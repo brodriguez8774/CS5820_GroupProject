@@ -45,17 +45,24 @@ class MovementSystem(sdl2.ext.Applicator):
             # Get sprite size in pixels.
             sprite_width, sprite_height = sprite.size
 
+            # Calculate tile location from pixels.
+            pos_x = sprite.x
+            pos_y = sprite.y
+            tile_x = int((pos_x - self.data_manager.sprite_data['max_pixel_west']) / 50)
+            tile_y = int((pos_y - self.data_manager.sprite_data['max_pixel_north']) / 50)
+            curr_tile = self.data_manager.tile_set.tiles[tile_y][tile_x]
+
             # Check if any movement directions are active for tick.
-            if movement_tick.north:
+            if movement_tick.north and not curr_tile.walls.has_wall_north:
                 # Move north (upward).
                 sprite.y -= 50
-            elif movement_tick.east:
+            elif movement_tick.east and not curr_tile.walls.has_wall_east:
                 # Move east (right).
                 sprite.x += 50
-            elif movement_tick.south:
+            elif movement_tick.south and not curr_tile.walls.has_wall_south:
                 # Move south (down).
                 sprite.y += 50
-            elif movement_tick.west:
+            elif movement_tick.west and not curr_tile.walls.has_wall_west:
                 # Move west (left).
                 sprite.x -= 50
 
