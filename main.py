@@ -63,10 +63,10 @@ def main():
 
                 # Get mouse click (x, y) coordinate position.
                 pos_x, pos_y = ctypes.c_int(0), ctypes.c_int(0)
-                sdl2.mouse.SDL_GetMouseState(ctypes.byref(pos_x), ctypes.byref(pos_y))
+                button_state = sdl2.mouse.SDL_GetMouseState(ctypes.byref(pos_x), ctypes.byref(pos_y))
 
                 # Handle click for location.
-                handle_mouse_click(data_manager, pos_x.value, pos_y.value)
+                handle_mouse_click(data_manager, button_state, pos_x.value, pos_y.value)
 
             # Handle for key press.
             if event.type == sdl2.SDL_KEYDOWN:

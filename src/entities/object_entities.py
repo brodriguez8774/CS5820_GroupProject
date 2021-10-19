@@ -1,12 +1,18 @@
 """
 Living entities that have sprites and display to renderer window.
+
+Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones):
+ * Roomba: 3
+ * Active Wall: 2
+ * Floor Tile: 1
+ * Hidden/Unused Sprites: 0
 """
 
 # System Imports.
 import sdl2.ext
 
 # User Imports.
-from .system_entities import Movement
+from .system_entities import Movement, Walls
 
 
 # Module Variables.
@@ -30,7 +36,7 @@ class Roomba(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping.
-        self.sprite.depth = 2
+        self.sprite.depth = 3
 
 
 class Tile(sdl2.ext.Entity):
@@ -49,38 +55,20 @@ class Tile(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping.
-        self.sprite.depth = 0
+        self.sprite.depth = 1
 
-        # Handle for edge tile walls.
-        self.has_walls = False
-        self.has_wall_north = False
-        self.has_wall_east = False
-        self.has_wall_south = False
-        self.has_wall_west = False
-
-        if tile_y == 0:
-            self.has_walls = True
-            self.has_wall_north = True
-            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_north.png'))
-            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
-
-        if tile_x == (data_manager.sprite_data['sprite_w_count'] - 1):
-            self.has_walls = True
-            self.has_wall_east = True
-            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_east.png'))
-            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
-
-        if tile_y == (data_manager.sprite_data['sprite_h_count'] - 1):
-            self.has_walls = True
-            self.has_wall_south = True
-            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_south.png'))
-            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
-
-        if tile_x == 0:
-            self.has_walls = True
-            self.has_wall_west = True
-            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_west.png'))
-            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
+        # Initialize tile wall data.
+        wall_sprite_north = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_north.png'))
+        wall_sprite_east = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_east.png'))
+        wall_sprite_south = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_south.png'))
+        wall_sprite_west = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_west.png'))
+        wall_data = {
+            'north': TileWall(world, wall_sprite_north, data_manager, tile_x=tile_x, tile_y=tile_y),
+            'east': TileWall(world, wall_sprite_east, data_manager, tile_x=tile_x, tile_y=tile_y),
+            'south': TileWall(world, wall_sprite_south, data_manager, tile_x=tile_x, tile_y=tile_y),
+            'west': TileWall(world, wall_sprite_west, data_manager, tile_x=tile_x, tile_y=tile_y),
+        }
+        self.walls = Walls(data_manager, tile_x, tile_y, wall_data)
 
 
 class TileWall(sdl2.ext.Entity):
@@ -99,8 +87,8 @@ class TileWall(sdl2.ext.Entity):
         self.sprite.tile = tile_x, tile_y
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
-        # Set entity depth mapping.
-        self.sprite.depth = 1
+        # Set entity depth mapping. Defaults to 0 so it's hidden from view.
+        self.sprite.depth = 0
 
 
 class TileSet:
@@ -115,7 +103,7 @@ class TileSet:
         self.sprite_renderer = data_manager.sprite_renderer
         self.window_data = data_manager.window_data
         self.sprite_data = data_manager.sprite_data
-        self.tile_set = []
+        self.tiles = []
 
         # Initialize all tiles.
         for row_index in range(self.sprite_data['sprite_h_count']):
@@ -136,7 +124,7 @@ class TileSet:
                 )
 
             # Set full row to tile set.
-            self.tile_set.append(curr_row)
+            self.tiles.append(curr_row)
 
 
 # class TrashBall(BaseEntity):

@@ -61,18 +61,16 @@ def handle_key_press(data_manager, event):
         roomba.movement.west = True
 
 
-def handle_mouse_click(data_manager, pos_x, pos_y):
+def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
     """
     Handles mouse click event when running program.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    :param button_state: State of button on event. 1 = LeftClick, 2 = MiddleClick, 4 = RightClick.
     :param pos_x: Mouse click x coordinate.
     :param pos_y: Mouse click y coordinate.
     """
-    # logger.info('sprite_data[max_pixel_north]: {0}'.format(sprite_data['max_pixel_north']))
-    # logger.info('sprite_data[max_pixel_east]: {0}'.format(sprite_data['max_pixel_east']))
-    # logger.info('sprite_data[max_pixel_south]: {0}'.format(sprite_data['max_pixel_south']))
-    # logger.info('sprite_data[max_pixel_west]: {0}'.format(sprite_data['max_pixel_west']))
     logger.info('pos_x.value: {0}    pos_y.value: {1}'.format(pos_x, pos_y))
+    logger.info('buttonstate: {0}'.format(button_state))
 
     # First, verify that click location is within tile grid bounds. If not, we ignore click.
     sprite_data = data_manager.sprite_data
@@ -81,9 +79,23 @@ def handle_mouse_click(data_manager, pos_x, pos_y):
         (pos_y > sprite_data['max_pixel_north'] and pos_y < sprite_data['max_pixel_south'])
     ):
         # Click was within tile bounds. Calculate clicked tile.
-        logger.info('    is within bounds.')
+        logger.info('    Is within bounds.')
         tile_x = int((pos_x - sprite_data['max_pixel_west']) / 50)
         tile_y = int((pos_y - sprite_data['max_pixel_north']) / 50)
-        logger.info('    found tile is    x: {0}    y: {1}'.format(tile_x, tile_y))
+        logger.info('    Found tile is    x: {0}    y: {1}'.format(tile_x, tile_y))
+
+        # Get clicked tile object.
+        tile = data_manager.tile_set.tiles[tile_y][tile_x]
+
+        # Check what click type occurred.
+        if button_state == 1:
+            # Left click.
+            tile.walls.increment_wall_state()
+        elif button_state == 2:
+            # Middle click. Clear tile.
+            tile.walls.wall_state = 0
+        elif button_state == 4:
+            # Right click.
+            tile.walls.decriment_wall_state()
 
 # endregion Handler Functions
