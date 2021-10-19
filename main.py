@@ -3,11 +3,12 @@ Virtual roomba/vacuum AI project.
 """
 
 # System Imports.
+import ctypes
 import sdl2.ext
 
 # User Imports.
 from src.entities import Roomba, TileSet
-from src.misc import DataManager
+from src.misc import DataManager, handle_key_press, handle_mouse_click
 from src.systems import MovementSystem, SoftwareRendererSystem
 
 
@@ -27,7 +28,7 @@ def main():
     sdl2.ext.init()
 
     # Initialize general program data to data manager object.
-    data_manager, roomba = initialize_data()
+    data_manager = initialize_data()
     world = data_manager.world
     sprite_renderer = data_manager.sprite_renderer
 
@@ -37,12 +38,6 @@ def main():
     # Add subsystems to world manager.
     world.add_system(movement)
     world.add_system(sprite_renderer)
-
-    # Initialize sprites.
-    # sprite_factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
-    # roomba_sprite = sprite_factory.from_image(RESOURCES.get_path('roomba.png'))
-    #
-    # roomba = Roomba(world, roomba_sprite, 125, 125)
 
     # Run program loop.
     run_program = True
@@ -57,20 +52,21 @@ def main():
                 run_program = False
                 break
 
-            # Handle for key up.
+            # Handle for mouse click.
+            if event.type == sdl2.SDL_MOUSEBUTTONDOWN:
+                print('\nMouse button clicked.')
+
+                # Get mouse click (x, y) coordinate position.
+                pos_x, pos_y = ctypes.c_int(0), ctypes.c_int(0)
+                sdl2.mouse.SDL_GetMouseState(ctypes.byref(pos_x), ctypes.byref(pos_y))
+
+                # Handle click for location.
+                handle_mouse_click(data_manager, pos_x.value, pos_y.value)
+
+            # Handle for key press.
             if event.type == sdl2.SDL_KEYDOWN:
-
-                if event.key.keysym.sym in [sdl2.SDLK_UP, sdl2.SDLK_w]:
-                    roomba.movement.north = True
-
-                elif event.key.keysym.sym in [sdl2.SDLK_RIGHT, sdl2.SDLK_d]:
-                    roomba.movement.east = True
-
-                elif event.key.keysym.sym in [sdl2.SDLK_DOWN, sdl2.SDLK_s]:
-                    roomba.movement.south = True
-
-                elif event.key.keysym.sym in [sdl2.SDLK_LEFT, sdl2.SDLK_a]:
-                    roomba.movement.west = True
+                print('\nKey button pressed.')
+                handle_key_press(data_manager, event)
 
         # Update render window.
         world.process()
@@ -82,7 +78,7 @@ def main():
 def initialize_data():
     """
     Initializes data for program start.
-    :return: (DataManager object with all starting data, Roomba/Vacuum object).
+    :return: "Data Manager" data structure object. Consolidates useful program data to one location.
     """
     # Initialize render window.
     window = sdl2.ext.Window('CS 5820 - Virtual Roomba/Vacuum AI Project', size=(WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -154,16 +150,15 @@ def initialize_data():
     # Initialize data manager object.
     data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, sprite_data)
 
-    # # Initialize roomba object.
-    # roomba = Roomba(data_manager.world, data_manager, 0, 0)
+    # Initialize roomba object.
     roomba_sprite = sprite_factory.from_image(RESOURCES.get_path('roomba.png'))
-    roomba = Roomba(world, roomba_sprite, data_manager, 0, 0)
+    data_manager.roomba = Roomba(world, roomba_sprite, data_manager, 0, 0)
 
     # Generate all sprite tiles.
-    TileSet(data_manager, roomba)
+    data_manager.tile_set = TileSet(data_manager)
 
     # Return generated window object.
-    return data_manager, roomba
+    return data_manager
 
 
 if __name__ == '__main__':
