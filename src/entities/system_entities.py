@@ -559,7 +559,7 @@ class Walls:
 
             # Update adjacent tile variables.
             # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set:
+            if self.data_manager.tile_set and self.tile_y > 0:
                 adj_tile = self.data_manager.tile_set.tiles[self.tile_y - 1][self.tile_x]
                 # Prevent infinite loops.
                 if not adj_tile.walls.has_wall_south:
@@ -614,7 +614,7 @@ class Walls:
 
             # Update adjacent tile variables.
             # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set:
+            if self.data_manager.tile_set and self.tile_x < (self.data_manager.sprite_data['sprite_w_count'] - 1):
                 adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
                 # Prevent infinite loops.
                 if not adj_tile.walls.has_wall_west:
@@ -669,7 +669,7 @@ class Walls:
 
             # Update adjacent tile variables.
             # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set:
+            if self.data_manager.tile_set and self.tile_y < (self.data_manager.sprite_data['sprite_h_count'] - 1):
                 adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
                 # Prevent infinite loops.
                 if not adj_tile.walls.has_wall_north:
@@ -724,7 +724,7 @@ class Walls:
 
             # Update adjacent tile variables.
             # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set:
+            if self.data_manager.tile_set and self.tile_x > 0:
                 adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x - 1]
                 # Prevent infinite loops.
                 if not adj_tile.walls.has_wall_east:
