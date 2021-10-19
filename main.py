@@ -8,8 +8,13 @@ import sdl2.ext
 
 # User Imports.
 from src.entities import Roomba, TileSet
+from src.logging import init_logging
 from src.misc import DataManager, handle_key_press, handle_mouse_click
 from src.systems import MovementSystem, SoftwareRendererSystem
+
+
+# Initialize logger.
+logger = init_logging(__name__)
 
 
 # Module Variables.
@@ -54,7 +59,7 @@ def main():
 
             # Handle for mouse click.
             if event.type == sdl2.SDL_MOUSEBUTTONDOWN:
-                print('\nMouse button clicked.')
+                logger.debug('Mouse button clicked.')
 
                 # Get mouse click (x, y) coordinate position.
                 pos_x, pos_y = ctypes.c_int(0), ctypes.c_int(0)
@@ -65,7 +70,7 @@ def main():
 
             # Handle for key press.
             if event.type == sdl2.SDL_KEYDOWN:
-                print('\nKey button pressed.')
+                logger.debug('Key button pressed.')
                 handle_key_press(data_manager, event)
 
         # Update render window.
@@ -134,18 +139,20 @@ def initialize_data():
         'max_pixel_south': sprite_h_end,
         'max_pixel_west': sprite_w_start,
     }
-    print('\n\n')
-    print('window_data[total_pixel_w]: {0}'.format(window_data['total_pixel_w']))
-    print('window_data[total_pixel_h]: {0}'.format(window_data['total_pixel_h']))
-    print('window_data[center_pixel_w]: {0}'.format(window_data['center_pixel_w']))
-    print('window_data[center_pixel_h]: {0}'.format(window_data['center_pixel_h']))
-    print('sprite_data[sprite_w_count]: {0}'.format(sprite_data['sprite_w_count']))
-    print('sprite_data[sprite_h_count]: {0}'.format(sprite_data['sprite_h_count']))
-    print('sprite_data[max_pixel_north]: {0}'.format(sprite_data['max_pixel_north']))
-    print('sprite_data[max_pixel_east]: {0}'.format(sprite_data['max_pixel_east']))
-    print('sprite_data[max_pixel_south]: {0}'.format(sprite_data['max_pixel_south']))
-    print('sprite_data[max_pixel_west]: {0}'.format(sprite_data['max_pixel_west']))
-    print('\n\n')
+    logger.info('')
+    logger.info('')
+    logger.info('window_data[total_pixel_w]: {0}'.format(window_data['total_pixel_w']))
+    logger.info('window_data[total_pixel_h]: {0}'.format(window_data['total_pixel_h']))
+    logger.info('window_data[center_pixel_w]: {0}'.format(window_data['center_pixel_w']))
+    logger.info('window_data[center_pixel_h]: {0}'.format(window_data['center_pixel_h']))
+    logger.info('sprite_data[sprite_w_count]: {0}'.format(sprite_data['sprite_w_count']))
+    logger.info('sprite_data[sprite_h_count]: {0}'.format(sprite_data['sprite_h_count']))
+    logger.info('sprite_data[max_pixel_north]: {0}'.format(sprite_data['max_pixel_north']))
+    logger.info('sprite_data[max_pixel_east]: {0}'.format(sprite_data['max_pixel_east']))
+    logger.info('sprite_data[max_pixel_south]: {0}'.format(sprite_data['max_pixel_south']))
+    logger.info('sprite_data[max_pixel_west]: {0}'.format(sprite_data['max_pixel_west']))
+    logger.info('')
+    logger.info('')
 
     # Initialize data manager object.
     data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, sprite_data)
@@ -162,8 +169,8 @@ def initialize_data():
 
 
 if __name__ == '__main__':
-    print('Starting program.')
+    logger.info('Starting program.')
 
     main()
 
-    print('Terminating program.')
+    logger.info('Terminating program.')

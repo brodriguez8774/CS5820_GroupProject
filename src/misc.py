@@ -1,9 +1,16 @@
 """
-Misc helper classes.
+Misc helper functions and classes.
 """
 
 # System Imports.
 import sdl2.ext
+
+# User Imports.
+from src.logging import init_logging
+
+
+# Initialize logger.
+logger = init_logging(__name__)
 
 
 # Module Variables.
@@ -61,11 +68,11 @@ def handle_mouse_click(data_manager, pos_x, pos_y):
     :param pos_x: Mouse click x coordinate.
     :param pos_y: Mouse click y coordinate.
     """
-    # print('sprite_data[max_pixel_north]: {0}'.format(sprite_data['max_pixel_north']))
-    # print('sprite_data[max_pixel_east]: {0}'.format(sprite_data['max_pixel_east']))
-    # print('sprite_data[max_pixel_south]: {0}'.format(sprite_data['max_pixel_south']))
-    # print('sprite_data[max_pixel_west]: {0}'.format(sprite_data['max_pixel_west']))
-    print('pos_x.value: {0}    pos_y.value: {1}'.format(pos_x, pos_y))
+    # logger.info('sprite_data[max_pixel_north]: {0}'.format(sprite_data['max_pixel_north']))
+    # logger.info('sprite_data[max_pixel_east]: {0}'.format(sprite_data['max_pixel_east']))
+    # logger.info('sprite_data[max_pixel_south]: {0}'.format(sprite_data['max_pixel_south']))
+    # logger.info('sprite_data[max_pixel_west]: {0}'.format(sprite_data['max_pixel_west']))
+    logger.info('pos_x.value: {0}    pos_y.value: {1}'.format(pos_x, pos_y))
 
     # First, verify that click location is within tile grid bounds. If not, we ignore click.
     sprite_data = data_manager.sprite_data
@@ -74,9 +81,9 @@ def handle_mouse_click(data_manager, pos_x, pos_y):
         (pos_y > sprite_data['max_pixel_north'] and pos_y < sprite_data['max_pixel_south'])
     ):
         # Click was within tile bounds. Calculate clicked tile.
-        print('    is within bounds.')
+        logger.info('    is within bounds.')
         tile_x = int((pos_x - sprite_data['max_pixel_west']) / 50)
         tile_y = int((pos_y - sprite_data['max_pixel_north']) / 50)
-        print('    found tile is    x: {0}    y: {1}'.format(tile_x, tile_y))
+        logger.info('    found tile is    x: {0}    y: {1}'.format(tile_x, tile_y))
 
 # endregion Handler Functions
