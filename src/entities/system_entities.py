@@ -271,6 +271,147 @@ class Walls:
         # Save value to class.
         self.wall_state = wall_state
 
+    def get_new_state(self):
+        """
+        Determine new state counter, based on internal wall data.
+        :return:
+        """
+        # All walls inactive.
+        if (
+
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 0
+
+        # Only north wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 1
+
+        # Only east wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 2
+
+        # Only south wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 3
+
+        # Only west wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 4
+
+        # North and east walls active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 5
+
+        # North and south walls active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 6
+
+        # North and west walls active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 7
+
+        # East and south walls active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 8
+
+        # East and west walls active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 9
+
+        # South and west walls active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is True
+        ):
+            return 10
+
+        # All except north wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is True and
+            self.has_wall_west is True
+        ):
+            return 11
+
+        # All except east wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is True
+        ):
+            return 12
+
+        # All except south wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 13
+
+        # All except west wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is True and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 14
+
     @property
     def wall_state(self):
         return self._wall_state
@@ -414,6 +555,15 @@ class Walls:
             # Update tile management variables.
             self.has_walls = True
             self._has_wall_north = True
+            self._wall_state = self.get_new_state()
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y - 1][self.tile_x]
+                # Prevent infinite loops.
+                if not adj_tile.walls.has_wall_south:
+                    adj_tile.walls.has_wall_south = True
 
         else:
             # Setting to False.
@@ -423,6 +573,7 @@ class Walls:
 
             # Update tile management variables.
             self._has_wall_north = False
+            self._wall_state = self.get_new_state()
             if (
                 not self.has_wall_north and
                 not self.has_wall_east and
@@ -430,6 +581,14 @@ class Walls:
                 not self.has_wall_west
             ):
                 self.has_walls = False
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y - 1][self.tile_x]
+                # Prevent infinite loops.
+                if adj_tile.walls.has_wall_south:
+                    adj_tile.walls.has_wall_south = False
 
     @property
     def has_wall_east(self):
@@ -451,6 +610,15 @@ class Walls:
             # Update tile management variables.
             self.has_walls = True
             self._has_wall_east = True
+            self._wall_state = self.get_new_state()
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
+                # Prevent infinite loops.
+                if not adj_tile.walls.has_wall_west:
+                    adj_tile.walls.has_wall_west = True
 
         else:
             # Setting to False.
@@ -460,6 +628,7 @@ class Walls:
 
             # Update tile management variables.
             self._has_wall_east = False
+            self._wall_state = self.get_new_state()
             if (
                 not self.has_wall_north and
                 not self.has_wall_east and
@@ -467,6 +636,14 @@ class Walls:
                 not self.has_wall_west
             ):
                 self.has_walls = False
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
+                # Prevent infinite loops.
+                if adj_tile.walls.has_wall_west:
+                    adj_tile.walls.has_wall_west = False
 
     @property
     def has_wall_south(self):
@@ -488,6 +665,15 @@ class Walls:
             # Update tile management variables.
             self.has_walls = True
             self._has_wall_south = True
+            self._wall_state = self.get_new_state()
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
+                # Prevent infinite loops.
+                if not adj_tile.walls.has_wall_north:
+                    adj_tile.walls.has_wall_north = True
 
         else:
             # Setting to False.
@@ -497,6 +683,7 @@ class Walls:
 
             # Update tile management variables.
             self._has_wall_south = False
+            self._wall_state = self.get_new_state()
             if (
                 not self.has_wall_north and
                 not self.has_wall_east and
@@ -504,6 +691,14 @@ class Walls:
                 not self.has_wall_west
             ):
                 self.has_walls = False
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
+                # Prevent infinite loops.
+                if adj_tile.walls.has_wall_north:
+                    adj_tile.walls.has_wall_north = False
 
     @property
     def has_wall_west(self):
@@ -525,6 +720,15 @@ class Walls:
             # Update tile management variables.
             self.has_walls = True
             self._has_wall_west = True
+            self._wall_state = self.get_new_state()
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x - 1]
+                # Prevent infinite loops.
+                if not adj_tile.walls.has_wall_east:
+                    adj_tile.walls.has_wall_east = True
 
         else:
             # Setting to False.
@@ -534,6 +738,7 @@ class Walls:
 
             # Update tile management variables.
             self._has_wall_west = False
+            self._wall_state = self.get_new_state()
             if (
                 not self.has_wall_north and
                 not self.has_wall_east and
@@ -541,3 +746,11 @@ class Walls:
                 not self.has_wall_west
             ):
                 self.has_walls = False
+
+            # Update adjacent tile variables.
+            # Note we only handle this if full tileset has been initialized.
+            if self.data_manager.tile_set:
+                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x - 1]
+                # Prevent infinite loops.
+                if adj_tile.walls.has_wall_east:
+                    adj_tile.walls.has_wall_east = False
