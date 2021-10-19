@@ -30,7 +30,7 @@ class Roomba(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping.
-        self.sprite.depth = 1
+        self.sprite.depth = 2
 
 
 class Tile(sdl2.ext.Entity):
@@ -50,6 +50,57 @@ class Tile(sdl2.ext.Entity):
 
         # Set entity depth mapping.
         self.sprite.depth = 0
+
+        # Handle for edge tile walls.
+        self.has_walls = False
+        self.has_wall_north = False
+        self.has_wall_east = False
+        self.has_wall_south = False
+        self.has_wall_west = False
+
+        if tile_y == 0:
+            self.has_walls = True
+            self.has_wall_north = True
+            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_north.png'))
+            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
+
+        if tile_x == (data_manager.sprite_data['sprite_w_count'] - 1):
+            self.has_walls = True
+            self.has_wall_east = True
+            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_east.png'))
+            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
+
+        if tile_y == (data_manager.sprite_data['sprite_h_count'] - 1):
+            self.has_walls = True
+            self.has_wall_south = True
+            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_south.png'))
+            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
+
+        if tile_x == 0:
+            self.has_walls = True
+            self.has_wall_west = True
+            wall_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_west.png'))
+            TileWall(world, wall_sprite, data_manager, tile_x=tile_x, tile_y=tile_y)
+
+
+class TileWall(sdl2.ext.Entity):
+    """
+    A single wall on a tile.
+    Represents a barrier in one of the four directions (north, south, east, west).
+    """
+    def __init__(self, world, sprite, data_manager, tile_x=0, tile_y=0):
+        # Set entity display image.
+        self.sprite = sprite
+
+        # Define world systems which affect entity.
+        self.movement = Movement(data_manager)
+
+        # Set entity location tracking.
+        self.sprite.tile = tile_x, tile_y
+        self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
+
+        # Set entity depth mapping.
+        self.sprite.depth = 1
 
 
 class TileSet:
