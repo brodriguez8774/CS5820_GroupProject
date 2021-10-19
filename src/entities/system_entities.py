@@ -52,25 +52,50 @@ class Walls:
         self.has_walls = False
         self._wall_state = 0
         self._wall_state_max = 14
+        self._disallowed_states = []
         self._has_wall_north = False
         self._has_wall_east = False
         self._has_wall_south = False
         self._has_wall_west = False
+
         if tile_y == 0:
             # Set north (upper) wall to active.
-            self.has_wall_north = True
+            self.wall_state = 1
+
+            # Update tile disallowed states.
+            self._disallowed_states += [0, 2, 3, 4, 8, 9, 10, 11]
 
         if tile_x == (data_manager.sprite_data['sprite_w_count'] - 1):
             # Set east (right) wall to active.
-            self.has_wall_east = True
+            if self.wall_state == 0:
+                self.wall_state = 2
+            else:
+                self.wall_state = 5
+
+            # Update tile disallowed states.
+            self._disallowed_states += [0, 1, 3, 4, 6, 7, 10, 12]
 
         if tile_y == (data_manager.sprite_data['sprite_h_count'] - 1):
             # Set south (lower) wall to active.
-            self.has_wall_south = True
+            if self.wall_state == 0:
+                self.wall_state = 3
+            else:
+                self.wall_state = 8
+
+            # Update tile disallowed states.
+            self._disallowed_states += [0, 1, 2, 4, 5, 7, 9, 13]
 
         if tile_x == 0:
             # Set west (left) wall to active.
-            self.has_wall_west = True
+            if self.wall_state == 0:
+                self.wall_state = 4
+            elif self.wall_state == 1:
+                self.wall_state = 7
+            else:
+                self.wall_state = 10
+
+            # Update tile disallowed states.
+            self._disallowed_states += [0, 1, 2, 3, 5, 6, 8, 14]
 
     def increment_wall_state(self):
         """
@@ -82,6 +107,79 @@ class Walls:
         # Verify state is still valid value.
         if wall_state > self._wall_state_max:
             wall_state = 0
+
+        # Skip certain state values for outer tiles.
+        # Handle for north (upper) edge tiles.
+        if self.tile_y == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
+
+        # Handle for east (left) edge tiles.
+        if self.tile_x == (self.data_manager.sprite_data['sprite_w_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
+
+        # Handle for south (lower) edge tiles.
+        if self.tile_y == (self.data_manager.sprite_data['sprite_h_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
+
+        # Handle for west (right) edge tiles.
+        if self.tile_x == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
 
         # Save value to class.
         self.wall_state = wall_state
@@ -96,6 +194,79 @@ class Walls:
         # Verify state is still valid value.
         if wall_state < 0:
             wall_state = self._wall_state_max
+
+        # Skip certain state values for outer tiles.
+        # Handle for north (upper) edge tiles.
+        if self.tile_y == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
+
+        # Handle for east (left) edge tiles.
+        if self.tile_x == (self.data_manager.sprite_data['sprite_w_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
+
+        # Handle for south (lower) edge tiles.
+        if self.tile_y == (self.data_manager.sprite_data['sprite_h_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
+
+        # Handle for west (right) edge tiles.
+        if self.tile_x == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
 
         # Save value to class.
         self.wall_state = wall_state
