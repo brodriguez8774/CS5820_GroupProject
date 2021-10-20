@@ -3,7 +3,7 @@ System entities that hold general system/world data in some manner.
 """
 
 # System Imports.
-import logging
+import logging, random
 import sdl2.ext
 
 # User Imports.
@@ -767,6 +767,11 @@ class TrashPile:
         self.tile_x = tile_x
         self.tile_y = tile_y
         self.exists = False
+
+        # Default with trash on roughly 10% of all tiles.
+        total_tiles = data_manager.sprite_data['sprite_w_count'] * data_manager.sprite_data['sprite_h_count']
+        if random.randint(0, (total_tiles % 10)) < 1:
+            self.place()
 
     def place(self):
         """
