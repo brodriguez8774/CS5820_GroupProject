@@ -24,18 +24,20 @@ In a terminal with the above virtual environment loaded, change to project root 
 
 
 ## Using the Project
-Currently, there is no AI involved. Project only has a barebones top-down grid-based environment, plus a "roomba"
-entity.
+Currently, there is no AI involved. Project only has a barebones top-down grid-based environment, trash pile entities,
+plus a "roomba" entity.
 
 
 Clicking any tile will change the walls of that tile:
 * Left click - Walks forward through wall options.
-* Middle click - Resets tile to have no walls.
+* Middle click - Adds trash if no walls on tile. Removes trash if present on tile. Otherwise, resets tile to have no
+walls.
 * Right click - Walks backward through wall options.
 
 
 Roomba can be moved with standard arrow key movement (or asdw).<br>
-Roomba cannot move through walls.
+Roomba cannot move through walls.<br>
+Upon occupying the same tile as a trash pile, the roomba will remove the trash.
 
 
 Any tiles on the outer edge of the grid MUST have a wall along the outer border.
