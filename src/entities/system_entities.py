@@ -3,6 +3,7 @@ System entities that hold general system/world data in some manner.
 """
 
 # System Imports.
+import logging
 import sdl2.ext
 
 # User Imports.
@@ -754,3 +755,48 @@ class Walls:
                 # Prevent infinite loops.
                 if adj_tile.walls.has_wall_east:
                     adj_tile.walls.has_wall_east = False
+
+
+class TrashPile:
+    """
+    Holds "trashpile" data for a "tile" entity.
+    """
+    def __init__(self, data_manager, trash_entity, tile_x, tile_y):
+        self.data_manager = data_manager
+        self.trash = trash_entity
+        self.tile_x = tile_x
+        self.tile_y = tile_y
+        self.exists = False
+
+    def place(self):
+        """
+        Attempts to place trash on file.
+        :return: Bool indicating if trash was successfully placed.
+        """
+        if self.exists:
+            logging.info('Tile ({0}, {1}) already has trash.'.format(self.tile_x, self.tile_y))
+            return False
+        else:
+            logging.info('Placed trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
+
+            # Update tile data.
+            self.trash.sprite.depth = 3
+
+            # Update internal trackers.
+            self.exists = True
+            return True
+
+    def clean(self):
+        """
+        Attempts to clean tile of trash, if any is present.
+        """
+        if self.exists:
+            logging.info('Cleaned trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
+
+            # Update tile data.
+            self.trash.sprite.depth = 0
+
+            # Update internal trackers.
+            self.exists = False
+        else:
+            logging.info('No trash to clean at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))

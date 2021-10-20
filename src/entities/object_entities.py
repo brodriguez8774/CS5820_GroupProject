@@ -2,7 +2,8 @@
 Living entities that have sprites and display to renderer window.
 
 Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones):
- * Roomba: 3
+ * Roomba: 4
+ * TrashBall: 3
  * Active Wall: 2
  * Floor Tile: 1
  * Hidden/Unused Sprites: 0
@@ -12,7 +13,7 @@ Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones
 import sdl2.ext
 
 # User Imports.
-from .system_entities import Movement, Walls
+from .system_entities import Movement, TrashPile, Walls
 
 
 # Module Variables.
@@ -36,7 +37,7 @@ class Roomba(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping.
-        self.sprite.depth = 3
+        self.sprite.depth = 4
 
 
 class Tile(sdl2.ext.Entity):
@@ -69,6 +70,11 @@ class Tile(sdl2.ext.Entity):
             'west': TileWall(world, wall_sprite_west, data_manager, tile_x=tile_x, tile_y=tile_y),
         }
         self.walls = Walls(data_manager, tile_x, tile_y, wall_data)
+
+        # Initialize tile trash data.
+        trash_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('trash.png'))
+        trash_entity = Trash(world, trash_sprite, data_manager, tile_x, tile_y)
+        self.trashpile = TrashPile(data_manager, trash_entity, tile_x, tile_y)
 
 
 class TileWall(sdl2.ext.Entity):
@@ -127,13 +133,20 @@ class TileSet:
             self.tiles.append(curr_row)
 
 
-# class TrashBall(BaseEntity):
-#     """
-#     An instance of "trash" occupying a single square.
-#     """
-#     def __init__(self, world, data_manager, tile_x_pos, tile_y_pos, sprite=None):
-#         # Call parent logic.
-#         super().__init__(world, data_manager, tile_x_pos, tile_y_pos, sprite=sprite)
-#
-#         # Set drawing order.
-#         self.sprite.depth = 1
+class Trash(sdl2.ext.Entity):
+    """
+    An instance of "trash" occupying a single square.
+    """
+    def __init__(self, world, sprite, data_manager, tile_x=0, tile_y=0):
+        # Set entity display image.
+        self.sprite = sprite
+
+        # Define world systems which affect entity.
+        self.movement = Movement(data_manager)
+
+        # Set entity location tracking.
+        self.sprite.tile = tile_x, tile_y
+        self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
+
+        # Set entity depth mapping. Defaults to 0 so it's hidden from view.
+        self.sprite.depth = 0

@@ -91,9 +91,22 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
         if button_state == 1:
             # Left click.
             tile.walls.increment_wall_state()
+
         elif button_state == 2:
-            # Middle click. Clear tile.
-            tile.walls.wall_state = 0
+            # Middle click.
+
+            # If tile is empty and no trash, generate some.
+            if not tile.walls.has_walls and not tile.trashpile.exists:
+                tile.trashpile.place()
+
+            # Else if tile is empty and has trash, remove.
+            elif tile.trashpile.exists:
+                tile.trashpile.clean()
+
+            # Otherwise reset wall state.
+            else:
+                tile.walls.wall_state = 0
+
         elif button_state == 4:
             # Right click.
             tile.walls.decriment_wall_state()
