@@ -3,10 +3,15 @@ System entities that hold general system/world data in some manner.
 """
 
 # System Imports.
-import logging, random
+import random
 import sdl2.ext
 
 # User Imports.
+from src.logging import init_logging
+
+
+# Initialize logger.
+logger = init_logging(__name__)
 
 
 # Module Variables.
@@ -779,10 +784,10 @@ class TrashPile:
         :return: Bool indicating if trash was successfully placed.
         """
         if self.exists:
-            logging.info('Tile ({0}, {1}) already has trash.'.format(self.tile_x, self.tile_y))
+            logger.info('Tile ({0}, {1}) already has trash.'.format(self.tile_x, self.tile_y))
             return False
         else:
-            logging.info('Placed trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
+            logger.info('Placed trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
 
             # Update tile data.
             self.trash.sprite.depth = 3
@@ -796,7 +801,7 @@ class TrashPile:
         Attempts to clean tile of trash, if any is present.
         """
         if self.exists:
-            logging.info('Cleaned trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
+            logger.info('Cleaned trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
 
             # Update tile data.
             self.trash.sprite.depth = 0
@@ -804,4 +809,4 @@ class TrashPile:
             # Update internal trackers.
             self.exists = False
         else:
-            logging.info('No trash to clean at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
+            logger.info('No trash to clean at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
