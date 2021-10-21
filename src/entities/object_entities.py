@@ -109,17 +109,17 @@ class TileSet:
         # Save class variables.
         self.sprite_renderer = data_manager.sprite_renderer
         self.window_data = data_manager.window_data
-        self.sprite_data = data_manager.sprite_data
+        self.sprite_data = data_manager.tile_data
         self.tiles = []
 
         # Initialize all tiles.
-        for row_index in range(self.sprite_data['sprite_h_count']):
+        for row_index in range(self.sprite_data['tile_h_count']):
 
             # Initialize row of tiles.
             curr_row = []
 
             # Initialize each tile in row.
-            for col_index in range(self.sprite_data['sprite_w_count']):
+            for col_index in range(self.sprite_data['tile_w_count']):
                 curr_row.append(
                     Tile(
                         data_manager.world,

@@ -23,12 +23,22 @@ RESOURCES = sdl2.ext.Resources(__file__, './src/images/')
 # Initialize window width/height.
 WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
+WINDOW_WIDTH_MIN = 400
+WINDOW_HEIGHT_MIN = 200
 
 
 def main():
     """
     Project start.
     """
+    # Set minimum width/height values.
+    if WINDOW_WIDTH < WINDOW_WIDTH_MIN:
+        logger.error('Window must be at least {0}px in width.'.format(WINDOW_WIDTH_MIN))
+        exit(1)
+    if WINDOW_HEIGHT < WINDOW_HEIGHT_MIN:
+        logger.info('Window must be at least {0}px in height.'.format(WINDOW_HEIGHT_MIN))
+        exit(1)
+
     # Initialize sdl2 library.
     sdl2.ext.init()
 
@@ -104,30 +114,43 @@ def initialize_data():
     # Create sprite renderer, which is what draws our images (aka "sprites") to window.
     sprite_renderer = SoftwareRendererSystem(window)
 
-    # Calculate sprite counts to fit into rendered window.
+    # Calculate general program startup data.
     window_center_w = int(WINDOW_WIDTH / 2)
     window_center_h = int(WINDOW_HEIGHT / 2)
-    sprite_w_count = int(WINDOW_WIDTH / 50) - 1
-    sprite_h_count = int(WINDOW_HEIGHT / 50) - 1
-    sprite_w_start = int(window_center_w - (int(sprite_w_count / 2) * 50))
-    sprite_h_start = int(window_center_h - (int(sprite_h_count / 2) * 50))
-    sprite_w_end = int(window_center_w + (int(sprite_w_count / 2) * 50))
-    sprite_h_end = int(window_center_h + (int(sprite_h_count / 2) * 50))
+    gui_w_start = WINDOW_WIDTH - 200
+    gui_w_end = WINDOW_WIDTH
+    gui_h_start = 0
+    gui_h_end = WINDOW_HEIGHT
+    gui_center_w = int(gui_w_end / 2)
+    gui_center_h = int(gui_h_end / 2)
+    tile_w_start = 0
+    tile_w_end = gui_w_start
+    tile_h_start = 0
+    tile_h_end = WINDOW_HEIGHT
+    tile_center_w = int(tile_w_end / 2)
+    tile_center_h = int(tile_h_end / 2)
+    tile_w_count = int(tile_w_end / 50) - 1
+    tile_h_count = int(tile_h_end / 50) - 1
+    max_pix_north = int(tile_center_h - (int(tile_h_count / 2) * 50))
+    max_pix_east = int(tile_center_w + (int(tile_w_count / 2) * 50))
+    max_pix_south = int(tile_center_h + (int(tile_h_count / 2) * 50))
+    max_pix_west = int(tile_center_w - (int(tile_w_count / 2) * 50))
+
     # Account for calculations being off for certain resolutions.
-    if (WINDOW_WIDTH % 100) < 50:
-        sprite_w_end += 50
-    if (WINDOW_HEIGHT % 100) < 50:
-        sprite_h_end += 50
+    if (tile_w_end % 100) < 50:
+        max_pix_east += 50
+    if (tile_h_end % 100) < 50:
+        max_pix_south += 50
 
     # Correct spacing if width sprite count is odd number.
-    if (sprite_w_count % 2) == 1:
-        sprite_w_start -= 25
-        sprite_w_end -= 25
+    if (tile_w_count % 2) == 1:
+        max_pix_west -= 25
+        max_pix_east -= 25
 
     # Correct spacing if height sprite count is odd number.
-    if (sprite_h_count % 2) == 1:
-        sprite_h_start -= 25
-        sprite_h_end -= 25
+    if (tile_h_count % 2) == 1:
+        max_pix_north -= 25
+        max_pix_south -= 25
 
     # Generate data structure dictionaries.
     window_data = {
@@ -136,31 +159,56 @@ def initialize_data():
         'center_pixel_w': window_center_w,
         'center_pixel_h': window_center_h,
     }
-    sprite_data = {
-        'sprite_w_count': sprite_w_count,
-        'sprite_h_count': sprite_h_count,
-        'max_pixel_north': sprite_h_start,
-        'max_pixel_east': sprite_w_end,
-        'max_pixel_south': sprite_h_end,
-        'max_pixel_west': sprite_w_start,
+    gui_data = {
+        'gui_w_start': gui_w_start,
+        'gui_w_end': gui_w_end,
+        'gui_h_start': gui_h_start,
+        'gui_h_end': gui_h_end,
+        'gui_center_w': gui_center_w,
+        'gui_center_h': gui_center_h,
+    }
+    tile_data = {
+        'tile_w_start': tile_w_start,
+        'tile_w_end': tile_w_end,
+        'tile_h_start': tile_h_start,
+        'tile_h_end': tile_h_end,
+        'tile_center_w': tile_center_w,
+        'tile_center_h': tile_center_h,
+        'tile_w_count': tile_w_count,
+        'tile_h_count': tile_h_count,
+        'max_pixel_north': max_pix_north,
+        'max_pixel_east': max_pix_east,
+        'max_pixel_south': max_pix_south,
+        'max_pixel_west': max_pix_west,
     }
     logger.info('')
     logger.info('')
-    logger.info('window_data[total_pixel_w]: {0}'.format(window_data['total_pixel_w']))
-    logger.info('window_data[total_pixel_h]: {0}'.format(window_data['total_pixel_h']))
-    logger.info('window_data[center_pixel_w]: {0}'.format(window_data['center_pixel_w']))
-    logger.info('window_data[center_pixel_h]: {0}'.format(window_data['center_pixel_h']))
-    logger.info('sprite_data[sprite_w_count]: {0}'.format(sprite_data['sprite_w_count']))
-    logger.info('sprite_data[sprite_h_count]: {0}'.format(sprite_data['sprite_h_count']))
-    logger.info('sprite_data[max_pixel_north]: {0}'.format(sprite_data['max_pixel_north']))
-    logger.info('sprite_data[max_pixel_east]: {0}'.format(sprite_data['max_pixel_east']))
-    logger.info('sprite_data[max_pixel_south]: {0}'.format(sprite_data['max_pixel_south']))
-    logger.info('sprite_data[max_pixel_west]: {0}'.format(sprite_data['max_pixel_west']))
+    logger.info('window_data:')
+    logger.info('    total_pixel_w: {0}'.format(window_data['total_pixel_w']))
+    logger.info('    total_pixel_h: {0}'.format(window_data['total_pixel_h']))
+    logger.info('    center_pixel_w: {0}'.format(window_data['center_pixel_w']))
+    logger.info('    center_pixel_h: {0}'.format(window_data['center_pixel_h']))
+    logger.info('gui_data:')
+    logger.info('    gui_w_start: {0}'.format(gui_data['gui_w_start']))
+    logger.info('    gui_w_end: {0}'.format(gui_data['gui_w_end']))
+    logger.info('    gui_h_start: {0}'.format(gui_data['gui_h_start']))
+    logger.info('    gui_h_end: {0}'.format(gui_data['gui_h_end']))
+    logger.info('tile_data:')
+    logger.info('    tile_w_start: {0}'.format(tile_data['tile_w_start']))
+    logger.info('    tile_w_end: {0}'.format(tile_data['tile_w_end']))
+    logger.info('    tile_h_start: {0}'.format(tile_data['tile_h_start']))
+    logger.info('    tile_h_end: {0}'.format(tile_data['tile_h_end']))
+    logger.info('    tile_w_count: {0}'.format(tile_data['tile_w_count']))
+    logger.info('    tile_h_count: {0}'.format(tile_data['tile_h_count']))
+    logger.info('    max_pixel_north: {0}'.format(tile_data['max_pixel_north']))
+    logger.info('    max_pixel_east: {0}'.format(tile_data['max_pixel_east']))
+    logger.info('    max_pixel_south: {0}'.format(tile_data['max_pixel_south']))
+    logger.info('    max_pixel_west: {0}'.format(tile_data['max_pixel_west']))
     logger.info('')
     logger.info('')
 
     # Initialize data manager object.
-    data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, sprite_data)
+    data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, tile_data)
 
     # Initialize roomba object.
     roomba_sprite = sprite_factory.from_image(RESOURCES.get_path('roomba.png'))

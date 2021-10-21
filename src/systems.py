@@ -44,7 +44,7 @@ class AbstractMovementSystem(ABC):
 
         # Verify that sprite's new location is within north (upper) bounds.
         # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
-        north_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_north'])
+        north_max = max(self.min_x, self.data_manager.tile_data['max_pixel_north'])
         sprite.y = max(north_max, sprite.y)
 
         # Check if movement occurred.
@@ -74,7 +74,7 @@ class AbstractMovementSystem(ABC):
         # Verify that sprite's new location is within east (right) bounds.
         # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
         sprite_right = sprite.x + sprite_width
-        east_max = min(self.max_x, self.data_manager.sprite_data['max_pixel_east'])
+        east_max = min(self.max_x, self.data_manager.tile_data['max_pixel_east'])
         if sprite_right > east_max:
             sprite.x = east_max - sprite_width
 
@@ -105,7 +105,7 @@ class AbstractMovementSystem(ABC):
         # Verify that sprite's new location is within south (bottom) bounds.
         # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
         sprite_lower = sprite.y + sprite_height
-        south_max = min(self.max_y, self.data_manager.sprite_data['max_pixel_south'])
+        south_max = min(self.max_y, self.data_manager.tile_data['max_pixel_south'])
         if sprite_lower > south_max:
             sprite.y = south_max - sprite_height
 
@@ -132,7 +132,7 @@ class AbstractMovementSystem(ABC):
 
         # Verify that sprite's new location is within west (left) bounds.
         # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
-        west_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_west'])
+        west_max = max(self.min_x, self.data_manager.tile_data['max_pixel_west'])
         sprite.x = max(west_max, sprite.x)
 
         # Check if movement occurred.
@@ -152,8 +152,8 @@ class AbstractMovementSystem(ABC):
         :param sprite: Entity sprite data.
         """
         # Update entity internal tile location.
-        tile_x = int((sprite.x - self.data_manager.sprite_data['max_pixel_west']) / 50)
-        tile_y = int((sprite.y - self.data_manager.sprite_data['max_pixel_north']) / 50)
+        tile_x = int((sprite.x - self.data_manager.tile_data['max_pixel_west']) / 50)
+        tile_y = int((sprite.y - self.data_manager.tile_data['max_pixel_north']) / 50)
         sprite.tile = tile_x, tile_y
 
         # Handle if trash exists on tile.
@@ -192,8 +192,8 @@ class MovementSystem(sdl2.ext.Applicator, AbstractMovementSystem):
             # Calculate tile location from pixels.
             pos_x = sprite.x
             pos_y = sprite.y
-            tile_x = int((pos_x - self.data_manager.sprite_data['max_pixel_west']) / 50)
-            tile_y = int((pos_y - self.data_manager.sprite_data['max_pixel_north']) / 50)
+            tile_x = int((pos_x - self.data_manager.tile_data['max_pixel_west']) / 50)
+            tile_y = int((pos_y - self.data_manager.tile_data['max_pixel_north']) / 50)
             curr_tile = self.data_manager.tile_set.tiles[tile_y][tile_x]
 
             # Check if any movement directions are active for tick.

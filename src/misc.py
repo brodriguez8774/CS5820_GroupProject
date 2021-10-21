@@ -24,13 +24,13 @@ class DataManager:
     """
     Stores and manages general data, to minimize values needing to be passed back and forth between classes.
     """
-    def __init__(self, world, window, sprite_factory, sprite_renderer, window_data, sprite_data):
+    def __init__(self, world, window, sprite_factory, sprite_renderer, window_data, tile_data):
         self.world = world
         self.window = window
         self.sprite_factory = sprite_factory
         self.sprite_renderer = sprite_renderer
         self.window_data = window_data
-        self.sprite_data = sprite_data
+        self.tile_data = tile_data
         self.tile_set = None
         self.roomba = None
 
@@ -73,7 +73,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
     logger.info('buttonstate: {0}'.format(button_state))
 
     # First, verify that click location is within tile grid bounds. If not, we ignore click.
-    sprite_data = data_manager.sprite_data
+    sprite_data = data_manager.tile_data
     if (
         (pos_x > sprite_data['max_pixel_west'] and pos_x < sprite_data['max_pixel_east']) and
         (pos_y > sprite_data['max_pixel_north'] and pos_y < sprite_data['max_pixel_south'])

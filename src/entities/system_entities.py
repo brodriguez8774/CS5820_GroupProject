@@ -37,8 +37,8 @@ class Movement:
         :param tile_y: Tile row (y-axis) of entity.
         :return: Corresponding (x,y) pixel grid coordinates that match tile location.
         """
-        pos_x = (tile_x * 50) + self.data_manager.sprite_data['max_pixel_west']
-        pos_y = (tile_y * 50) + self.data_manager.sprite_data['max_pixel_north']
+        pos_x = (tile_x * 50) + self.data_manager.tile_data['max_pixel_west']
+        pos_y = (tile_y * 50) + self.data_manager.tile_data['max_pixel_north']
 
         # Return calculated pixel coordinates.
         return pos_x, pos_y
@@ -106,7 +106,7 @@ class Walls:
             # Update tile disallowed states.
             self._disallowed_states += [0, 2, 3, 4, 8, 9, 10, 11]
 
-        if tile_x == (data_manager.sprite_data['sprite_w_count'] - 1):
+        if tile_x == (data_manager.tile_data['tile_w_count'] - 1):
             # Set east (right) wall to active.
             if self.wall_state == 0:
                 self.wall_state = 2
@@ -116,7 +116,7 @@ class Walls:
             # Update tile disallowed states.
             self._disallowed_states += [0, 1, 3, 4, 6, 7, 10, 12]
 
-        if tile_y == (data_manager.sprite_data['sprite_h_count'] - 1):
+        if tile_y == (data_manager.tile_data['tile_h_count'] - 1):
             # Set south (lower) wall to active.
             if self.wall_state == 0:
                 self.wall_state = 3
@@ -169,7 +169,7 @@ class Walls:
                     valid_state = False
 
         # Handle for east (left) edge tiles.
-        if self.tile_x == (self.data_manager.sprite_data['sprite_w_count'] - 1):
+        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
 
             # Loop until valid state is found.
             valid_state = False
@@ -187,7 +187,7 @@ class Walls:
                     valid_state = False
 
         # Handle for south (lower) edge tiles.
-        if self.tile_y == (self.data_manager.sprite_data['sprite_h_count'] - 1):
+        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
 
             # Loop until valid state is found.
             valid_state = False
@@ -256,7 +256,7 @@ class Walls:
                     valid_state = False
 
         # Handle for east (left) edge tiles.
-        if self.tile_x == (self.data_manager.sprite_data['sprite_w_count'] - 1):
+        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
 
             # Loop until valid state is found.
             valid_state = False
@@ -274,7 +274,7 @@ class Walls:
                     valid_state = False
 
         # Handle for south (lower) edge tiles.
-        if self.tile_y == (self.data_manager.sprite_data['sprite_h_count'] - 1):
+        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
 
             # Loop until valid state is found.
             valid_state = False
@@ -655,7 +655,7 @@ class Walls:
 
             # Update adjacent tile variables.
             # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set and self.tile_x < (self.data_manager.sprite_data['sprite_w_count'] - 1):
+            if self.data_manager.tile_set and self.tile_x < (self.data_manager.tile_data['tile_w_count'] - 1):
                 adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
                 # Prevent infinite loops.
                 if not adj_tile.walls.has_wall_west:
@@ -710,7 +710,7 @@ class Walls:
 
             # Update adjacent tile variables.
             # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set and self.tile_y < (self.data_manager.sprite_data['sprite_h_count'] - 1):
+            if self.data_manager.tile_set and self.tile_y < (self.data_manager.tile_data['tile_h_count'] - 1):
                 adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
                 # Prevent infinite loops.
                 if not adj_tile.walls.has_wall_north:
@@ -809,7 +809,7 @@ class TrashPile:
         self.exists = False
 
         # Default with trash on roughly 10% of all tiles.
-        total_tiles = data_manager.sprite_data['sprite_w_count'] * data_manager.sprite_data['sprite_h_count']
+        total_tiles = data_manager.tile_data['tile_w_count'] * data_manager.tile_data['tile_h_count']
         if random.randint(0, (total_tiles % 10)) < 1:
             self.place()
 
