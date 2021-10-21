@@ -7,7 +7,7 @@ import ctypes
 import sdl2.ext
 
 # User Imports.
-from src.entities import Roomba, TileSet
+from src.entities import GuiCore, Roomba, TileSet
 from src.logging import init_logging
 from src.misc import DataManager, handle_key_press, handle_mouse_click
 from src.systems import AISystem, MovementSystem, SoftwareRendererSystem
@@ -208,7 +208,10 @@ def initialize_data():
     logger.info('')
 
     # Initialize data manager object.
-    data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, tile_data)
+    data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, gui_data, tile_data)
+
+    # Initialize GUI object data.
+    data_manager.gui = GuiCore(data_manager)
 
     # Initialize roomba object.
     roomba_sprite = sprite_factory.from_image(RESOURCES.get_path('roomba.png'))

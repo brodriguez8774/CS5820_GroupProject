@@ -24,13 +24,15 @@ class DataManager:
     """
     Stores and manages general data, to minimize values needing to be passed back and forth between classes.
     """
-    def __init__(self, world, window, sprite_factory, sprite_renderer, window_data, tile_data):
+    def __init__(self, world, window, sprite_factory, sprite_renderer, window_data, gui_data, tile_data):
         self.world = world
         self.window = window
         self.sprite_factory = sprite_factory
         self.sprite_renderer = sprite_renderer
         self.window_data = window_data
+        self.gui_data = gui_data
         self.tile_data = tile_data
+        self.gui = None
         self.tile_set = None
         self.roomba = None
 
@@ -72,16 +74,24 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
     logger.info('pos_x.value: {0}    pos_y.value: {1}'.format(pos_x, pos_y))
     logger.info('buttonstate: {0}'.format(button_state))
 
-    # First, verify that click location is within tile grid bounds. If not, we ignore click.
-    sprite_data = data_manager.tile_data
+    # First, verify that click location is within some valid grid bounds. If not, we ignore click.
+    gui_data = data_manager.gui_data
+    tile_data = data_manager.tile_data
     if (
-        (pos_x > sprite_data['max_pixel_west'] and pos_x < sprite_data['max_pixel_east']) and
-        (pos_y > sprite_data['max_pixel_north'] and pos_y < sprite_data['max_pixel_south'])
+        (pos_x > gui_data['gui_w_start'] and pos_x < gui_data['gui_w_end']) and
+        (pos_y > gui_data['gui_h_start'] and pos_y < gui_data['gui_h_end'])
+    ):
+        # Click was within gui bounds. Check if any gui elements were clicked.
+        logger.info('    Is within GUI element bounds.')
+
+    elif (
+        (pos_x > tile_data['max_pixel_west'] and pos_x < tile_data['max_pixel_east']) and
+        (pos_y > tile_data['max_pixel_north'] and pos_y < tile_data['max_pixel_south'])
     ):
         # Click was within tile bounds. Calculate clicked tile.
-        logger.info('    Is within bounds.')
-        tile_x = int((pos_x - sprite_data['max_pixel_west']) / 50)
-        tile_y = int((pos_y - sprite_data['max_pixel_north']) / 50)
+        logger.info('    Is within Tile border bounds.')
+        tile_x = int((pos_x - tile_data['max_pixel_west']) / 50)
+        tile_y = int((pos_y - tile_data['max_pixel_north']) / 50)
         logger.info('    Found tile is    x: {0}    y: {1}'.format(tile_x, tile_y))
 
         # Get clicked tile object.
