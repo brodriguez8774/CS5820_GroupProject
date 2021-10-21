@@ -47,9 +47,6 @@ class MovementSystem(sdl2.ext.Applicator):
 
     def process(self, world, componenttypes):
         for movement_tick, sprite in componenttypes:
-            # Get sprite size in pixels.
-            sprite_width, sprite_height = sprite.size
-
             # Calculate tile location from pixels.
             pos_x = sprite.x
             pos_y = sprite.y
@@ -58,26 +55,17 @@ class MovementSystem(sdl2.ext.Applicator):
             curr_tile = self.data_manager.tile_set.tiles[tile_y][tile_x]
 
             # Check if any movement directions are active for tick.
-            entity_moved = False
             if movement_tick.north and not curr_tile.walls.has_wall_north:
-                # Move north (upward).
-                sprite.y -= 50
-                entity_moved = True
+                self.move_north(sprite)
 
             elif movement_tick.east and not curr_tile.walls.has_wall_east:
-                # Move east (right).
-                sprite.x += 50
-                entity_moved = True
+                self.move_east(sprite)
 
             elif movement_tick.south and not curr_tile.walls.has_wall_south:
-                # Move south (down).
-                sprite.y += 50
-                entity_moved = True
+                self.move_south(sprite)
 
             elif movement_tick.west and not curr_tile.walls.has_wall_west:
-                # Move west (left).
-                sprite.x -= 50
-                entity_moved = True
+                self.move_west(sprite)
 
             # Reset movement tick values, now that we've handled for them.
             movement_tick.north = False
@@ -85,41 +73,84 @@ class MovementSystem(sdl2.ext.Applicator):
             movement_tick.south = False
             movement_tick.west = False
 
-            # Extra logic if entity moved at all.
-            if entity_moved:
-                # For below, we verify that sprite's new location is within bounds.
-                # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
+    def move_north(self, sprite):
+        """
+        Move entity north (upward).
+        """
+        sprite.y -= 50
 
-                # Verify that sprite is still within north (upper) screen bounds.
-                north_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_north'])
-                sprite.y = max(north_max, sprite.y)
+        # Call general "movement" logic, for entity having moved in any direction at all.
+        self._handle_move(sprite)
 
-                # Verify that sprite is still within east (right) screen bounds.
-                sprite_right = sprite.x + sprite_width
-                east_max = min(self.max_x, self.data_manager.sprite_data['max_pixel_east'])
-                if sprite_right > east_max:
-                    sprite.x = east_max - sprite_width
+    def move_east(self, sprite):
+        """
+        Move entity east (right).
+        :param sprite: Entity sprite data.
+        """
+        sprite.x += 50
 
-                # Verify that sprite is still within south (bottom) screen bounds.
-                sprite_lower = sprite.y + sprite_height
-                south_max = min(self.max_y, self.data_manager.sprite_data['max_pixel_south'])
-                if sprite_lower > south_max:
-                    sprite.y = south_max - sprite_height
+        # Call general "movement" logic, for entity having moved in any direction at all.
+        self._handle_move(sprite)
 
-                # Verify that sprite is still within west (left) screen bounds.
-                west_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_west'])
-                sprite.x = max(west_max, sprite.x)
+    def move_south(self, sprite):
+        """
+        Move entity south (down).
+        :param sprite: Entity sprite data.
+        """
+        sprite.y += 50
 
-                # Update entity internal tile location.
-                tile_x = int((sprite.x - self.data_manager.sprite_data['max_pixel_west']) / 50)
-                tile_y = int((sprite.y - self.data_manager.sprite_data['max_pixel_north']) / 50)
-                sprite.tile = tile_x, tile_y
+        # Call general "movement" logic, for entity having moved in any direction at all.
+        self._handle_move(sprite)
 
-                # Update tile variable based on new location.
-                curr_tile = self.data_manager.tile_set.tiles[tile_y][tile_x]
+    def move_west(self, sprite):
+        """
+        Move entity west (left).
+        :param sprite: Entity sprite data.
+        """
+        sprite.x -= 50
 
-                # Handle if trash exists on tile.
-                roomba_location = self.data_manager.roomba.sprite.tile
-                logger.debug('roomba_location: {0}'.format(roomba_location))
-                if roomba_location[0] == tile_x and roomba_location[1] == tile_y and curr_tile.trashpile.exists:
-                    curr_tile.trashpile.clean()
+        # Call general "movement" logic, for entity having moved in any direction at all.
+        self._handle_move(sprite)
+
+    def _handle_move(self, sprite):
+        """
+        Generalized logic that applies upon roomba moving in any direction.
+        :param sprite: Entity sprite data.
+        """
+        # Get sprite size in pixels.
+        sprite_width, sprite_height = sprite.size
+
+        # For below, we verify that sprite's new location is within bounds.
+        # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
+
+        # Verify that sprite is still within north (upper) screen bounds.
+        north_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_north'])
+        sprite.y = max(north_max, sprite.y)
+
+        # Verify that sprite is still within east (right) screen bounds.
+        sprite_right = sprite.x + sprite_width
+        east_max = min(self.max_x, self.data_manager.sprite_data['max_pixel_east'])
+        if sprite_right > east_max:
+            sprite.x = east_max - sprite_width
+
+        # Verify that sprite is still within south (bottom) screen bounds.
+        sprite_lower = sprite.y + sprite_height
+        south_max = min(self.max_y, self.data_manager.sprite_data['max_pixel_south'])
+        if sprite_lower > south_max:
+            sprite.y = south_max - sprite_height
+
+        # Verify that sprite is still within west (left) screen bounds.
+        west_max = max(self.min_x, self.data_manager.sprite_data['max_pixel_west'])
+        sprite.x = max(west_max, sprite.x)
+
+        # Update entity internal tile location.
+        tile_x = int((sprite.x - self.data_manager.sprite_data['max_pixel_west']) / 50)
+        tile_y = int((sprite.y - self.data_manager.sprite_data['max_pixel_north']) / 50)
+        sprite.tile = tile_x, tile_y
+
+        # Handle if trash exists on tile.
+        curr_tile = self.data_manager.tile_set.tiles[tile_y][tile_x]
+        roomba_location = self.data_manager.roomba.sprite.tile
+        logger.debug('roomba_location: {0}'.format(roomba_location))
+        if roomba_location[0] == tile_x and roomba_location[1] == tile_y and curr_tile.trashpile.exists:
+            curr_tile.trashpile.clean()
