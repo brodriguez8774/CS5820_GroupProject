@@ -5,9 +5,10 @@ These are subsystems added to the "world manager" object, that basically control
 
 # System Imports.
 import sdl2.ext
+from abc import ABC
 
 # User Imports.
-from src.entities.system_entities import Movement
+from src.entities.system_entities import AI, Movement
 from src.logging import init_logging
 
 
@@ -27,57 +28,10 @@ class SoftwareRendererSystem(sdl2.ext.SoftwareSpriteRenderSystem):
         super(SoftwareRendererSystem, self).render(components)
 
 
-class MovementSystem(sdl2.ext.Applicator):
+class AbstractMovementSystem(ABC):
     """
-    System that handles movement of entities.
+    Holds general "movement logic".
     """
-    def __init__(self, data_manager, min_x, min_y, max_x, max_y):
-        # Call parent logic.
-        super().__init__()
-
-        # Save component types values. Necessary for SDL2 system handling.
-        self.componenttypes = Movement, sdl2.ext.Sprite
-
-        # Save class variables.
-        self.data_manager = data_manager
-        self.min_x = min_x
-        self.min_y = min_y
-        self.max_x = max_x
-        self.max_y = max_y
-
-    def process(self, world, componenttypes):
-        """
-        System handling during a single world processing tick.
-        :param world: World instance calling the process tick.
-        :param componenttypes: Tuple of relevant tuples for system.
-        """
-        for movement_tick, sprite in componenttypes:
-            # Calculate tile location from pixels.
-            pos_x = sprite.x
-            pos_y = sprite.y
-            tile_x = int((pos_x - self.data_manager.sprite_data['max_pixel_west']) / 50)
-            tile_y = int((pos_y - self.data_manager.sprite_data['max_pixel_north']) / 50)
-            curr_tile = self.data_manager.tile_set.tiles[tile_y][tile_x]
-
-            # Check if any movement directions are active for tick.
-            if movement_tick.north and not curr_tile.walls.has_wall_north:
-                self.move_north(sprite)
-
-            elif movement_tick.east and not curr_tile.walls.has_wall_east:
-                self.move_east(sprite)
-
-            elif movement_tick.south and not curr_tile.walls.has_wall_south:
-                self.move_south(sprite)
-
-            elif movement_tick.west and not curr_tile.walls.has_wall_west:
-                self.move_west(sprite)
-
-            # Reset movement tick values, now that we've handled for them.
-            movement_tick.north = False
-            movement_tick.east = False
-            movement_tick.south = False
-            movement_tick.west = False
-
     def move_north(self, sprite):
         """
         Move entity north (upward).
@@ -208,3 +162,84 @@ class MovementSystem(sdl2.ext.Applicator):
         logger.debug('roomba_location: {0}'.format(roomba_location))
         if roomba_location[0] == tile_x and roomba_location[1] == tile_y and curr_tile.trashpile.exists:
             curr_tile.trashpile.clean()
+
+
+class MovementSystem(sdl2.ext.Applicator, AbstractMovementSystem):
+    """
+    System that handles movement of entities.
+    """
+    def __init__(self, data_manager, min_x, min_y, max_x, max_y):
+        # Call parent logic.
+        super().__init__()
+
+        # Save component types values. Necessary for SDL2 system handling.
+        self.componenttypes = Movement, sdl2.ext.Sprite
+
+        # Save class variables.
+        self.data_manager = data_manager
+        self.min_x = min_x
+        self.min_y = min_y
+        self.max_x = max_x
+        self.max_y = max_y
+
+    def process(self, world, componenttypes):
+        """
+        System handling during a single world processing tick.
+        :param world: World instance calling the process tick.
+        :param componenttypes: Tuple of relevant tuples for system.
+        """
+        for movement_tick, sprite in componenttypes:
+            # Calculate tile location from pixels.
+            pos_x = sprite.x
+            pos_y = sprite.y
+            tile_x = int((pos_x - self.data_manager.sprite_data['max_pixel_west']) / 50)
+            tile_y = int((pos_y - self.data_manager.sprite_data['max_pixel_north']) / 50)
+            curr_tile = self.data_manager.tile_set.tiles[tile_y][tile_x]
+
+            # Check if any movement directions are active for tick.
+            if movement_tick.north and not curr_tile.walls.has_wall_north:
+                self.move_north(sprite)
+
+            elif movement_tick.east and not curr_tile.walls.has_wall_east:
+                self.move_east(sprite)
+
+            elif movement_tick.south and not curr_tile.walls.has_wall_south:
+                self.move_south(sprite)
+
+            elif movement_tick.west and not curr_tile.walls.has_wall_west:
+                self.move_west(sprite)
+
+            # Reset movement tick values, now that we've handled for them.
+            movement_tick.north = False
+            movement_tick.east = False
+            movement_tick.south = False
+            movement_tick.west = False
+
+
+class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
+    """
+    System that handles roomba AI.
+    """
+    def __init__(self, data_manager, min_x, min_y, max_x, max_y):
+        # Call parent logic.
+        super().__init__()
+
+        # Save component types values. Necessary for SDL2 system handling.
+        self.componenttypes = AI, sdl2.ext.Sprite
+
+        # Save class variables.
+        self.data_manager = data_manager
+        self.min_x = min_x
+        self.min_y = min_y
+        self.max_x = max_x
+        self.max_y = max_y
+
+    def process(self, world, componenttypes):
+        """
+        System handling during a single world processing tick.
+        :param world: World instance calling the process tick.
+        :param componenttypes: Tuple of relevant tuples for system.
+        """
+        for ai_tick, sprite in componenttypes:
+            if ai_tick.active and ai_tick.check_counter():
+                self.move_east(sprite)

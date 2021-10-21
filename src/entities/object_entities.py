@@ -13,7 +13,7 @@ Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones
 import sdl2.ext
 
 # User Imports.
-from .system_entities import Movement, TrashPile, Walls
+from .system_entities import AI, Movement, TrashPile, Walls
 
 
 # Module Variables.
@@ -31,6 +31,7 @@ class Roomba(sdl2.ext.Entity):
 
         # Define world systems which affect entity.
         self.movement = Movement(data_manager)
+        self.ai = AI(data_manager)
 
         # Set entity location tracking.
         self.sprite.tile = tile_x, tile_y

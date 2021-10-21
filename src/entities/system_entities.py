@@ -44,6 +44,41 @@ class Movement:
         return pos_x, pos_y
 
 
+class AI:
+    """
+    Holds AI data for roomba entity.
+    """
+    def __init__(self, data_manager):
+        self.data_manager = data_manager
+        self.active = True
+        self._timer_counter = 0
+        self._ai_tick_rate = 20
+
+    def check_counter(self):
+        """
+        Checks internal AI counter, so that entities delay actions enough that
+        humans can actually see what the AI is doing.
+
+        We do this internally, instead of using sdl2.SDL_Delay(), so that the game-world is still
+        responsive even when the AI is waiting to trigger.
+
+        This is based on the "_ai_tick_rate" value. Smaller values means it triggers faster.
+        :return: True if AI has met tick rate and should trigger | False otherwise.
+        """
+        # Increment counter.
+        self._timer_counter += 1
+
+        # Check if counter has hit value to run AI trigger.
+        if self._timer_counter == self._ai_tick_rate:
+            # Reset counter for next AI trigger.
+            self._timer_counter = 0
+
+            return True
+        else:
+            # AI is still ticking to next trigger.
+            return False
+
+
 class Walls:
     """
     Holds tile wall data for a "tile" entity.

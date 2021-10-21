@@ -10,5 +10,6 @@ from .object_entities import (
 
 # Import system entity classes.
 from .system_entities import (
-    Movement
+    AI,
+    Movement,
 )

@@ -10,7 +10,7 @@ import sdl2.ext
 from src.entities import Roomba, TileSet
 from src.logging import init_logging
 from src.misc import DataManager, handle_key_press, handle_mouse_click
-from src.systems import MovementSystem, SoftwareRendererSystem
+from src.systems import AISystem, MovementSystem, SoftwareRendererSystem
 
 
 # Initialize logger.
@@ -38,9 +38,11 @@ def main():
     sprite_renderer = data_manager.sprite_renderer
 
     # Initialize subsystems of world manager.
+    ai = AISystem(data_manager, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
     movement = MovementSystem(data_manager, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 
     # Add subsystems to world manager.
+    # world.add_system(ai)
     world.add_system(movement)
     world.add_system(sprite_renderer)
 
@@ -75,6 +77,9 @@ def main():
 
         # Update render window.
         world.process()
+
+        # Wait slightly until next tick.
+        sdl2.SDL_Delay(10)
 
     # Call final library teardown logic.
     sdl2.ext.quit()
