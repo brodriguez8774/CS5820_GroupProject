@@ -14,6 +14,11 @@ import sdl2.ext
 
 # User Imports.
 from .system_entities import AI, Movement, TrashPile, Walls
+from src.logging import init_logging
+
+
+# Initialize logger.
+logger = init_logging(__name__)
 
 
 # Module Variables.
@@ -132,6 +137,18 @@ class TileSet:
 
             # Set full row to tile set.
             self.tiles.append(curr_row)
+
+    def randomize_tile_walls(self):
+        """
+        Randomizes walls on all tiles, while still abiding by wall validation logic.
+        """
+        logger.info('Function not implemented yet!')
+
+    def randomize_trash(self):
+        """
+        Randomizes trash entities on all tiles.
+        """
+        logger.info('Function not implemented yet!')
 
 
 class Trash(sdl2.ext.Entity):

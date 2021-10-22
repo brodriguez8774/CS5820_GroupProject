@@ -89,7 +89,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
                 (pos_x > element.bounds['max_pixel_west'] and pos_x < element.bounds['max_pixel_east']) and
                 (pos_y > element.bounds['max_pixel_north'] and pos_y < element.bounds['max_pixel_south'])
             ):
-                logger.info('    Clicked element "{0}:'.format(element.name))
+                element.on_click()
 
     elif (
         (pos_x > tile_data['max_pixel_west'] and pos_x < tile_data['max_pixel_east']) and

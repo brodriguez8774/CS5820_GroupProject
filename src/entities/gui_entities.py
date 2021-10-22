@@ -43,11 +43,23 @@ class GuiCore:
         self.background = GuiBackground(data_manager)
 
         # Initialize "randomize tile walls" button.
-        self.rand_walls = GuiButton(data_manager, 'Randomize Walls', 50, name='RandWalls Button')
+        self.rand_walls = GuiButton(
+            data_manager,
+            'Randomize Walls',
+            50,
+            name='RandWalls Button',
+            function_call=data_manager.tile_set.randomize_tile_walls,
+        )
         self.elements.append(self.rand_walls)
 
         # # Initialize "randomize trash piles" button.
-        self.rand_trash = GuiButton(data_manager, 'Randomize Trash', 90, name='RandTrash Button')
+        self.rand_trash = GuiButton(
+            data_manager,
+            'Randomize Trash',
+            90,
+            name='RandTrash Button',
+            function_call=data_manager.tile_set.randomize_trash,
+        )
         self.elements.append(self.rand_trash)
 
 
@@ -142,9 +154,10 @@ class GuiButton:
     """
     A button for the GUI interface.
     """
-    def __init__(self, data_manager, text, pos_y, name='Gui Button'):
+    def __init__(self, data_manager, text, pos_y, name='Gui Button', function_call=None):
         self.data_manager = data_manager
         self.name = str(name)
+        self.function_call = function_call
 
         # Determine bounds of button we're generating. Allows handling on click events.
         background_width = data_manager.gui_data['gui_w_end'] - data_manager.gui_data['gui_w_start'] - 40
@@ -193,6 +206,19 @@ class GuiButton:
         text_sprite = data_manager.sprite_factory.from_text(text, fontmanager=font_manager)
         pos_x = data_manager.gui_data['gui_w_start'] + 45
         self.GuiButtonText(data_manager.world, text_sprite, data_manager, pos_x, pos_y + 5)
+
+    def on_click(self):
+        """
+        Calls associated class function.
+        Allows external logic (such as main event loop) to trigger expected button press logic, on click.
+        :return: Corresponding return value for bound function call.
+        """
+        logger.info('    Clicked button "{0}:'.format(self.name))
+
+        if self.function_call is None:
+            raise RuntimeError('Button does not have a bound function call!')
+
+        return self.function_call()
 
     class GuiButtonSprite(sdl2.ext.Entity):
         """

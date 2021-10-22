@@ -210,15 +210,15 @@ def initialize_data():
     # Initialize data manager object.
     data_manager = DataManager(world, window, sprite_factory, sprite_renderer, window_data, gui_data, tile_data)
 
-    # Initialize GUI object data.
-    data_manager.gui = GuiCore(data_manager)
-
     # Initialize roomba object.
     roomba_sprite = sprite_factory.from_image(RESOURCES.get_path('roomba.png'))
     data_manager.roomba = Roomba(world, roomba_sprite, data_manager, 0, 0)
 
     # Generate all sprite tiles.
     data_manager.tile_set = TileSet(data_manager)
+
+    # Initialize GUI object data.
+    data_manager.gui = GuiCore(data_manager)
 
     # Return generated window object.
     return data_manager
