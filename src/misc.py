@@ -4,6 +4,7 @@ Misc helper functions and classes.
 
 # System Imports.
 import sdl2.ext
+import networkx
 
 # User Imports.
 from src.logging import init_logging
@@ -35,6 +36,7 @@ class DataManager:
         self.gui = None
         self.tile_set = None
         self.roomba = None
+        self.graph = networkx.Graph()
 
 # endregion Data Structures
 
