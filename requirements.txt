@@ -5,6 +5,9 @@
  ##
 
 
+# Python SDL2 library dependencies.
 pysdl2
 pysdl2-dll
 
+# System font-parsing dependencies.
+fclist
