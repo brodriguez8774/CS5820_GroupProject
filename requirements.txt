@@ -11,3 +11,6 @@ pysdl2-dll
 
 # System font-parsing dependencies.
 fclist
+
+# Graph datastructure library.
+networkx
