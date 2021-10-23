@@ -130,4 +130,11 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             # Right click.
             tile.walls.decriment_wall_state()
 
+        print('\n\n\n\n')
+        print('graph.number_of_nodes(): {0}\n'.format(data_manager.graph.number_of_nodes()))
+        print('graph.number_of_edges(): {0}\n'.format(data_manager.graph.number_of_edges()))
+        print('graph.nodes(): {0}\n'.format(data_manager.graph.nodes(data=True)))
+        print('graph.edges(): {0}\n'.format(data_manager.graph.edges(data=True)))
+        print('graph.neighbors(1, 1): {0}\n'.format(list(data_manager.graph.neighbors('1, 1'))))
+
 # endregion Handler Functions

@@ -598,13 +598,21 @@ class Walls:
             self._has_wall_north = True
             self._wall_state = self.get_new_state()
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set and self.tile_y > 0:
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y - 1][self.tile_x]
-                # Prevent infinite loops.
-                if not adj_tile.walls.has_wall_south:
-                    adj_tile.walls.has_wall_south = True
+            # Check if full tileset has been initialized. Otherwise skip further logic.
+            if self.data_manager.tile_set:
+
+                # Update adjacent tile variables.
+                if self.tile_y > 0:
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y - 1][self.tile_x]
+                    # Prevent infinite loops.
+                    if not adj_tile.walls.has_wall_south:
+                        adj_tile.walls.has_wall_south = True
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_y > 0:
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y - 1)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = False
 
         else:
             # Setting to False.
@@ -623,13 +631,21 @@ class Walls:
             ):
                 self.has_walls = False
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
+            # Check if full tileset has been initialized. Otherwise skip further logic.
             if self.data_manager.tile_set:
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y - 1][self.tile_x]
-                # Prevent infinite loops.
-                if adj_tile.walls.has_wall_south:
-                    adj_tile.walls.has_wall_south = False
+
+                # Update adjacent tile variables.
+                if self.tile_y > 0:
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y - 1][self.tile_x]
+                    # Prevent infinite loops.
+                    if adj_tile.walls.has_wall_south:
+                        adj_tile.walls.has_wall_south = False
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_y > 0:
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y - 1)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = True
 
     @property
     def has_wall_east(self):
@@ -653,13 +669,21 @@ class Walls:
             self._has_wall_east = True
             self._wall_state = self.get_new_state()
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set and self.tile_x < (self.data_manager.tile_data['tile_w_count'] - 1):
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
-                # Prevent infinite loops.
-                if not adj_tile.walls.has_wall_west:
-                    adj_tile.walls.has_wall_west = True
+            # Check if full tileset has been initialized. Otherwise skip further logic.
+            if self.data_manager.tile_set:
+
+                # Update adjacent tile variables.
+                if self.tile_x < (self.data_manager.tile_data['tile_w_count'] - 1):
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
+                    # Prevent infinite loops.
+                    if not adj_tile.walls.has_wall_west:
+                        adj_tile.walls.has_wall_west = True
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_x < (self.data_manager.tile_data['tile_w_count'] - 1):
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x + 1, self.tile_y)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = False
 
         else:
             # Setting to False.
@@ -678,13 +702,21 @@ class Walls:
             ):
                 self.has_walls = False
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
+            # Check if full tileset has been initialized. Otherwise skip further logic.
             if self.data_manager.tile_set:
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
-                # Prevent infinite loops.
-                if adj_tile.walls.has_wall_west:
-                    adj_tile.walls.has_wall_west = False
+
+                # Update adjacent tile variables.
+                if self.tile_x < (self.data_manager.tile_data['tile_w_count'] - 1):
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x + 1]
+                    # Prevent infinite loops.
+                    if adj_tile.walls.has_wall_west:
+                        adj_tile.walls.has_wall_west = False
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_x < (self.data_manager.tile_data['tile_w_count'] - 1):
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x + 1, self.tile_y)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = True
 
     @property
     def has_wall_south(self):
@@ -708,13 +740,21 @@ class Walls:
             self._has_wall_south = True
             self._wall_state = self.get_new_state()
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set and self.tile_y < (self.data_manager.tile_data['tile_h_count'] - 1):
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
-                # Prevent infinite loops.
-                if not adj_tile.walls.has_wall_north:
-                    adj_tile.walls.has_wall_north = True
+            # Check if full tileset has been initialized. Otherwise skip further logic.
+            if self.data_manager.tile_set:
+
+                # Update adjacent tile variables.
+                if self.tile_y < (self.data_manager.tile_data['tile_h_count'] - 1):
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
+                    # Prevent infinite loops.
+                    if not adj_tile.walls.has_wall_north:
+                        adj_tile.walls.has_wall_north = True
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_y < (self.data_manager.tile_data['tile_h_count'] - 1):
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y + 1)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = False
 
         else:
             # Setting to False.
@@ -733,13 +773,21 @@ class Walls:
             ):
                 self.has_walls = False
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
+            # Check if full tileset has been initialized. Otherwise skip further logic.
             if self.data_manager.tile_set:
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
-                # Prevent infinite loops.
-                if adj_tile.walls.has_wall_north:
-                    adj_tile.walls.has_wall_north = False
+
+                # Update adjacent tile variables.
+                if self.tile_y < (self.data_manager.tile_data['tile_h_count'] - 1):
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y + 1][self.tile_x]
+                    # Prevent infinite loops.
+                    if adj_tile.walls.has_wall_north:
+                        adj_tile.walls.has_wall_north = False
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_y < (self.data_manager.tile_data['tile_h_count'] - 1):
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y + 1)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = True
 
     @property
     def has_wall_west(self):
@@ -763,13 +811,21 @@ class Walls:
             self._has_wall_west = True
             self._wall_state = self.get_new_state()
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
-            if self.data_manager.tile_set and self.tile_x > 0:
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x - 1]
-                # Prevent infinite loops.
-                if not adj_tile.walls.has_wall_east:
-                    adj_tile.walls.has_wall_east = True
+            # Check if full tileset has been initialized. Otherwise skip further logic.
+            if self.data_manager.tile_set:
+
+                # Update adjacent tile variables.
+                if self.tile_x > 0:
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x - 1]
+                    # Prevent infinite loops.
+                    if not adj_tile.walls.has_wall_east:
+                        adj_tile.walls.has_wall_east = True
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_x > 0:
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x - 1, self.tile_y)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = False
 
         else:
             # Setting to False.
@@ -788,13 +844,21 @@ class Walls:
             ):
                 self.has_walls = False
 
-            # Update adjacent tile variables.
-            # Note we only handle this if full tileset has been initialized.
+            # Check if full tileset has been initialized. Otherwise skip further logic.
             if self.data_manager.tile_set:
-                adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x - 1]
-                # Prevent infinite loops.
-                if adj_tile.walls.has_wall_east:
-                    adj_tile.walls.has_wall_east = False
+
+                # Update adjacent tile variables.
+                if self.tile_x > 0:
+                    adj_tile = self.data_manager.tile_set.tiles[self.tile_y][self.tile_x - 1]
+                    # Prevent infinite loops.
+                    if adj_tile.walls.has_wall_east:
+                        adj_tile.walls.has_wall_east = False
+
+                # Update graph data structure. This is used for search algorithms.
+                if self.tile_x > 0:
+                    curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                    neighbor_tile_id = '{0}, {1}'.format(self.tile_x - 1, self.tile_y)
+                    self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = True
 
 
 class TrashPile:
