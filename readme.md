@@ -5,7 +5,7 @@
 ## Description
 A virtual roomba/vacuum AI project.
 
-Simulate a vacuum cleaner AI attempting to clean up a virtual room.
+Simulates a vacuum cleaner AI attempting to clean up a virtual room.
 
 
 ## Installation
@@ -47,6 +47,8 @@ Lastly, window size can be adjusted via the (WINDOW_WIDTH, WINDOW_HEIGHT) variab
 
 
 ## Helper Documentation/Tutorials
+
+### SDL2 Library
 * Official SDL2 Library Docs - <https://pysdl2.readthedocs.io/en/rel_0_9_7/tutorial/pong.html>
 * Official SDL2 Library Examples - <https://github.com/marcusva/py-sdl2/tree/master/examples>
 * Additional Repo of Various Examples - <https://github.com/caerus706/Python3-pySDL2-examples>
@@ -55,3 +57,6 @@ Lastly, window size can be adjusted via the (WINDOW_WIDTH, WINDOW_HEIGHT) variab
 ** Mostly used as reference in getting initial program logic setup. Cross-referencing examples can be helpful.
 * Rendering Text, because there seem to be minimal good sources on it -
 * <https://stackoverflow.com/questions/24709312/pysdl2-renderer-or-window-surface-for-handling-colors-and-text>
+
+### Networkx Library
+* Official Networkx Library Docs - <https://networkx.org/documentation/stable/reference/index.html>
