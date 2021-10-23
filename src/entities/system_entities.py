@@ -138,320 +138,7 @@ class Walls:
             # Update tile disallowed states.
             self._disallowed_states += [0, 1, 2, 3, 5, 6, 8, 14]
 
-    def increment_wall_state(self):
-        """
-        Increases wall state counter.
-        Ensures walls update in predictable order.
-        """
-        wall_state = self.wall_state + 1
-
-        # Verify state is still valid value.
-        if wall_state > self._wall_state_max:
-            wall_state = 0
-
-        # Skip certain state values for outer tiles.
-        # Handle for north (upper) edge tiles.
-        if self.tile_y == 0:
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Handle for east (left) edge tiles.
-        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Handle for south (lower) edge tiles.
-        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Handle for west (right) edge tiles.
-        if self.tile_x == 0:
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Save value to class.
-        self.wall_state = wall_state
-
-    def decriment_wall_state(self):
-        """
-        Decreases wall state counter.
-        Ensures walls update in predictable order.
-        """
-        wall_state = self.wall_state - 1
-
-        # Verify state is still valid value.
-        if wall_state < 0:
-            wall_state = self._wall_state_max
-
-        # Skip certain state values for outer tiles.
-        # Handle for north (upper) edge tiles.
-        if self.tile_y == 0:
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Handle for east (left) edge tiles.
-        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Handle for south (lower) edge tiles.
-        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Handle for west (right) edge tiles.
-        if self.tile_x == 0:
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Save value to class.
-        self.wall_state = wall_state
-
-    def get_new_state(self):
-        """
-        Determine new state counter, based on internal wall data.
-        :return:
-        """
-        # All walls inactive.
-        if (
-
-            self.has_wall_north is False and
-            self.has_wall_east is False and
-            self.has_wall_south is False and
-            self.has_wall_west is False
-        ):
-            return 0
-
-        # Only north wall active.
-        elif (
-            self.has_wall_north is True and
-            self.has_wall_east is False and
-            self.has_wall_south is False and
-            self.has_wall_west is False
-        ):
-            return 1
-
-        # Only east wall active.
-        elif (
-            self.has_wall_north is False and
-            self.has_wall_east is True and
-            self.has_wall_south is False and
-            self.has_wall_west is False
-        ):
-            return 2
-
-        # Only south wall active.
-        elif (
-            self.has_wall_north is False and
-            self.has_wall_east is False and
-            self.has_wall_south is True and
-            self.has_wall_west is False
-        ):
-            return 3
-
-        # Only west wall active.
-        elif (
-            self.has_wall_north is False and
-            self.has_wall_east is False and
-            self.has_wall_south is False and
-            self.has_wall_west is True
-        ):
-            return 4
-
-        # North and east walls active.
-        elif (
-            self.has_wall_north is True and
-            self.has_wall_east is True and
-            self.has_wall_south is False and
-            self.has_wall_west is False
-        ):
-            return 5
-
-        # North and south walls active.
-        elif (
-            self.has_wall_north is True and
-            self.has_wall_east is False and
-            self.has_wall_south is True and
-            self.has_wall_west is False
-        ):
-            return 6
-
-        # North and west walls active.
-        elif (
-            self.has_wall_north is True and
-            self.has_wall_east is False and
-            self.has_wall_south is False and
-            self.has_wall_west is True
-        ):
-            return 7
-
-        # East and south walls active.
-        elif (
-            self.has_wall_north is False and
-            self.has_wall_east is True and
-            self.has_wall_south is True and
-            self.has_wall_west is False
-        ):
-            return 8
-
-        # East and west walls active.
-        elif (
-            self.has_wall_north is False and
-            self.has_wall_east is True and
-            self.has_wall_south is False and
-            self.has_wall_west is True
-        ):
-            return 9
-
-        # South and west walls active.
-        elif (
-            self.has_wall_north is False and
-            self.has_wall_east is False and
-            self.has_wall_south is True and
-            self.has_wall_west is True
-        ):
-            return 10
-
-        # All except north wall active.
-        elif (
-            self.has_wall_north is False and
-            self.has_wall_east is True and
-            self.has_wall_south is True and
-            self.has_wall_west is True
-        ):
-            return 11
-
-        # All except east wall active.
-        elif (
-            self.has_wall_north is True and
-            self.has_wall_east is False and
-            self.has_wall_south is True and
-            self.has_wall_west is True
-        ):
-            return 12
-
-        # All except south wall active.
-        elif (
-            self.has_wall_north is True and
-            self.has_wall_east is True and
-            self.has_wall_south is False and
-            self.has_wall_west is True
-        ):
-            return 13
-
-        # All except west wall active.
-        elif (
-            self.has_wall_north is True and
-            self.has_wall_east is True and
-            self.has_wall_south is True and
-            self.has_wall_west is False
-        ):
-            return 14
+    # region Class Properties
 
     @property
     def wall_state(self):
@@ -859,6 +546,327 @@ class Walls:
                     curr_tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
                     neighbor_tile_id = '{0}, {1}'.format(self.tile_x - 1, self.tile_y)
                     self.data_manager.graph[curr_tile_id][neighbor_tile_id]['open'] = True
+
+    # endregion Class Properties
+
+    # region Class Functions
+
+    def increment_wall_state(self):
+        """
+        Increases wall state counter.
+        Ensures walls update in predictable order.
+        """
+        wall_state = self.wall_state + 1
+
+        # Verify state is still valid value.
+        if wall_state > self._wall_state_max:
+            wall_state = 0
+
+        # Skip certain state values for outer tiles.
+        # Handle for north (upper) edge tiles.
+        if self.tile_y == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
+
+        # Handle for east (left) edge tiles.
+        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
+
+        # Handle for south (lower) edge tiles.
+        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
+
+        # Handle for west (right) edge tiles.
+        if self.tile_x == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state += 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state > self._wall_state_max:
+                    wall_state = 0
+                    valid_state = False
+
+        # Save value to class.
+        self.wall_state = wall_state
+
+    def decriment_wall_state(self):
+        """
+        Decreases wall state counter.
+        Ensures walls update in predictable order.
+        """
+        wall_state = self.wall_state - 1
+
+        # Verify state is still valid value.
+        if wall_state < 0:
+            wall_state = self._wall_state_max
+
+        # Skip certain state values for outer tiles.
+        # Handle for north (upper) edge tiles.
+        if self.tile_y == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
+
+        # Handle for east (left) edge tiles.
+        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
+
+        # Handle for south (lower) edge tiles.
+        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
+
+        # Handle for west (right) edge tiles.
+        if self.tile_x == 0:
+
+            # Loop until valid state is found.
+            valid_state = False
+            while not valid_state:
+                valid_state = True
+
+                # Skip invalid states for this tile location.
+                if wall_state in self._disallowed_states:
+                    wall_state -= 1
+                    valid_state = False
+
+                # Verify state is still valid value.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                    valid_state = False
+
+        # Save value to class.
+        self.wall_state = wall_state
+
+    def get_new_state(self):
+        """
+        Determine new state counter, based on internal wall data.
+        :return:
+        """
+        # All walls inactive.
+        if (
+
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 0
+
+        # Only north wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 1
+
+        # Only east wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 2
+
+        # Only south wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 3
+
+        # Only west wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 4
+
+        # North and east walls active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is False
+        ):
+            return 5
+
+        # North and south walls active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 6
+
+        # North and west walls active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 7
+
+        # East and south walls active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 8
+
+        # East and west walls active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 9
+
+        # South and west walls active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is True
+        ):
+            return 10
+
+        # All except north wall active.
+        elif (
+            self.has_wall_north is False and
+            self.has_wall_east is True and
+            self.has_wall_south is True and
+            self.has_wall_west is True
+        ):
+            return 11
+
+        # All except east wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is False and
+            self.has_wall_south is True and
+            self.has_wall_west is True
+        ):
+            return 12
+
+        # All except south wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is True and
+            self.has_wall_south is False and
+            self.has_wall_west is True
+        ):
+            return 13
+
+        # All except west wall active.
+        elif (
+            self.has_wall_north is True and
+            self.has_wall_east is True and
+            self.has_wall_south is True and
+            self.has_wall_west is False
+        ):
+            return 14
+
+    # endregion Class Functions
 
 
 class TrashPile:
