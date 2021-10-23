@@ -228,7 +228,16 @@ class TileSet:
         """
         Randomizes walls on all tiles, while still abiding by wall validation logic.
         """
-        logger.info('Function not implemented yet!')
+        logger.info('Randomizing tile walls.')
+
+        # Get each tile row.
+        for row_index in range(self.sprite_data['tile_h_count']):
+
+            # Get each col in each row
+            for col_index in range(self.sprite_data['tile_w_count']):
+
+                # Set tile wall to random value.
+                self.tiles[row_index][col_index].walls.randomize_walls()
 
     def randomize_trash(self):
         """

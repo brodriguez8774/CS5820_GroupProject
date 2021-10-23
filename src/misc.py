@@ -128,7 +128,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
 
         elif button_state == 4:
             # Right click.
-            tile.walls.decriment_wall_state()
+            tile.walls.decrement_wall_state()
 
         print('\n\n\n\n')
         print('graph.number_of_nodes(): {0}\n'.format(data_manager.graph.number_of_nodes()))

@@ -3,8 +3,8 @@ System entities that hold general system/world data in some manner.
 """
 
 # System Imports.
-import random
 import sdl2.ext
+import random
 
 # User Imports.
 from src.logging import init_logging
@@ -551,6 +551,24 @@ class Walls:
 
     # region Class Functions
 
+    def validate_wall_state(self, wall_state):
+        """
+        Ensures current wall state is valid.
+        :param wall_state: Integer value of current potential new wall configuration for tile.
+        :return: True if new state is valid for wall | False otherwise.
+        """
+        # Verify state is within expected bounds.
+        if wall_state < 0:
+            return False
+        elif wall_state > self._wall_state_max:
+            return False
+
+        # Skip invalid states for this tile location.
+        if wall_state in self._disallowed_states:
+            return False
+
+        return True
+
     def increment_wall_state(self):
         """
         Increases wall state counter.
@@ -558,171 +576,39 @@ class Walls:
         """
         wall_state = self.wall_state + 1
 
-        # Verify state is still valid value.
-        if wall_state > self._wall_state_max:
-            wall_state = 0
+        # Loop until valid "next increment" state is found.
+        while not self.validate_wall_state(wall_state):
+            # State not valid. Check next increment value.
+            wall_state += 1
 
-        # Skip certain state values for outer tiles.
-        # Handle for north (upper) edge tiles.
-        if self.tile_y == 0:
+            # Verify state is within expected bounds.
+            if wall_state < 0:
+                wall_state = self._wall_state_max
+            elif wall_state > self._wall_state_max:
+                wall_state = 0
 
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Handle for east (left) edge tiles.
-        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Handle for south (lower) edge tiles.
-        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Handle for west (right) edge tiles.
-        if self.tile_x == 0:
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state += 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state > self._wall_state_max:
-                    wall_state = 0
-                    valid_state = False
-
-        # Save value to class.
+        # Valid state found. Save new value to class.
         self.wall_state = wall_state
 
-    def decriment_wall_state(self):
+    def decrement_wall_state(self):
         """
         Decreases wall state counter.
         Ensures walls update in predictable order.
         """
         wall_state = self.wall_state - 1
 
-        # Verify state is still valid value.
-        if wall_state < 0:
-            wall_state = self._wall_state_max
+        # Loop until valid "next decrement" state is found.
+        while not self.validate_wall_state(wall_state):
+            # State not valid. Check next decrement value.
+            wall_state -= 1
 
-        # Skip certain state values for outer tiles.
-        # Handle for north (upper) edge tiles.
-        if self.tile_y == 0:
+            # Verify state is within expected bounds.
+            if wall_state < 0:
+                wall_state = self._wall_state_max
+            elif wall_state > self._wall_state_max:
+                wall_state = 0
 
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Handle for east (left) edge tiles.
-        if self.tile_x == (self.data_manager.tile_data['tile_w_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Handle for south (lower) edge tiles.
-        if self.tile_y == (self.data_manager.tile_data['tile_h_count'] - 1):
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Handle for west (right) edge tiles.
-        if self.tile_x == 0:
-
-            # Loop until valid state is found.
-            valid_state = False
-            while not valid_state:
-                valid_state = True
-
-                # Skip invalid states for this tile location.
-                if wall_state in self._disallowed_states:
-                    wall_state -= 1
-                    valid_state = False
-
-                # Verify state is still valid value.
-                if wall_state < 0:
-                    wall_state = self._wall_state_max
-                    valid_state = False
-
-        # Save value to class.
+        # Valid state found. Save new value to class.
         self.wall_state = wall_state
 
     def get_new_state(self):
@@ -865,6 +751,158 @@ class Walls:
             self.has_wall_west is False
         ):
             return 14
+
+    def randomize_walls(self, weighted=True):
+        """
+        Sets walls to random configuration value.
+        :param weighted: Bool indicating if randomization should use weighted generation or not.
+        """
+        # Handle based on mode.
+        if not weighted:
+            # Give all states an equal chance.
+            # Here, we get a random integer, then simply increment until a valid state is found.
+            wall_state = random.randint(0, self._wall_state_max)
+
+            # Loop until valid "next increment" state is found.
+            while not self.validate_wall_state(wall_state):
+                # State not valid. Check next increment value.
+                wall_state += 1
+
+                # Verify state is within expected bounds.
+                if wall_state < 0:
+                    wall_state = self._wall_state_max
+                elif wall_state > self._wall_state_max:
+                    wall_state = 0
+
+            # Valid state found. Save new value to class.
+            self.wall_state = wall_state
+
+        else:
+            # Call weighted randomization logic.
+            print('\n')
+            self._weighted_randomize_walls()
+
+    def _weighted_randomize_walls(self, tried_0=False, tried_1=False, tried_2=False, tried_3=False):
+        """
+        Assign random value based on weights.
+
+        Weight values are as follows:
+            * No walls: 25% chance.
+            * 1 Wall: 25% chance.
+            * 2 Walls: 25% chance.
+            * 3 Walls: 25% chance.
+
+        Note that above weight percentages assume that all wall configurations are valid for tile.
+        This is not true for certain edge-case tiles. In such an edge-case, logic is tailored to try to avoid
+        the possibility of infinite/long loops, while still being as random as possible.
+        """
+        # Get random value for tile count. Default 25% chance of each.
+        rand_val = random.randint(0, 3)
+
+        if rand_val == 0:
+            # Set to no walls.
+            self._assign_0_walls(tried_0=tried_0, tried_1=tried_1, tried_2=tried_2, tried_3=tried_3)
+
+        elif rand_val == 1:
+            # Set to one wall.
+            self._assign_1_wall(tried_0=tried_0, tried_1=tried_1, tried_2=tried_2, tried_3=tried_3)
+
+        elif rand_val == 2:
+            # Set to two walls.
+            self._assign_2_walls(tried_0=tried_0, tried_1=tried_1, tried_2=tried_2, tried_3=tried_3)
+
+        elif rand_val == 3:
+            # Set to three walls.
+            self._assign_3_walls(tried_0=tried_0, tried_1=tried_1, tried_2=tried_2, tried_3=tried_3)
+
+    def _assign_0_walls(self, tried_0=False, tried_1=False, tried_2=False, tried_3=False):
+        """
+        Logic for assigning 3 randomized walls to tile, if possible.
+        """
+        # Update variables for wall assignment.
+        tried_0 = True
+        potential_states = [0]
+
+        # Call general assignment logic.
+        self._assign_wall(potential_states, tried_0, tried_1, tried_2, tried_3)
+
+    def _assign_1_wall(self, tried_0=False, tried_1=False, tried_2=False, tried_3=False):
+        """
+        Logic for assigning 3 randomized walls to tile, if possible.
+        """
+        # Update variables for wall assignment.
+        tried_1 = True
+        potential_states = [1, 2, 3, 4]
+
+        # Call general assignment logic.
+        self._assign_wall(potential_states, tried_0, tried_1, tried_2, tried_3)
+
+    def _assign_2_walls(self, tried_0=False, tried_1=False, tried_2=False, tried_3=False):
+        """
+        Logic for assigning 3 randomized walls to tile, if possible.
+        """
+        # Update variables for wall assignment.
+        tried_2 = True
+        potential_states = [5, 6, 7, 8, 9, 10]
+
+        # Call general assignment logic.
+        self._assign_wall(potential_states, tried_0, tried_1, tried_2, tried_3)
+
+    def _assign_3_walls(self, tried_0=False, tried_1=False, tried_2=False, tried_3=False):
+        """
+        Logic for assigning 3 randomized walls to tile, if possible.
+        """
+        # Update variables for wall assignment.
+        tried_3 = True
+        potential_states = [11, 12, 13, 14]
+
+        # Call general assignment logic.
+        self._assign_wall(potential_states, tried_0, tried_1, tried_2, tried_3)
+
+    def _assign_wall(self, potential_states, tried_0, tried_1, tried_2, tried_3):
+        """
+        General logic for assigning randomized wall when using weights.
+        """
+        valid_state = False
+        wall_state = -1
+
+        # Loop until we exhaust all possible states or valid state is found.
+        while len(potential_states) > 0 and not valid_state:
+
+            # Get new random value.
+            rand_max = len(potential_states) - 1
+            potential_state_index = random.randint(0, rand_max)
+
+            # Check if valid.
+            if self.validate_wall_state(potential_states[potential_state_index]):
+                # Valid state for tile. Exit loop.
+                valid_state = True
+                wall_state = potential_states[potential_state_index]
+            else:
+                # Invalid state for tile. Delete candidate from "potentials" set and try again.
+                del potential_states[potential_state_index]
+
+        # Check if valid state was found.
+        if valid_state:
+            # Check that wall state actually updated.
+            if wall_state > -1:
+                # Valid state found.
+                self.wall_state = wall_state
+            else:
+                raise RuntimeError('Failed to find valid state. Logic error somewhere.')
+
+        else:
+            # Valid state not found.
+            # That means tile cannot have a valid configuration with this number of walls.
+
+            # Check that at least one wall count is not yet attempted for tile.
+            if not (tried_0 and tried_1 and tried_2 and tried_3):
+                # One or more wall counts have not yet been attempted.
+                # Attempting randomization again, but with a different wall count.
+                self._weighted_randomize_walls(tried_0=tried_0, tried_1=tried_1, tried_2=tried_2, tried_3=tried_3)
+            else:
+                # All wall counts have been attempted? Ohno...
+                raise RuntimeError('Failed to find valid state. Logic error somewhere.')
 
     # endregion Class Functions
 
