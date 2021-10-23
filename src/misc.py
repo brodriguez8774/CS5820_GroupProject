@@ -124,7 +124,14 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
 
             # Otherwise reset wall state.
             else:
-                tile.walls.wall_state = 0
+                # Attempt to reset tile to empty.
+                # If state is invalid, increment until "original tile starting state" is found.
+                wall_state = 0
+                while not tile.walls.validate_wall_state(wall_state):
+                    wall_state += 1
+
+                # Found valid state. Assign to tile.
+                tile.walls.wall_state = wall_state
 
         elif button_state == 4:
             # Right click.
