@@ -569,6 +569,163 @@ class Walls:
 
         return True
 
+    def bipartite_color_validation(self):
+        """
+        Validates wall placement by using 2-coloring on the tile graph to ensure all nodes are reachable by the roomba.
+        """
+        # Get initial color state of tiles.
+        green_tiles, red_tiles = self.calc_bipartite_color()
+
+        # Get roomba location.
+        roomba_x, roomba_y = self.data_manager.roomba.sprite.tile
+
+        # Loop until all tiles are green.
+        while len(red_tiles) > 0:
+
+            # Lazily calculate by handling first tile in "red" list.
+            curr_problem_child = red_tiles.pop(0)
+
+            # Get actual problem tile.
+            pos_x = int(curr_problem_child[0])
+            pos_y = int(curr_problem_child[3])
+            tile = self.data_manager.tile_set.tiles[pos_y][pos_x]
+
+            # Fetch neighbor tiles.
+            # If any neighbor is green, then tear down wall.
+            is_red = True
+            # Check if north is green.
+            if is_red and pos_y > 0:
+                north_neighbor = self.data_manager.tile_set.tiles[pos_y - 1][pos_x]
+                north_id = '{0}, {1}'.format(north_neighbor.sprite.tile[0], north_neighbor.sprite.tile[1])
+
+                if north_id in green_tiles:
+                    # North is green. Break wall and set to green also.
+                    tile.walls.has_wall_north = False
+                    is_red = False
+                    green_tiles.append(curr_problem_child)
+
+            # Check if east is green.
+            if is_red and pos_x < (self.data_manager.tile_data['tile_w_count'] - 1):
+                east_neighbor = self.data_manager.tile_set.tiles[pos_y][pos_x + 1]
+                east_id = '{0}, {1}'.format(east_neighbor.sprite.tile[0], east_neighbor.sprite.tile[1])
+
+                if east_id in green_tiles:
+                    # East is green. Break wall and set to green also.
+                    tile.walls.has_wall_east = False
+                    is_red = False
+                    green_tiles.append(curr_problem_child)
+
+            # Check if south is green.
+            if is_red and pos_y < (self.data_manager.tile_data['tile_h_count'] - 1):
+                south_neighbor = self.data_manager.tile_set.tiles[pos_y + 1][pos_x]
+                south_id = '{0}, {1}'.format(south_neighbor.sprite.tile[0], south_neighbor.sprite.tile[1])
+
+                if south_id in green_tiles:
+                    # South is green. Break wall and set to green also.
+                    tile.walls.has_wall_south = False
+                    is_red = False
+                    green_tiles.append(curr_problem_child)
+
+            # Check if west is green.
+            if is_red and pos_x > 0:
+                west_neighbor = self.data_manager.tile_set.tiles[pos_y][pos_x - 1]
+                west_id = '{0}, {1}'.format(west_neighbor.sprite.tile[0], west_neighbor.sprite.tile[1])
+
+                if west_id in green_tiles:
+                    # West is green. Break wall and set to green also.
+                    tile.walls.has_wall_west = False
+                    is_red = False
+                    green_tiles.append(curr_problem_child)
+
+            # Check if any walls were successfully broken down.
+            if not is_red:
+                # Wall was broken. Recalculate color state of tiles for next loop.
+                green_tiles, red_tiles = self.calc_bipartite_color()
+            else:
+                # All adjacent tiles are red. Failed to break down any walls.
+                # Readd tile to end of "red list" and try again with next tile.
+                red_tiles.append(curr_problem_child)
+
+    def calc_bipartite_color(self):
+        """
+        Calculates all tiles accessible by roomba entity. These are marked as "green", all other tiles are "red".
+        :return: (Array of green tiles, array of red tiles).
+        """
+        # Get roomba location.
+        roomba_x, roomba_y = self.data_manager.roomba.sprite.tile
+
+        # Initialize all tiles to "red".
+        graph = self.data_manager.graph
+        red_tiles = list(graph.nodes())
+        green_tiles = []
+        pending_tile_list = []
+
+        # Start by setting roomba tile to "green".
+        tile_id = '{0}, {1}'.format(roomba_x, roomba_y)
+        green_tiles.append(tile_id)
+        red_tiles.remove(tile_id)
+        pending_tile_list.append(tile_id)
+
+        # Loop through pending list until it's empty.
+        # Here, we loop through all "green" tiles, checking for additional connected tiles to set to "green".
+        while len(pending_tile_list) > 0:
+
+            # Grab tile at start of list.
+            tile_id = pending_tile_list.pop(0)
+            pos_x = int(tile_id[0])
+            pos_y = int(tile_id[3])
+
+            # Get literal tile entity.
+            curr_tile = self.data_manager.tile_set.tiles[pos_y][pos_x]
+
+            # Fetch neighbor tiles.
+            if not curr_tile.walls.has_wall_north and pos_y > 0:
+                # North tile is connected.
+                north_neighbor = self.data_manager.tile_set.tiles[pos_y - 1][pos_x]
+                north_id = '{0}, {1}'.format(north_neighbor.sprite.tile[0], north_neighbor.sprite.tile[1])
+
+                # Set tile to "green", if not already.
+                if north_id in red_tiles:
+                    green_tiles.append(north_id)
+                    red_tiles.remove(north_id)
+                    pending_tile_list.append(north_id)
+
+            if not curr_tile.walls.has_wall_east and self.tile_y < (self.data_manager.tile_data['tile_w_count'] + 1):
+                # East tile is connected.
+                east_neighbor = self.data_manager.tile_set.tiles[pos_y][pos_x + 1]
+                east_id = '{0}, {1}'.format(east_neighbor.sprite.tile[0], east_neighbor.sprite.tile[1])
+
+                # Set tile to "green", if not already.
+                if east_id in red_tiles:
+                    green_tiles.append(east_id)
+                    red_tiles.remove(east_id)
+                    pending_tile_list.append(east_id)
+
+            if not curr_tile.walls.has_wall_south and self.tile_y < (self.data_manager.tile_data['tile_h_count'] - 1):
+                # South tile is connected.
+                south_neighbor = self.data_manager.tile_set.tiles[pos_y + 1][pos_x]
+                south_id = '{0}, {1}'.format(south_neighbor.sprite.tile[0], south_neighbor.sprite.tile[1])
+
+                # Set tile to "green", if not already.
+                if south_id in red_tiles:
+                    green_tiles.append(south_id)
+                    red_tiles.remove(south_id)
+                    pending_tile_list.append(south_id)
+
+            if not curr_tile.walls.has_wall_west and pos_x > 0:
+                # West tile is connected.
+                west_neighbor = self.data_manager.tile_set.tiles[pos_y][pos_x - 1]
+                west_id = '{0}, {1}'.format(west_neighbor.sprite.tile[0], west_neighbor.sprite.tile[1])
+
+                # Set tile to "green", if not already.
+                if west_id in red_tiles:
+                    green_tiles.append(west_id)
+                    red_tiles.remove(west_id)
+                    pending_tile_list.append(west_id)
+
+        return green_tiles, red_tiles
+
+
     def increment_wall_state(self):
         """
         Increases wall state counter.
@@ -752,6 +909,8 @@ class Walls:
         ):
             return 14
 
+    # region Random Wall Assignment
+
     def randomize_walls(self, weighted=True):
         """
         Sets walls to random configuration value.
@@ -779,7 +938,6 @@ class Walls:
 
         else:
             # Call weighted randomization logic.
-            print('\n')
             self._weighted_randomize_walls()
 
     def _weighted_randomize_walls(self, tried_0=False, tried_1=False, tried_2=False, tried_3=False):
@@ -904,12 +1062,14 @@ class Walls:
                 # All wall counts have been attempted? Ohno...
                 raise RuntimeError('Failed to find valid state. Logic error somewhere.')
 
+    # endregion Random Wall Assignment
+
     # endregion Class Functions
 
 
 class TrashPile:
     """
-    Holds "trashpile" data for a "tile" entity.
+    Holds "trash pile" data for a "tile" entity.
     """
     def __init__(self, data_manager, trash_entity, tile_x, tile_y):
         self.data_manager = data_manager

@@ -109,6 +109,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
         # Check what click type occurred.
         if button_state == 1:
             # Left click.
+            logger.info('    Incrementing tile walls.')
             tile.walls.increment_wall_state()
 
         elif button_state == 2:
@@ -126,6 +127,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             else:
                 # Attempt to reset tile to empty.
                 # If state is invalid, increment until "original tile starting state" is found.
+                logger.info('    Resetting tile wall state.')
                 wall_state = 0
                 while not tile.walls.validate_wall_state(wall_state):
                     wall_state += 1
@@ -135,13 +137,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
 
         elif button_state == 4:
             # Right click.
+            logger.info('    Decrementing tile walls.')
             tile.walls.decrement_wall_state()
-
-        print('\n\n\n\n')
-        print('graph.number_of_nodes(): {0}\n'.format(data_manager.graph.number_of_nodes()))
-        print('graph.number_of_edges(): {0}\n'.format(data_manager.graph.number_of_edges()))
-        print('graph.nodes(): {0}\n'.format(data_manager.graph.nodes(data=True)))
-        print('graph.edges(): {0}\n'.format(data_manager.graph.edges(data=True)))
-        print('graph.neighbors(1, 1): {0}\n'.format(list(data_manager.graph.neighbors('1, 1'))))
 
 # endregion Handler Functions

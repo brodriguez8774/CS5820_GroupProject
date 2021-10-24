@@ -126,7 +126,6 @@ class TileSet:
 
             # Initialize each tile in row.
             for col_index in range(self.sprite_data['tile_w_count']):
-                print('\n\n')
                 # Generate current tile.
                 tile = Tile(
                     data_manager.world,
@@ -146,17 +145,16 @@ class TileSet:
                 # Add node to current row.
                 curr_row.append(tile)
 
-                print('\n\n')
-
             # Set full row to tile set.
             self.tiles.append(curr_row)
 
-        print('\n\n\n\n')
-        print('graph.number_of_nodes(): {0}\n'.format(data_manager.graph.number_of_nodes()))
-        print('graph.number_of_edges(): {0}\n'.format(data_manager.graph.number_of_edges()))
-        print('graph.nodes(): {0}\n'.format(data_manager.graph.nodes(data=True)))
-        print('graph.edges(): {0}\n'.format(data_manager.graph.edges(data=True)))
-        print('graph.neighbors(1, 1): {0}\n'.format(list(data_manager.graph.neighbors('1, 1'))))
+        logger.info('\n\n')
+        logger.info('graph.number_of_nodes(): {0}\n'.format(data_manager.graph.number_of_nodes()))
+        logger.info('graph.number_of_edges(): {0}\n'.format(data_manager.graph.number_of_edges()))
+        logger.info('graph.nodes(): {0}\n'.format(data_manager.graph.nodes(data=True)))
+        logger.info('graph.edges(): {0}\n'.format(data_manager.graph.edges(data=True)))
+        logger.info('graph.neighbors(1, 1): {0}\n'.format(list(data_manager.graph.neighbors('1, 1'))))
+        logger.info('\n\n')
 
     def get_tile_id(self, tile, north_neighbor=False, east_neighbor=False, south_neighbor=False, west_neighbor=False):
         """
@@ -185,11 +183,11 @@ class TileSet:
         # Get coordinate values from tile.
         tile_x, tile_y = tile.sprite.tile
 
-        print('tile: {0}, {1}'.format(tile_x, tile_y))
+        logger.info('tile: {0}, {1}'.format(tile_x, tile_y))
 
         # Check if we get north neighboring tile id.
         if north_neighbor:
-            print('    getting north neighbor')
+            logger.info('    getting north neighbor')
             if tile_y > 0:
                 tile_y = tile_y - 1
             else:
@@ -197,7 +195,7 @@ class TileSet:
 
         # Check if we get east neighboring tile id.
         if east_neighbor:
-            print('    getting east neighbor')
+            logger.info('    getting east neighbor')
             if tile_x < self.data_manager.tile_data['tile_w_count'] - 1:
                 tile_x = tile_x + 1
             else:
@@ -205,7 +203,7 @@ class TileSet:
 
         # Check if we get south neighboring tile id.
         if south_neighbor:
-            print('    getting south neighbor')
+            logger.info('    getting south neighbor')
             if tile_y < self.data_manager.tile_data['tile_h_count'] - 1:
                 tile_y = tile_y + 1
             else:
@@ -213,7 +211,7 @@ class TileSet:
 
         # Check if we get west neighboring tile id.
         if west_neighbor:
-            print('    getting west neighbor')
+            logger.info('    getting west neighbor')
             if tile_x > 0:
                 tile_x = tile_x - 1
             else:
@@ -221,7 +219,7 @@ class TileSet:
 
         # Convert into expected format.
         id = '{0}, {1}'.format(tile_x, tile_y)
-        print('    found_id: "{0}"'.format(id))
+        logger.info('    found_id: "{0}"'.format(id))
         return id
 
     def randomize_tile_walls(self):
@@ -238,6 +236,8 @@ class TileSet:
 
                 # Set tile wall to random value.
                 self.tiles[row_index][col_index].walls.randomize_walls()
+
+        self.tiles[0][0].walls.bipartite_color_validation()
 
     def randomize_trash(self):
         """
