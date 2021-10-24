@@ -725,7 +725,6 @@ class Walls:
 
         return green_tiles, red_tiles
 
-
     def increment_wall_state(self):
         """
         Increases wall state counter.

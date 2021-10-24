@@ -222,12 +222,27 @@ class TileSet:
         logger.info('    found_id: "{0}"'.format(id))
         return id
 
-    def randomize_tile_walls(self):
+    def randomize_tile_walls_equal(self):
+        """
+        Wrapper for wall randomization.
+        Calls with all tile configurations having equal weight.
+        """
+        logger.info('Randomizing tile walls (equal randomization).')
+        self._randomize_tile_walls(weighted=False)
+
+    def randomize_tile_walls_weighted(self):
+        """
+        Wrapper for wall randomization.
+        Calls with certain tile configurations having larger weights.
+        Generally speaking, tiles walls will be more sparsely populated.
+        """
+        logger.info('Randomizing tile walls (weighted randomization).')
+        self._randomize_tile_walls(weighted=True)
+
+    def _randomize_tile_walls(self, weighted=False):
         """
         Randomizes walls on all tiles, while still abiding by wall validation logic.
         """
-        logger.info('Randomizing tile walls.')
-
         # Get each tile row.
         for row_index in range(self.sprite_data['tile_h_count']):
 
@@ -235,7 +250,7 @@ class TileSet:
             for col_index in range(self.sprite_data['tile_w_count']):
 
                 # Set tile wall to random value.
-                self.tiles[row_index][col_index].walls.randomize_walls()
+                self.tiles[row_index][col_index].walls.randomize_walls(weighted=weighted)
 
         self.tiles[0][0].walls.bipartite_color_validation()
 

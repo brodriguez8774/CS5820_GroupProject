@@ -42,13 +42,21 @@ class GuiCore:
         # Initialize general gui background.
         self.background = GuiBackground(data_manager)
 
-        # Initialize "randomize tile walls" button.
+        # Initialize "randomize tile walls" buttons.
         self.rand_walls = GuiButton(
             data_manager,
-            'Randomize Walls',
+            'Randomize Walls (E)',
             50,
-            name='RandWalls Button',
-            function_call=data_manager.tile_set.randomize_tile_walls,
+            name='RandWalls Button (Equal Randomization)',
+            function_call=data_manager.tile_set.randomize_tile_walls_equal,
+        )
+        self.elements.append(self.rand_walls)
+        self.rand_walls = GuiButton(
+            data_manager,
+            'Randomize Walls (W)',
+            90,
+            name='RandWalls Button (Weighted Randomization)',
+            function_call=data_manager.tile_set.randomize_tile_walls_weighted,
         )
         self.elements.append(self.rand_walls)
 
@@ -56,7 +64,7 @@ class GuiCore:
         self.rand_trash = GuiButton(
             data_manager,
             'Randomize Trash',
-            90,
+            130,
             name='RandTrash Button',
             function_call=data_manager.tile_set.randomize_trash,
         )
