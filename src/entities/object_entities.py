@@ -10,6 +10,8 @@ Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones
 """
 
 # System Imports.
+import random
+
 import sdl2.ext
 
 # User Imports.
@@ -252,13 +254,25 @@ class TileSet:
                 # Set tile wall to random value.
                 self.tiles[row_index][col_index].walls.randomize_walls(weighted=weighted)
 
+        # Ensure all paths are accessible by roomba.
         self.tiles[0][0].walls.bipartite_color_validation()
 
     def randomize_trash(self):
         """
         Randomizes trash entities on all tiles.
         """
-        logger.info('Function not implemented yet!')
+        logger.info('Randomizing trash entity placement.')
+
+        # Get each tile row.
+        for row_index in range(self.sprite_data['tile_h_count']):
+
+            # Get each col in each row
+            for col_index in range(self.sprite_data['tile_w_count']):
+                # Modify tile trash existence. Roughly 10% chance of any tile having trash.
+                if random.randint(0, 9) < 1:
+                    self.tiles[row_index][col_index].trashpile.place()
+                else:
+                    self.tiles[row_index][col_index].trashpile.clean()
 
 
 class Trash(sdl2.ext.Entity):
