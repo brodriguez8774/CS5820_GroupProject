@@ -1,12 +1,5 @@
 """
 Living entities that have sprites and display to renderer window.
-
-Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones):
- * Roomba: 4
- * TrashBall: 3
- * Active Wall: 2
- * Floor Tile: 1
- * Hidden/Unused Sprites: 0
 """
 
 # System Imports.
@@ -45,7 +38,7 @@ class Roomba(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping.
-        self.sprite.depth = 4
+        self.sprite.depth = data_manager.sprite_depth['roomba']
 
 
 class Tile(sdl2.ext.Entity):
@@ -64,7 +57,7 @@ class Tile(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping.
-        self.sprite.depth = 1
+        self.sprite.depth = data_manager.sprite_depth['floor_tile']
 
         # Initialize tile wall data.
         wall_sprite_north = data_manager.sprite_factory.from_image(RESOURCES.get_path('wall_north.png'))
@@ -85,6 +78,25 @@ class Tile(sdl2.ext.Entity):
         self.trashpile = TrashPile(data_manager, trash_entity, tile_x, tile_y)
 
 
+class DebugTile(sdl2.ext.Entity):
+    """
+    Debug rendering for a single tile.
+    """
+    def __init__(self, world, sprite, data_manager, tile_x=0, tile_y=0):
+        # Set entity display image.
+        self.sprite = sprite
+
+        # Define world systems which affect entity.
+        self.movement = Movement(data_manager)
+
+        # Set entity location tracking.
+        self.sprite.tile = tile_x, tile_y
+        self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
+
+        # Set entity depth mapping.
+        self.sprite.depth = data_manager.sprite_depth['debug_floor_tile']
+
+
 class TileWall(sdl2.ext.Entity):
     """
     A single wall on a tile.
@@ -102,7 +114,7 @@ class TileWall(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping. Defaults to 0 so it's hidden from view.
-        self.sprite.depth = 0
+        self.sprite.depth = data_manager.sprite_depth['inactive']
 
 
 class TileSet:
@@ -291,4 +303,4 @@ class Trash(sdl2.ext.Entity):
         self.sprite.position = self.movement.calculate_pix_from_tile(tile_x, tile_y)
 
         # Set entity depth mapping. Defaults to 0 so it's hidden from view.
-        self.sprite.depth = 0
+        self.sprite.depth = data_manager.sprite_depth['inactive']

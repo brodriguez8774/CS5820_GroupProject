@@ -1,5 +1,13 @@
 """
 Misc helper functions and classes.
+
+Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones):
+ * Roomba: 5
+ * TrashBall: 4
+ * Active Wall: 3
+ * Debug Floor tile: 2
+ * Floor Tile: 1
+ * Hidden/Unused Sprites: 0
 """
 
 # System Imports.
@@ -37,6 +45,15 @@ class DataManager:
         self.tile_set = None
         self.roomba = None
         self.graph = networkx.Graph()
+        self.sprite_depth = {
+            'roomba': 5,
+            'trash': 4,
+            'wall': 3,
+            'debug_floor_tile': 2,
+            'floor_tile': 1,
+            'inactive': 0,
+        }
+
 
 # endregion Data Structures
 

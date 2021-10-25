@@ -278,7 +278,7 @@ class Walls:
             # Setting to True.
 
             # Update wall displaying/rendering.
-            self.walls['north'].sprite.depth = 2
+            self.walls['north'].sprite.depth = self.data_manager.sprite_depth['wall']
 
             # Update tile management variables.
             self.has_walls = True
@@ -305,7 +305,7 @@ class Walls:
             # Setting to False.
 
             # Update wall displaying/rendering.
-            self.walls['north'].sprite.depth = 0
+            self.walls['north'].sprite.depth = self.data_manager.sprite_depth['inactive']
 
             # Update tile management variables.
             self._has_wall_north = False
@@ -349,7 +349,7 @@ class Walls:
             # Setting to True.
 
             # Update wall displaying/rendering.
-            self.walls['east'].sprite.depth = 2
+            self.walls['east'].sprite.depth = self.data_manager.sprite_depth['wall']
 
             # Update tile management variables.
             self.has_walls = True
@@ -376,7 +376,7 @@ class Walls:
             # Setting to False.
 
             # Update wall displaying/rendering.
-            self.walls['east'].sprite.depth = 0
+            self.walls['east'].sprite.depth = self.data_manager.sprite_depth['inactive']
 
             # Update tile management variables.
             self._has_wall_east = False
@@ -420,7 +420,7 @@ class Walls:
             # Setting to True.
 
             # Update wall displaying/rendering.
-            self.walls['south'].sprite.depth = 2
+            self.walls['south'].sprite.depth = self.data_manager.sprite_depth['wall']
 
             # Update tile management variables.
             self.has_walls = True
@@ -447,7 +447,7 @@ class Walls:
             # Setting to False.
 
             # Update wall displaying/rendering.
-            self.walls['south'].sprite.depth = 0
+            self.walls['south'].sprite.depth = self.data_manager.sprite_depth['inactive']
 
             # Update tile management variables.
             self._has_wall_south = False
@@ -491,7 +491,7 @@ class Walls:
             # Setting to True.
 
             # Update wall displaying/rendering.
-            self.walls['west'].sprite.depth = 2
+            self.walls['west'].sprite.depth = self.data_manager.sprite_depth['wall']
 
             # Update tile management variables.
             self.has_walls = True
@@ -518,7 +518,7 @@ class Walls:
             # Setting to False.
 
             # Update wall displaying/rendering.
-            self.walls['west'].sprite.depth = 0
+            self.walls['west'].sprite.depth = self.data_manager.sprite_depth['inactive']
 
             # Update tile management variables.
             self._has_wall_west = False
@@ -1094,7 +1094,7 @@ class TrashPile:
             logger.info('Placed trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
 
             # Update tile data.
-            self.trash.sprite.depth = 3
+            self.trash.sprite.depth = self.data_manager.sprite_depth['trash']
 
             # Update internal trackers.
             self.exists = True
@@ -1108,7 +1108,7 @@ class TrashPile:
             logger.info('Cleaned trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
 
             # Update tile data.
-            self.trash.sprite.depth = 0
+            self.trash.sprite.depth = self.data_manager.sprite_depth['inactive']
 
             # Update internal trackers.
             self.exists = False
