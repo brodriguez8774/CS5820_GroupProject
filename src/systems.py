@@ -8,7 +8,7 @@ import sdl2.ext
 from abc import ABC
 
 # User Imports.
-from src.entities.system_entities import AI, Movement
+from src.entities.system_entities import AI, Movement, SearchOptimalDistance
 from src.logging import init_logging
 
 
@@ -226,6 +226,8 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
 
         # Save component types values. Necessary for SDL2 system handling.
         self.componenttypes = AI, sdl2.ext.Sprite
+        # self.componenttypes = SearchOptimalDistance, sdl2.ext.Sprite
+        # self.componenttypes = AI, SearchOptimalDistance, sdl2.ext.Sprite
 
         # Save class variables.
         self.data_manager = data_manager
@@ -241,5 +243,41 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
         :param componenttypes: Tuple of relevant tuples for system.
         """
         for ai_tick, sprite in componenttypes:
+        #     print('ai_tick: {0}'.format(ai_tick))
+        #     print('sprite: {0}'.format(sprite))
+
             if ai_tick.active and ai_tick.check_counter():
-                self.move_east(sprite)
+                print('\n')
+                print('ai_tick: {0}'.format(ai_tick))
+                print('sprite: {0}'.format(sprite))
+
+                # Determine optimal distance to reach tiles, excluding inclusion of walls.
+                ai_tick.search_optimal_distance()
+
+                # # Move roomba.
+                # self.move_east(sprite)
+
+        # for ai_tick, search_tick, sprite in componenttypes:
+        #
+        #     print('ai_tick: {0}'.format(ai_tick))
+        #     print('search_tick: {0}'.format(search_tick))
+        #     print('sprite: {0}'.format(sprite))
+        #
+        #     if ai_tick.active and ai_tick.check_counter():
+        #         # Move roomba.
+        #         self.move_east(sprite)
+
+    # def process(self, world, componenttypes):
+    #     """
+    #     System handling during a single world processing tick.
+    #     :param world: World instance calling the process tick.
+    #     :param componenttypes: Tuple of relevant tuples for system.
+    #     """
+    #     for ai_tick, search, sprite in componenttypes:
+    #
+    #         if ai_tick.active and ai_tick.check_counter():
+    #             # Calculate optimal distance.
+    #             search.search_optimal_distance()
+    #
+    #             # Move roomba.
+    #             self.move_east(sprite)

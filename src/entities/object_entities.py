@@ -8,7 +8,7 @@ import random
 import sdl2.ext
 
 # User Imports.
-from .system_entities import AI, Movement, TrashPile, Walls
+from .system_entities import AI, Movement, TrashPile, Search, Walls
 from src.logging import init_logging
 
 
@@ -170,6 +170,13 @@ class TileSet:
         logger.info('graph.neighbors(1, 1): {0}\n'.format(list(data_manager.graph.neighbors('1, 1'))))
         logger.info('\n\n')
 
+    def get_tile_from_id(self, tile_id):
+        """"""
+        tile_x = int(tile_id[0])
+        tile_y = int(tile_id[3])
+
+        return self.tiles[tile_y][tile_x]
+
     def get_tile_id(self, tile, north_neighbor=False, east_neighbor=False, south_neighbor=False, west_neighbor=False):
         """
         Returns the "graph node" identifier for corresponding tile.
@@ -282,9 +289,13 @@ class TileSet:
             for col_index in range(self.sprite_data['tile_w_count']):
                 # Modify tile trash existence. Roughly 10% chance of any tile having trash.
                 if random.randint(0, 9) < 1:
-                    self.tiles[row_index][col_index].trashpile.place()
+                    # Place trash if not currently on tile.
+                    if not self.tiles[row_index][col_index].trashpile.exists:
+                        self.tiles[row_index][col_index].trashpile.place()
                 else:
-                    self.tiles[row_index][col_index].trashpile.clean()
+                    # Remove trash if present.
+                    if self.tiles[row_index][col_index].trashpile.exists:
+                        self.tiles[row_index][col_index].trashpile.clean()
 
 
 class Trash(sdl2.ext.Entity):
