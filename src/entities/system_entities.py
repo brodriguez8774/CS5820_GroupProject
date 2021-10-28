@@ -1202,7 +1202,11 @@ class TrashPile:
         total_tiles = data_manager.tile_data['tile_w_count'] * data_manager.tile_data['tile_h_count']
         # if random.randint(0, (total_tiles % 10)) < 1:
         #     self.place()
-        if self.tile_x == 1 and self.tile_y == 1:
+        if (
+            (self.tile_x == 1 and self.tile_y == 1) or
+            (self.tile_x == 2 and self.tile_y == 5) or
+            (self.tile_x == 5 and self.tile_y == 0)
+        ):
             self.place()
 
     def place(self):

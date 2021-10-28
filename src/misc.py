@@ -160,8 +160,9 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             logger.info('    Decrementing tile walls.')
             tile.walls.decrement_wall_state()
 
-    # print('trash_tiles: {0}'.format(data_manager.graph.data['trash_tiles']))
-    calc_trash_distances(data_manager)
+    else:
+        # print('trash_tiles: {0}'.format(data_manager.graph.data['trash_tiles']))
+        calc_trash_distances(data_manager)
 
 # endregion GUI Logic Functions
 
@@ -221,9 +222,9 @@ def calc_distance_cost(start_tile_x, start_tile_y, end_tile_x, end_tile_y):
     :return: Calculated distance between tiles.
     """
     distance = abs(start_tile_x - end_tile_x) + abs(start_tile_y - end_tile_y)
-    logger.info('    tile_cost for ({0}, {1}) to ({2}, {3}): {4}'.format(
-        start_tile_x, start_tile_y, end_tile_x, end_tile_y, distance,
-    ))
+    # logger.info('    tile_cost for ({0}, {1}) to ({2}, {3}): {4}'.format(
+    #     start_tile_x, start_tile_y, end_tile_x, end_tile_y, distance,
+    # ))
     return distance
 
 
@@ -263,52 +264,55 @@ def calc_trash_distances(data_manager):
 
             # Find distance from current trash pile to each other trash pile.
             for end_tile_id in trash_tiles:
+                # Reset data structures for new tile.
+                priority_queue = []
+                handled_tiles = {}
+
                 # Ensure tiles are different.
                 if start_tile_id != end_tile_id:
                     # Parse out coordinates for tile.
                     end_tile_x, end_tile_y = get_tile_coord_from_id(end_tile_id)
 
                     # Initialize queue by calculating first tile distance and setting as first element.
-                    _calc_neighbor_costs(start_tile, end_tile_x, end_tile_y)
+                    curr_id = get_id_from_tile(start_tile)
+                    curr_path = [curr_id]
+                    _calc_neighbor_costs(start_tile, end_tile_x, end_tile_y, 1, curr_path)
+                    logger.info('')
                     logger.info('    to ({0}, {1}): {2}'.format(end_tile_x, end_tile_y, priority_queue))
 
                     # Iterate until we make it to our desired ending tile.
                     # Always use priority queue to check the shortest-distance tile.
-                    iterate = True
-                    while iterate and len(priority_queue) > 0:
+                    while True:
                         # Parse out data for next tile.
                         curr_tile_data = priority_queue.pop(0)
-                        logger.info('Handling {0}'.format(curr_tile_data))
                         curr_tile_id = curr_tile_data['id']
+                        logger.info('')
+                        logger.info('Handling {0}: {1}'.format(curr_tile_id, curr_tile_data))
+                        curr_tile_backward_cost = curr_tile_data['backward_cost']
+                        curr_tile_path = curr_tile_data['path']
                         curr_tile = get_tile_from_id(data_manager, curr_tile_id)
 
                         # Check if tile is at desired end position.
                         curr_tile_x, curr_tile_y = curr_tile.sprite.tile
                         if curr_tile_x == end_tile_x and curr_tile_y == end_tile_y:
                             # Found path. Stop checking further tiles.
-                            priority_queue = []
-                            iterate = False
                             break
 
                         # Calculate distance costs of fellow neighbor tiles.
-                        _calc_neighbor_costs(curr_tile, end_tile_x, end_tile_y)
+                        _calc_neighbor_costs(curr_tile, end_tile_x, end_tile_y, curr_tile_backward_cost, curr_tile_path)
                         logger.info('    to ({0}, {1}): {2}'.format(end_tile_x, end_tile_y, priority_queue))
-
-                        if len(priority_queue) <= 0:
-                            iterate = False
-
-                # Stop after one trash-pair is fully calculated. For debugging. REMOVE LATER.
-                break
 
             print('\n')
 
-    def _calc_neighbor_costs(curr_tile, end_tile_x, end_tile_y, debug=False):
+    def _calc_neighbor_costs(curr_tile, end_tile_x, end_tile_y, curr_backward_cost, curr_path, debug=False):
         """
         Calculate costs from neighbors of current tile, to desired ending tile coordinates.
         Skips any neighboring tiles that are blocked, such as by a wall.
         :param curr_tile: Tile entity to calculate from.
         :param end_tile_x: Desired ending x coordinates.
         :param end_tile_y: Desired ending y  coordinates.
+        :param curr_backward_cost: Cost incurred so far to reach current tile.
+        :param curr_path: Path taken to reach current tile.
         :param debug: Bool indicating if debug sprites should display.
         """
         debug = True
@@ -337,11 +341,20 @@ def calc_trash_distances(data_manager):
                 handled_tiles[neig_id]
             except KeyError:
                 # North tile is accessible and not yet handled. Check distance.
-                distance = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                # neigh_distance = curr_distance
+                # neigh_distance = 0
+                forward_cost = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                logger.info('    tile_cost for ({0}, {1}) to ({2}, {3}):'.format(
+                    neig_tile_x, neig_tile_y, end_tile_x, end_tile_y,
+                ))
+                logger.info('        forward_cost:  {0}'.format(forward_cost))
+                logger.info('        backward_cost: {0}'.format(curr_backward_cost))
+                neigh_distance = forward_cost + curr_backward_cost
+                logger.info('        total_cost:    {0}'.format(neigh_distance))
                 tile_id = '{0}, {1}'.format(neig_tile_x, neig_tile_y)
 
                 # Add to priority queue.
-                _add_to_priority_queue(tile_id, distance)
+                _add_to_priority_queue(tile_id, forward_cost, curr_backward_cost, curr_path)
 
                 # Update our handled_tiles dict to include this tile.
                 handled_tiles[neig_id] = True
@@ -362,11 +375,20 @@ def calc_trash_distances(data_manager):
                 handled_tiles[neig_id]
             except KeyError:
                 # East tile is accessible and not yet handled. Check distance.
-                distance = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                # neigh_distance = curr_distance
+                # neigh_distance = 0
+                forward_cost = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                logger.info('    tile_cost for ({0}, {1}) to ({2}, {3}):'.format(
+                    neig_tile_x, neig_tile_y, end_tile_x, end_tile_y,
+                ))
+                logger.info('        forward_cost:  {0}'.format(forward_cost))
+                logger.info('        backward_cost: {0}'.format(curr_backward_cost))
+                neigh_distance = forward_cost + curr_backward_cost
+                logger.info('        total_cost:    {0}'.format(neigh_distance))
                 tile_id = '{0}, {1}'.format(neig_tile_x, neig_tile_y)
 
                 # Add to priority queue.
-                _add_to_priority_queue(tile_id, distance)
+                _add_to_priority_queue(tile_id, forward_cost, curr_backward_cost, curr_path)
 
                 # Update our handled_tiles dict to include this tile.
                 handled_tiles[neig_id] = True
@@ -387,11 +409,20 @@ def calc_trash_distances(data_manager):
                 handled_tiles[neig_id]
             except KeyError:
                 # South tile is accessible and not yet handled. Check distance.
-                distance = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                # neigh_distance = curr_distance
+                # neigh_distance = 0
+                forward_cost = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                logger.info('    tile_cost for ({0}, {1}) to ({2}, {3}):'.format(
+                    neig_tile_x, neig_tile_y, end_tile_x, end_tile_y,
+                ))
+                logger.info('        forward_cost:  {0}'.format(forward_cost))
+                logger.info('        backward_cost: {0}'.format(curr_backward_cost))
+                neigh_distance = forward_cost + curr_backward_cost
+                logger.info('        total_cost:    {0}'.format(neigh_distance))
                 tile_id = '{0}, {1}'.format(neig_tile_x, neig_tile_y)
 
                 # Add to priority queue.
-                _add_to_priority_queue(tile_id, distance)
+                _add_to_priority_queue(tile_id, forward_cost, curr_backward_cost, curr_path)
 
                 # Update our handled_tiles dict to include this tile.
                 handled_tiles[neig_id] = True
@@ -412,11 +443,20 @@ def calc_trash_distances(data_manager):
                 handled_tiles[neig_id]
             except KeyError:
                 # West tile is accessible and not yet handled. Check distance.
-                distance = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                # neigh_distance = curr_distance
+                # neigh_distance = 0
+                forward_cost = calc_distance_cost(neig_tile_x, neig_tile_y, end_tile_x, end_tile_y)
+                logger.info('    tile_cost for ({0}, {1}) to ({2}, {3}):'.format(
+                    neig_tile_x, neig_tile_y, end_tile_x, end_tile_y,
+                ))
+                logger.info('        forward_cost:  {0}'.format(forward_cost))
+                logger.info('        backward_cost: {0}'.format(curr_backward_cost))
+                neigh_distance = forward_cost + curr_backward_cost
+                logger.info('        total_cost:    {0}'.format(neigh_distance))
                 tile_id = '{0}, {1}'.format(neig_tile_x, neig_tile_y)
 
                 # Add to priority queue.
-                _add_to_priority_queue(tile_id, distance)
+                _add_to_priority_queue(tile_id, forward_cost, curr_backward_cost, curr_path)
 
                 # Update our handled_tiles dict to include this tile.
                 handled_tiles[neig_id] = True
@@ -428,34 +468,50 @@ def calc_trash_distances(data_manager):
                     debug_tile_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
                     DebugTile(data_manager.world, debug_tile_sprite, data_manager, end_tile_x, end_tile_y)
 
-    def _add_to_priority_queue(tile_id, distance):
+    def _add_to_priority_queue(tile_id, forward_cost, backward_cost, path):
         """
-        Creates new entry in priority queue datastructure.
+        Creates new entry in priority queue data structure.
         Data is entered in ascending distance order, so smaller distances will show first.
 
         Distance should be a combination of "tiles travelled so far" plus "distance left to reach tile, assuming no
         barriers exist between current tile and ending locations.
         :param tile_id: Id of tile to enter into queue.
-        :param distance: Distance of tile to end-goal.
+        :param forward_cost: Distance of tile to end-goal.
+        :param backward_cost: Distance travelled so far, to reach current tile.
+        :param path: List of all tiles in current path to reach current location.
         """
         # Tell function to use variables in larger function scope.
         nonlocal priority_queue
         nonlocal handled_tiles
         # self.pending_list.append({'tile': start_tile, 'cost': start_cost})
 
+        # Update current path set for new location.
+        path = list(path)
+        path.append(tile_id)
+
+        # Calcualte distance values.
+        curr_tile_distance = forward_cost + backward_cost
+        backward_cost += 1
+
         # Iterate through priority queue until we find proper location.
         added = False
         for index in range(len(priority_queue)):
 
             # Check if value is equal or lesser distance.
-            if priority_queue[index]['cost'] >= distance:
-                priority_queue.insert(index, {'id': tile_id, 'cost': distance})
+            index_cost = priority_queue[index]['forward_cost'] + priority_queue[index]['backward_cost']
+            if index_cost >= curr_tile_distance:
+                priority_queue.insert(
+                    index,
+                    {'id': tile_id, 'forward_cost': forward_cost, 'backward_cost': backward_cost, 'path': path},
+                )
                 added = True
                 break
 
         # Check if went through entire queue and failed to add. Means it's greater than all other values in queue.
         if not added:
-            priority_queue.append({'id': tile_id, 'cost': distance})
+            priority_queue.append(
+                {'id': tile_id, 'forward_cost': forward_cost, 'backward_cost': backward_cost, 'path': path},
+            )
 
     # Call actual function logic, now that inner functions are defined.
     _calc_trash_distances()
