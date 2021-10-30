@@ -162,6 +162,9 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             logger.info('    Decrementing tile walls.')
             tile.walls.decrement_wall_state()
 
+        # Recalculate trash distances for new tile wall setup.
+        data_manager.ideal_trash_paths = calc_trash_distances(data_manager)
+
 # endregion GUI Logic Functions
 
 
@@ -220,9 +223,6 @@ def calc_distance_cost(start_tile_x, start_tile_y, end_tile_x, end_tile_y):
     :return: Calculated distance between tiles.
     """
     distance = abs(start_tile_x - end_tile_x) + abs(start_tile_y - end_tile_y)
-    # logger.info('    tile_cost for ({0}, {1}) to ({2}, {3}): {4}'.format(
-    #     start_tile_x, start_tile_y, end_tile_x, end_tile_y, distance,
-    # ))
     return distance
 
 
@@ -357,8 +357,6 @@ def calc_trash_distances(data_manager):
                                 tile_y,
                             )
                             data_manager.debug_entities.append(debug_entity)
-
-            print('\n')
 
         # Optionally print out calculated path set to console.
         if debug:
