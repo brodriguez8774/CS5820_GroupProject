@@ -138,7 +138,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             # Middle click.
 
             # If tile is empty and no trash, generate some.
-            if not tile.walls.has_walls and not tile.trashpile.exists:
+            if not tile.walls.check_has_extra_walls() and not tile.trashpile.exists:
                 tile.trashpile.place()
 
             # Else if tile is empty and has trash, remove.

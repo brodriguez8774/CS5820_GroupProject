@@ -690,6 +690,67 @@ class Walls:
 
         return True
 
+    def check_has_extra_walls(self):
+        """
+        Checks if tile entity has "extra walls", outside of minimum the tile is required to have (depending on position).
+        :return: True if tile has "extra walls" | False otherwise.
+        """
+        # Do easy check for any walls.
+        if not self.has_walls:
+            # No walls at all.
+            return False
+        else:
+            # Tile has some walls. Double check if edge tile or not.
+            has_walls = True
+            if self.tile_x == 0:
+                # Tile is on left edge of grid.
+
+                if self.tile_y == 0:
+                    # Tile is on upper left of grid.
+                    if self.wall_state == 7:
+                        has_walls = False
+
+                elif self.tile_y == self.data_manager.tile_data['tile_h_count'] - 1:
+                    # Tile is on bottom left of grid.
+                    if self.wall_state == 10:
+                        has_walls = False
+
+                else:
+                    # Tile is on general left edge, but not corner.
+                    if self.wall_state == 4:
+                        has_walls = False
+
+            elif self.tile_x == self.data_manager.tile_data['tile_w_count'] - 1:
+                # Tile is on right edge of grid.
+
+                if self.tile_y == 0:
+                    # Tile is on upper right of grid.
+                    if self.wall_state == 5:
+                        has_walls = False
+
+                elif self.tile_y == self.data_manager.tile_data['tile_h_count'] - 1:
+                    # Tile is on lower right of grid.
+                    if self.wall_state == 8:
+                        has_walls = False
+
+                else:
+                    # Tile is on general right edge, but not corner.
+                    if self.wall_state == 2:
+                        has_walls = False
+
+            elif self.tile_y == 0:
+                # Tile is on general top edge, but not corner.
+                if self.wall_state == 1:
+                    has_walls = False
+
+            elif self.tile_y == self.data_manager.tile_data['tile_h_count'] - 1:
+                # Tile is on general bottom edge, but not corner.
+                if self.wall_state == 3:
+                    has_walls = False
+
+            # Return final condition.
+            return has_walls
+
     def bipartite_color_validation(self):
         """
         Validates wall placement by using 2-coloring on the tile graph to ensure all nodes are reachable by the roomba.
