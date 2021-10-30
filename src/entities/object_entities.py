@@ -163,13 +163,13 @@ class TileSet:
             # Set full row to tile set.
             self.tiles.append(curr_row)
 
-        logger.info('\n\n')
-        logger.info('graph.number_of_nodes(): {0}\n'.format(data_manager.graph.number_of_nodes()))
-        logger.info('graph.number_of_edges(): {0}\n'.format(data_manager.graph.number_of_edges()))
-        logger.info('graph.nodes(): {0}\n'.format(data_manager.graph.nodes(data=True)))
-        logger.info('graph.edges(): {0}\n'.format(data_manager.graph.edges(data=True)))
-        logger.info('graph.neighbors(1, 1): {0}\n'.format(list(data_manager.graph.neighbors('1, 1'))))
-        logger.info('\n\n')
+        logger.info('')
+        logger.info('graph.number_of_nodes(): {0}'.format(data_manager.graph.number_of_nodes()))
+        logger.info('graph.number_of_edges(): {0}'.format(data_manager.graph.number_of_edges()))
+        logger.info('graph.nodes(): {0}'.format(data_manager.graph.nodes(data=True)))
+        logger.info('graph.edges(): {0}'.format(data_manager.graph.edges(data=True)))
+        logger.info('graph.neighbors(1, 1): {0}'.format(list(data_manager.graph.neighbors('1, 1'))))
+        logger.info('')
 
     def get_tile_from_id(self, tile_id):
         """"""

@@ -302,7 +302,6 @@ def calc_trash_distances(data_manager):
                     curr_id = get_id_from_tile(start_tile)
                     curr_path = [curr_id]
                     _calc_neighbor_costs(start_tile, end_tile_x, end_tile_y, 1, curr_path)
-                    logger.debug('')
                     logger.debug('    to ({0}, {1}): {2}'.format(end_tile_x, end_tile_y, priority_queue))
 
                     # Iterate until we make it to our desired ending tile.
@@ -312,7 +311,6 @@ def calc_trash_distances(data_manager):
                         # Parse out data for next tile.
                         curr_tile_data = priority_queue.pop(0)
                         curr_tile_id = curr_tile_data['id']
-                        logger.debug('')
                         logger.debug('Handling {0}: {1}'.format(curr_tile_id, curr_tile_data))
                         curr_tile_backward_cost = curr_tile_data['backward_cost']
                         curr_tile_path = curr_tile_data['path']
@@ -360,12 +358,8 @@ def calc_trash_distances(data_manager):
 
         # Optionally print out calculated path set to console.
         if debug:
-            logger.info('')
-            logger.info('')
-            logger.info('')
             logger.info('calculated_paths:')
             for start_tile_id, start_set in calculated_set.items():
-                logger.info('')
                 logger.info('({0})'.format(start_tile_id))
                 for end_tile_id, calculated_path in start_set.items():
                     logger.info('    to ({0}):   {1}'.format(end_tile_id, calculated_path))
@@ -373,7 +367,6 @@ def calc_trash_distances(data_manager):
             # Print calculated path set to log files only.
             logger.debug('calculated_paths:')
             for start_tile_id, start_set in calculated_set.items():
-                logger.debug('')
                 logger.debug('({0})'.format(start_tile_id))
                 for end_tile_id, calculated_path in start_set.items():
                     logger.debug('    to ({0}):   {1}'.format(end_tile_id, calculated_path))
