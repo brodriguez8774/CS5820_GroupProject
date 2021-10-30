@@ -10,6 +10,7 @@ import sdl2.ext
 # User Imports.
 from .system_entities import AI, Movement, TrashPile, Search, Walls
 from src.logging import init_logging
+from src.misc import calc_trash_distances
 
 
 # Initialize logger.
@@ -276,6 +277,9 @@ class TileSet:
         # Ensure all paths are accessible by roomba.
         self.tiles[0][0].walls.bipartite_color_validation()
 
+        # Recalculate trash distances for new wall setup.
+        self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
+
     def randomize_trash(self):
         """
         Randomizes trash entities on all tiles.
@@ -296,6 +300,9 @@ class TileSet:
                     # Remove trash if present.
                     if self.tiles[row_index][col_index].trashpile.exists:
                         self.tiles[row_index][col_index].trashpile.clean()
+
+        # Recalculate trash distances for new trash pile setup.
+        self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
 
 
 class Trash(sdl2.ext.Entity):

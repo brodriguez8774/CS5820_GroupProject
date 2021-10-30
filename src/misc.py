@@ -41,9 +41,11 @@ class DataManager:
         self.window_data = window_data
         self.gui_data = gui_data
         self.tile_data = tile_data
+        self.debug_entities = []
         self.gui = None
         self.tile_set = None
         self.roomba = None
+        self.ideal_trash_paths = None
         self.graph = networkx.Graph()
         self.graph.data = {
             'trash_tiles': []
@@ -160,10 +162,6 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             logger.info('    Decrementing tile walls.')
             tile.walls.decrement_wall_state()
 
-    else:
-        # print('trash_tiles: {0}'.format(data_manager.graph.data['trash_tiles']))
-        calc_trash_distances(data_manager)
-
 # endregion GUI Logic Functions
 
 
@@ -235,10 +233,13 @@ def calc_trash_distances(data_manager):
 
     This function should be called every time any wall or trash entity is added/removed/otherwise changed.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
-    :return:
+    :return: Set of all calculated "ideal paths" from each trash tile to every other trash tile.
     """
     priority_queue = []
     handled_tiles = {}
+
+    # Clear all debug entities.
+    clear_debug_entities(data_manager)
 
     def _calc_trash_distances(debug=False):
         """
@@ -307,6 +308,9 @@ def calc_trash_distances(data_manager):
                             # Found path. Stop checking further tiles.
                             final_path = curr_tile_path
                             iterate = False
+
+                            # Save found path for future reference.
+                            calculated_set[start_tile_id][end_tile_id] = final_path
                         else:
                             # Not yet at final tile.
                             # Calculate distance costs of fellow neighbor tiles.
@@ -326,10 +330,29 @@ def calc_trash_distances(data_manager):
                         # Loop through all found tiles in final path. Display debug sprites for each.
                         for tile_id in final_path:
                             tile_x, tile_y = get_tile_coord_from_id(tile_id)
-                            debug_tile_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
-                            DebugTile(data_manager.world, debug_tile_sprite, data_manager, tile_x, tile_y)
+                            debug_tile_sprite = data_manager.sprite_factory.from_image(
+                                RESOURCES.get_path('search_overlay.png')
+                            )
+                            debug_entity = DebugTile(
+                                data_manager.world,
+                                debug_tile_sprite,
+                                data_manager,
+                                tile_x,
+                                tile_y,
+                            )
+                            data_manager.debug_entities.append(debug_entity)
 
             print('\n')
+
+        # Optionally print out calculated path set.
+        if debug:
+            print('\n\n\n\n')
+            print('calculated_paths:')
+            for start_tile_id, start_set in calculated_set.items():
+                print('')
+                print('({0})'.format(start_tile_id))
+                for end_tile_id, calculated_path in start_set.items():
+                    print('    to ({0}):   {1}'.format(end_tile_id, calculated_path))
 
         return calculated_set
 
@@ -389,7 +412,14 @@ def calc_trash_distances(data_manager):
                 # Optionally display debug tile sprites.
                 if debug:
                     debug_tile_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
-                    DebugTile(data_manager.world, debug_tile_sprite, data_manager, neig_tile_x, neig_tile_y)
+                    debug_entity = DebugTile(
+                        data_manager.world,
+                        debug_tile_sprite,
+                        data_manager,
+                        neig_tile_x,
+                        neig_tile_y,
+                    )
+                    data_manager.debug_entities.append(debug_entity)
 
         if not curr_tile.walls.has_wall_east:
             # Verify we haven't already checked this tile in a previous loop.
@@ -421,7 +451,14 @@ def calc_trash_distances(data_manager):
                 # Optionally display debug tile sprites.
                 if debug:
                     debug_tile_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
-                    DebugTile(data_manager.world, debug_tile_sprite, data_manager, neig_tile_x, neig_tile_y)
+                    debug_entity = DebugTile(
+                        data_manager.world,
+                        debug_tile_sprite,
+                        data_manager,
+                        neig_tile_x,
+                        neig_tile_y,
+                    )
+                    data_manager.debug_entities.append(debug_entity)
 
         if not curr_tile.walls.has_wall_south:
             # Verify we haven't already checked this tile in a previous loop.
@@ -453,7 +490,14 @@ def calc_trash_distances(data_manager):
                 # Optionally display debug tile sprites.
                 if debug:
                     debug_tile_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
-                    DebugTile(data_manager.world, debug_tile_sprite, data_manager, neig_tile_x, neig_tile_y)
+                    debug_entity = DebugTile(
+                        data_manager.world,
+                        debug_tile_sprite,
+                        data_manager,
+                        neig_tile_x,
+                        neig_tile_y,
+                    )
+                    data_manager.debug_entities.append(debug_entity)
 
         if not curr_tile.walls.has_wall_west:
             # Verify we haven't already checked this tile in a previous loop.
@@ -485,7 +529,14 @@ def calc_trash_distances(data_manager):
                 # Optionally display debug tile sprites.
                 if debug:
                     debug_tile_sprite = data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
-                    DebugTile(data_manager.world, debug_tile_sprite, data_manager, neig_tile_x, neig_tile_y)
+                    debug_entity = DebugTile(
+                        data_manager.world,
+                        debug_tile_sprite,
+                        data_manager,
+                        neig_tile_x,
+                        neig_tile_y,
+                    )
+                    data_manager.debug_entities.append(debug_entity)
 
     def _add_to_priority_queue(tile_id, forward_cost, backward_cost, path):
         """
@@ -533,6 +584,19 @@ def calc_trash_distances(data_manager):
             )
 
     # Call actual function logic, now that inner functions are defined.
-    _calc_trash_distances()
+    return _calc_trash_distances()
+
+
+def clear_debug_entities(data_manager):
+    """
+    Removes all debug entities, so that the screen does not become cluttered with redundant/overlapping debug info.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    # Delete each entity so it no longer displays on render.
+    for debug_entity in data_manager.debug_entities:
+        debug_entity.delete()
+
+    # Reset debug entity list.
+    data_manager.debug_entities = []
 
 # endregion General Logic Functions
