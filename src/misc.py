@@ -12,7 +12,7 @@ Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones
 
 # System Imports.
 import sdl2.ext
-import networkx
+import networkx, random
 
 # User Imports.
 from src.logging import init_logging
@@ -654,6 +654,220 @@ def calc_trash_distances(data_manager):
 
     # Call actual function logic, now that inner functions are defined.
     return _calc_trash_distances()
+
+
+def calc_traveling_salesman(data_manager, debug=False):
+    """
+    Calculates the approximately-ideal overall path to visit all trash tiles.
+    :param data_manager:
+    :return:
+    """
+    debug = True
+
+    # Clear all debug entities.
+    clear_debug_entities(data_manager)
+
+    roomba_x, roomba_y = data_manager.roomba.sprite.tile
+    roomba_tile_id = get_id_from_coord(roomba_x, roomba_y)
+    trash_tile_set = data_manager.graph.data['trash_tiles']
+    trash_paths = data_manager.ideal_trash_paths
+
+    print('\n\n\n\n')
+    print(' ==== TRAVELING SALESMAN ===== ')
+    print('\n')
+    print('trash_paths: {0}'.format(trash_paths))
+
+    # Initialize path by just going to trash tiles in original ordering.
+    calculated_path = {
+        'ordering': [roomba_tile_id],
+        'total_cost': 999999,
+    }
+    start_tile_id = None
+    end_tile_id = None
+    for tile_id in trash_tile_set:
+        start_tile_id = end_tile_id
+        end_tile_id = tile_id
+
+        # Add first trash tile.
+        if not start_tile_id:
+            calculated_path['ordering'].append(end_tile_id)
+
+        # Add all other trash tiles after first one.
+        if start_tile_id and end_tile_id:
+            calculated_path['ordering'].append(end_tile_id)
+
+    print('')
+    print('calculated_paths: {0}'.format(calculated_path['ordering']))
+    print('')
+
+    # Run ( "length of trash tile set" * 10 ) iterations.
+    # For each, we randomly grab two sets of connected points, then swap them with each other to see if improvement
+    # occurs. If swap leads to overall distance improvement, we save. Otherwise revert and try next iteration.
+    for index_counter in range(len(trash_tile_set) * 20):
+        # Grab first set of points.
+        conn_1_index_0 = random.randint(1, len(calculated_path['ordering']) - 2)
+        conn_1_index_1 = conn_1_index_0 + 1
+
+        # Grab second set of points.
+        conn_2_index_0 = random.randint(1, len(calculated_path['ordering']) - 2)
+        conn_2_index_1 = conn_2_index_0 + 1
+        temp_counter = 0
+        # Make sure sets of point are actually different.
+        while (
+            temp_counter < 10 and   # If it fails 10 times, then we probably don't have enough indexes to actually swap.
+            (
+                conn_2_index_0 in [conn_1_index_0, conn_1_index_1] or
+                conn_2_index_1 == [conn_1_index_0, conn_1_index_1]
+            )
+        ):
+            conn_2_index_0 = random.randint(1, len(calculated_path['ordering']) - 2)
+            conn_2_index_1 = conn_2_index_0 + 1
+
+        # conn_1_index_2 = conn_1_index_1 + 1
+        # conn_2_index_2 = conn_2_index_1 + 1
+
+        print('conn_1_index_0: {0}'.format(conn_1_index_0))
+        print('conn_1_index_1: {0}'.format(conn_1_index_1))
+        # print('conn_1_index_2: {0}'.format(conn_1_index_2))
+        print('conn_2_index_0: {0}'.format(conn_2_index_0))
+        print('conn_2_index_1: {0}'.format(conn_2_index_1))
+        # print('conn_2_index_2: {0}'.format(conn_2_index_2))
+
+        # Get respective id's for selected indexes.
+        conn_1_id_0 = calculated_path['ordering'][conn_1_index_0]
+        conn_1_id_1 = calculated_path['ordering'][conn_1_index_1]
+        # conn_1_id_2 = None
+        # if conn_1_index_2 < len(calculated_path['ordering']):
+        #     conn_1_id_2 = calculated_path['ordering'][conn_1_index_2]
+        conn_2_id_0 = calculated_path['ordering'][conn_2_index_0]
+        conn_2_id_1 = calculated_path['ordering'][conn_2_index_1]
+        # conn_2_id_2 = None
+        # if conn_2_index_2 < len(calculated_path['ordering']):
+        #     conn_2_id_2 = calculated_path['ordering'][conn_2_index_2]
+
+        # Verify swapping won't result in trying to travel from a tile to itself.
+        if conn_1_id_0 == conn_2_id_1 or conn_2_id_0 == conn_1_id_1:
+            # Would lead to bad path. Skip current iteration.
+            continue
+
+        # Calculate distance travelled for current selection.
+        print('')
+        print('conn_1_id_0: {0}'.format(conn_1_id_0))
+        print('conn_1_id_1: {0}'.format(conn_1_id_1))
+        # print('conn_1_id_2: {0}'.format(conn_1_id_2))
+        print('conn_2_id_0: {0}'.format(conn_2_id_0))
+        print('conn_2_id_1: {0}'.format(conn_2_id_1))
+        # print('conn_2_id_2: {0}'.format(conn_2_id_2))
+        print('trash_paths[conn_1_id_0]: {0}'.format(trash_paths[conn_1_id_0]))
+        print('trash_paths[conn_1_id_0][conn_1_id_1]: {0}'.format(trash_paths[conn_1_id_0][conn_1_id_1]))
+        conn_1_dist = len(trash_paths[conn_1_id_0][conn_1_id_1]) - 1
+        # conn_1_dist_2 = 0
+        # if conn_1_id_2:
+        #     print('trash_paths[conn_1_id_1][conn_1_id_2]: {0}'.format(trash_paths[conn_1_id_1][conn_1_id_2]))
+        #     conn_1_dist_2 = len(trash_paths[conn_1_id_1][conn_1_id_2]) - 1
+        # conn_1_dist = conn_1_dist_1 + conn_1_dist_2
+        print('trash_paths[conn_2_id_0]: {0}'.format(trash_paths[conn_2_id_0]))
+        print('trash_paths[conn_2_id_0][conn_2_id_1]: {0}'.format(trash_paths[conn_2_id_0][conn_2_id_1]))
+        conn_2_dist = len(trash_paths[conn_2_id_0][conn_2_id_1]) - 1
+        # conn_2_dist_2 = 0
+        # if conn_2_id_2:
+        #     print('trash_paths[conn_2_id_1][conn_2_id_2]: {0}'.format(trash_paths[conn_2_id_1][conn_2_id_2]))
+        #     conn_2_dist_2 = len(trash_paths[conn_2_id_1][conn_2_id_2]) - 1
+        # conn_2_dist = conn_2_dist_1 + conn_2_dist_2
+        orig_total_dist = conn_1_dist + conn_2_dist
+
+        # print('conn_1_dist_1: {0}'.format(conn_1_dist_1))
+        # print('conn_1_dist_2: {0}'.format(conn_1_dist_2))
+        print('conn_1_dist: {0}'.format(conn_1_dist))
+        # print('conn_2_dist_1: {0}'.format(conn_2_dist_1))
+        # print('conn_2_dist_2: {0}'.format(conn_2_dist_2))
+        print('conn_2_dist: {0}'.format(conn_2_dist))
+
+        # Swap and recalculate distance.
+        swapped_1_id_1 = conn_2_id_1
+        swapped_2_id_1 = conn_1_id_1
+        print('')
+        print('conn_1_id_0: {0}'.format(conn_1_id_0))
+        print('swapped_1_id_1: {0}'.format(swapped_1_id_1))
+        print('conn_2_id_0: {0}'.format(conn_2_id_0))
+        print('swapped_2_id_1: {0}'.format(swapped_2_id_1))
+        print('trash_paths[conn_1_id_0]: {0}'.format(trash_paths[conn_1_id_0]))
+        print('trash_paths[conn_1_id_0][swapped_1_id_1]: {0}'.format(trash_paths[conn_1_id_0][swapped_1_id_1]))
+        swapped_1_dist = len(trash_paths[conn_1_id_0][swapped_1_id_1]) - 1
+        # swapped_1_dist_2 = 0
+        # if conn_1_id_2:
+        #     print('trash_paths[swapped_1_id_1][conn_1_id_2]: {0}'.format(trash_paths[swapped_1_id_1][conn_1_id_2]))
+        #     swapped_1_dist_2 = len(trash_paths[swapped_1_id_1][conn_1_id_2]) - 1
+        # swapped_1_dist = swapped_1_dist_1 + swapped_1_dist_2
+        print('trash_paths[conn_2_id_0]: {0}'.format(trash_paths[conn_2_id_0]))
+        print('trash_paths[conn_2_id_0][swapped_2_id_1]: {0}'.format(trash_paths[conn_2_id_0][swapped_2_id_1]))
+        swapped_2_dist = len(trash_paths[conn_2_id_0][swapped_2_id_1]) - 1
+        # swapped_2_dist_2 = 0
+        # if conn_2_id_2:
+        #     print('trash_paths[swapped_2_id_1][conn_2_id_2]: {0}'.format(trash_paths[swapped_2_id_1][conn_2_id_2]))
+        #     swapped_2_dist_2 = len(trash_paths[swapped_2_id_1][conn_2_id_2]) - 1
+        # swapped_2_dist = swapped_2_dist_1 + swapped_2_dist_2
+
+        # print('swapped_1_dist_1: {0}'.format(swapped_1_dist_1))
+        # print('swapped_1_dist_2: {0}'.format(swapped_1_dist_2))
+        print('swapped_1_dist: {0}'.format(swapped_1_dist))
+        # print('swapped_2_dist_1: {0}'.format(swapped_2_dist_1))
+        # print('swapped_2_dist_2: {0}'.format(swapped_2_dist_2))
+        print('swapped_2_dist: {0}'.format(swapped_2_dist))
+        swapped_total_dist = swapped_1_dist + swapped_2_dist
+
+        # Check if swapping sets will decrease overall distance travelled.
+        print('')
+        print('orig_total_dist: {0}'.format(orig_total_dist))
+        print('swapped_total_dist: {0}'.format(swapped_total_dist))
+        print('')
+        print('orig calculated_path[ordering]: {0}'.format(calculated_path['ordering']))
+        if swapped_total_dist < orig_total_dist:
+            print('SWAPPING')
+            # conn_1_index_0
+            # conn_1_index_1
+            # conn_2_index_0
+            # conn_2_index_1
+            # if conn_1_id_0 == conn_2_id_1 or conn_2_id_0 == conn_1_id_1:
+            calculated_path['ordering'][conn_1_index_1] = conn_2_id_1
+            calculated_path['ordering'][conn_2_index_1] = conn_1_id_1
+
+            print('')
+            print('new  calculated_path[ordering]: {0}'.format(calculated_path['ordering']))
+
+    # Optionally display debug tile sprites.
+    if debug:
+        from src.entities.object_entities import DebugTile
+
+        # Loop through all found tiles in final path. Display debug sprites for each.
+        start_tile_id = None
+        end_tile_id = None
+        for index in range(len(calculated_path['ordering'])):
+            start_tile_id = end_tile_id
+            end_tile_id = calculated_path['ordering'][index]
+
+            # Only proceed if both id's are present (aka, skip first index).
+            if start_tile_id and end_tile_id:
+
+                # Loop through all tiles in path connecting the given trash entities.
+                print('\n\n\ntrash_paths: {0}'.format(trash_paths))
+                if start_tile_id == roomba_tile_id:
+                    full_path = trash_paths['roomba'][end_tile_id]
+                else:
+                    full_path = trash_paths[start_tile_id][end_tile_id]
+                for tile_id in full_path:
+                    tile_x, tile_y = get_tile_coord_from_id(tile_id)
+                    debug_tile_sprite = data_manager.sprite_factory.from_image(
+                        RESOURCES.get_path('search_overlay.png')
+                    )
+                    debug_entity = DebugTile(
+                        data_manager.world,
+                        debug_tile_sprite,
+                        data_manager,
+                        tile_x,
+                        tile_y,
+                    )
+                    data_manager.debug_entities.append(debug_entity)
 
 
 def clear_debug_entities(data_manager):
