@@ -678,9 +678,10 @@ def calc_traveling_salesman(data_manager, debug=False):
     print('trash_paths: {0}'.format(trash_paths))
 
     # Initialize path by just going to trash tiles in original ordering.
+    curr_total_dist = 999999
     calculated_path = {
         'ordering': [roomba_tile_id],
-        'total_cost': 999999,
+        'total_cost': curr_total_dist,
     }
     start_tile_id = None
     end_tile_id = None
@@ -696,20 +697,16 @@ def calc_traveling_salesman(data_manager, debug=False):
         if start_tile_id and end_tile_id:
             calculated_path['ordering'].append(end_tile_id)
 
-    print('')
-    print('calculated_paths: {0}'.format(calculated_path['ordering']))
-    print('')
-
     # Run ( "length of trash tile set" * 10 ) iterations.
     # For each, we randomly grab two sets of connected points, then swap them with each other to see if improvement
     # occurs. If swap leads to overall distance improvement, we save. Otherwise revert and try next iteration.
-    for index_counter in range(len(trash_tile_set) * 20):
+    for index_counter in range(len(trash_tile_set) * 10):
         # Grab first set of points.
-        conn_1_index_0 = random.randint(1, len(calculated_path['ordering']) - 2)
+        conn_1_index_0 = random.randint(0, len(calculated_path['ordering']) - 2)
         conn_1_index_1 = conn_1_index_0 + 1
 
         # Grab second set of points.
-        conn_2_index_0 = random.randint(1, len(calculated_path['ordering']) - 2)
+        conn_2_index_0 = random.randint(0, len(calculated_path['ordering']) - 2)
         conn_2_index_1 = conn_2_index_0 + 1
         temp_counter = 0
         # Make sure sets of point are actually different.
@@ -720,30 +717,15 @@ def calc_traveling_salesman(data_manager, debug=False):
                 conn_2_index_1 == [conn_1_index_0, conn_1_index_1]
             )
         ):
-            conn_2_index_0 = random.randint(1, len(calculated_path['ordering']) - 2)
+            conn_2_index_0 = random.randint(0, len(calculated_path['ordering']) - 2)
             conn_2_index_1 = conn_2_index_0 + 1
-
-        # conn_1_index_2 = conn_1_index_1 + 1
-        # conn_2_index_2 = conn_2_index_1 + 1
-
-        print('conn_1_index_0: {0}'.format(conn_1_index_0))
-        print('conn_1_index_1: {0}'.format(conn_1_index_1))
-        # print('conn_1_index_2: {0}'.format(conn_1_index_2))
-        print('conn_2_index_0: {0}'.format(conn_2_index_0))
-        print('conn_2_index_1: {0}'.format(conn_2_index_1))
-        # print('conn_2_index_2: {0}'.format(conn_2_index_2))
+            temp_counter += 1
 
         # Get respective id's for selected indexes.
         conn_1_id_0 = calculated_path['ordering'][conn_1_index_0]
         conn_1_id_1 = calculated_path['ordering'][conn_1_index_1]
-        # conn_1_id_2 = None
-        # if conn_1_index_2 < len(calculated_path['ordering']):
-        #     conn_1_id_2 = calculated_path['ordering'][conn_1_index_2]
         conn_2_id_0 = calculated_path['ordering'][conn_2_index_0]
         conn_2_id_1 = calculated_path['ordering'][conn_2_index_1]
-        # conn_2_id_2 = None
-        # if conn_2_index_2 < len(calculated_path['ordering']):
-        #     conn_2_id_2 = calculated_path['ordering'][conn_2_index_2]
 
         # Verify swapping won't result in trying to travel from a tile to itself.
         if conn_1_id_0 == conn_2_id_1 or conn_2_id_0 == conn_1_id_1:
@@ -751,89 +733,44 @@ def calc_traveling_salesman(data_manager, debug=False):
             continue
 
         # Calculate distance travelled for current selection.
-        print('')
-        print('conn_1_id_0: {0}'.format(conn_1_id_0))
-        print('conn_1_id_1: {0}'.format(conn_1_id_1))
-        # print('conn_1_id_2: {0}'.format(conn_1_id_2))
-        print('conn_2_id_0: {0}'.format(conn_2_id_0))
-        print('conn_2_id_1: {0}'.format(conn_2_id_1))
-        # print('conn_2_id_2: {0}'.format(conn_2_id_2))
-        print('trash_paths[conn_1_id_0]: {0}'.format(trash_paths[conn_1_id_0]))
-        print('trash_paths[conn_1_id_0][conn_1_id_1]: {0}'.format(trash_paths[conn_1_id_0][conn_1_id_1]))
-        conn_1_dist = len(trash_paths[conn_1_id_0][conn_1_id_1]) - 1
-        # conn_1_dist_2 = 0
-        # if conn_1_id_2:
-        #     print('trash_paths[conn_1_id_1][conn_1_id_2]: {0}'.format(trash_paths[conn_1_id_1][conn_1_id_2]))
-        #     conn_1_dist_2 = len(trash_paths[conn_1_id_1][conn_1_id_2]) - 1
-        # conn_1_dist = conn_1_dist_1 + conn_1_dist_2
-        print('trash_paths[conn_2_id_0]: {0}'.format(trash_paths[conn_2_id_0]))
-        print('trash_paths[conn_2_id_0][conn_2_id_1]: {0}'.format(trash_paths[conn_2_id_0][conn_2_id_1]))
-        conn_2_dist = len(trash_paths[conn_2_id_0][conn_2_id_1]) - 1
-        # conn_2_dist_2 = 0
-        # if conn_2_id_2:
-        #     print('trash_paths[conn_2_id_1][conn_2_id_2]: {0}'.format(trash_paths[conn_2_id_1][conn_2_id_2]))
-        #     conn_2_dist_2 = len(trash_paths[conn_2_id_1][conn_2_id_2]) - 1
-        # conn_2_dist = conn_2_dist_1 + conn_2_dist_2
-        orig_total_dist = conn_1_dist + conn_2_dist
+        start_tile_id = None
+        end_tile_id = None
+        curr_total_dist = 0
+        for index in range(len(calculated_path['ordering'])):
+            start_tile_id = end_tile_id
+            end_tile_id = calculated_path['ordering'][index]
 
-        # print('conn_1_dist_1: {0}'.format(conn_1_dist_1))
-        # print('conn_1_dist_2: {0}'.format(conn_1_dist_2))
-        print('conn_1_dist: {0}'.format(conn_1_dist))
-        # print('conn_2_dist_1: {0}'.format(conn_2_dist_1))
-        # print('conn_2_dist_2: {0}'.format(conn_2_dist_2))
-        print('conn_2_dist: {0}'.format(conn_2_dist))
+            # Only proceed if both id's are present (aka, skip first index).
+            if start_tile_id and end_tile_id:
+                # Both present. Add length of path to overall length calculation.
+                if start_tile_id == roomba_tile_id:
+                    curr_total_dist += len(trash_paths['roomba'][end_tile_id]) - 1
+                else:
+                    curr_total_dist += len(trash_paths[start_tile_id][end_tile_id]) - 1
 
         # Swap and recalculate distance.
-        swapped_1_id_1 = conn_2_id_1
-        swapped_2_id_1 = conn_1_id_1
-        print('')
-        print('conn_1_id_0: {0}'.format(conn_1_id_0))
-        print('swapped_1_id_1: {0}'.format(swapped_1_id_1))
-        print('conn_2_id_0: {0}'.format(conn_2_id_0))
-        print('swapped_2_id_1: {0}'.format(swapped_2_id_1))
-        print('trash_paths[conn_1_id_0]: {0}'.format(trash_paths[conn_1_id_0]))
-        print('trash_paths[conn_1_id_0][swapped_1_id_1]: {0}'.format(trash_paths[conn_1_id_0][swapped_1_id_1]))
-        swapped_1_dist = len(trash_paths[conn_1_id_0][swapped_1_id_1]) - 1
-        # swapped_1_dist_2 = 0
-        # if conn_1_id_2:
-        #     print('trash_paths[swapped_1_id_1][conn_1_id_2]: {0}'.format(trash_paths[swapped_1_id_1][conn_1_id_2]))
-        #     swapped_1_dist_2 = len(trash_paths[swapped_1_id_1][conn_1_id_2]) - 1
-        # swapped_1_dist = swapped_1_dist_1 + swapped_1_dist_2
-        print('trash_paths[conn_2_id_0]: {0}'.format(trash_paths[conn_2_id_0]))
-        print('trash_paths[conn_2_id_0][swapped_2_id_1]: {0}'.format(trash_paths[conn_2_id_0][swapped_2_id_1]))
-        swapped_2_dist = len(trash_paths[conn_2_id_0][swapped_2_id_1]) - 1
-        # swapped_2_dist_2 = 0
-        # if conn_2_id_2:
-        #     print('trash_paths[swapped_2_id_1][conn_2_id_2]: {0}'.format(trash_paths[swapped_2_id_1][conn_2_id_2]))
-        #     swapped_2_dist_2 = len(trash_paths[swapped_2_id_1][conn_2_id_2]) - 1
-        # swapped_2_dist = swapped_2_dist_1 + swapped_2_dist_2
+        swapped_total_dist = 0
+        swapped_path = list(calculated_path['ordering'])
+        swapped_path[conn_1_index_1] = conn_2_id_1
+        swapped_path[conn_2_index_1] = conn_1_id_1
+        start_tile_id = None
+        end_tile_id = None
+        for index in range(len(swapped_path)):
+            start_tile_id = end_tile_id
+            end_tile_id = swapped_path[index]
 
-        # print('swapped_1_dist_1: {0}'.format(swapped_1_dist_1))
-        # print('swapped_1_dist_2: {0}'.format(swapped_1_dist_2))
-        print('swapped_1_dist: {0}'.format(swapped_1_dist))
-        # print('swapped_2_dist_1: {0}'.format(swapped_2_dist_1))
-        # print('swapped_2_dist_2: {0}'.format(swapped_2_dist_2))
-        print('swapped_2_dist: {0}'.format(swapped_2_dist))
-        swapped_total_dist = swapped_1_dist + swapped_2_dist
+            # Only proceed if both id's are present (aka, skip first index).
+            if start_tile_id and end_tile_id:
+                # Both present. Add length of path to overall length calculation.
+                if start_tile_id == roomba_tile_id:
+                    swapped_total_dist += len(trash_paths['roomba'][end_tile_id]) - 1
+                else:
+                    swapped_total_dist += len(trash_paths[start_tile_id][end_tile_id]) - 1
 
         # Check if swapping sets will decrease overall distance travelled.
-        print('')
-        print('orig_total_dist: {0}'.format(orig_total_dist))
-        print('swapped_total_dist: {0}'.format(swapped_total_dist))
-        print('')
-        print('orig calculated_path[ordering]: {0}'.format(calculated_path['ordering']))
-        if swapped_total_dist < orig_total_dist:
-            print('SWAPPING')
-            # conn_1_index_0
-            # conn_1_index_1
-            # conn_2_index_0
-            # conn_2_index_1
-            # if conn_1_id_0 == conn_2_id_1 or conn_2_id_0 == conn_1_id_1:
+        if swapped_total_dist < curr_total_dist:
             calculated_path['ordering'][conn_1_index_1] = conn_2_id_1
             calculated_path['ordering'][conn_2_index_1] = conn_1_id_1
-
-            print('')
-            print('new  calculated_path[ordering]: {0}'.format(calculated_path['ordering']))
 
     # Optionally display debug tile sprites.
     if debug:
@@ -850,7 +787,6 @@ def calc_traveling_salesman(data_manager, debug=False):
             if start_tile_id and end_tile_id:
 
                 # Loop through all tiles in path connecting the given trash entities.
-                print('\n\n\ntrash_paths: {0}'.format(trash_paths))
                 if start_tile_id == roomba_tile_id:
                     full_path = trash_paths['roomba'][end_tile_id]
                 else:
