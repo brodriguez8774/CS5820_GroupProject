@@ -12,20 +12,21 @@ Sprite Depth Values (0 is lowest. Higher values will display ontop of lower ones
 
 # System Imports.
 import sdl2.ext
-from sdl2 import SDL_CreateTextureFromSurface, SDL_CreateRenderer, SDL_RENDERER_ACCELERATED
-from fclist import fclist, fcmatch
-from sdl2.sdlttf import TTF_Init, TTF_OpenFont, TTF_RenderText_Solid
+from fclist import fcmatch
 
 # User Imports.
 from src.logging import init_logging
+from src.misc import (
+    set_roomba_vision_range_0,
+    set_roomba_vision_range_1,
+    set_roomba_vision_range_2,
+    set_roomba_vision_range_full,
+    toggle_roomba_ai,
+)
 
 
 # Initialize logger.
 logger = init_logging(__name__)
-
-
-# # Initialize SDL2_ttf.
-# TTF_Init()
 
 
 
@@ -42,11 +43,22 @@ class GuiCore:
         # Initialize general gui background.
         self.background = GuiBackground(data_manager)
 
+        # Initialize "toggle ai" button.
+        self.toggle_ai = GuiButton(
+            data_manager,
+            'Toggle AI',
+            20,
+            name='Toggle AI',
+            function_call=toggle_roomba_ai,
+            function_args=data_manager,
+        )
+        self.elements.append(self.toggle_ai)
+
         # Initialize "randomize tile walls" buttons.
         self.rand_walls = GuiButton(
             data_manager,
             'Randomize Walls (E)',
-            50,
+            90,
             name='RandWalls Button (Equal Randomization)',
             function_call=data_manager.tile_set.randomize_tile_walls_equal,
         )
@@ -54,21 +66,65 @@ class GuiCore:
         self.rand_walls = GuiButton(
             data_manager,
             'Randomize Walls (W)',
-            90,
+            130,
             name='RandWalls Button (Weighted Randomization)',
             function_call=data_manager.tile_set.randomize_tile_walls_weighted,
         )
         self.elements.append(self.rand_walls)
 
-        # # Initialize "randomize trash piles" button.
+        # Initialize "randomize trash piles" button.
         self.rand_trash = GuiButton(
             data_manager,
             'Randomize Trash',
-            130,
+            170,
             name='RandTrash Button',
             function_call=data_manager.tile_set.randomize_trash,
         )
         self.elements.append(self.rand_trash)
+
+        # Initialize "roomba vision distance of 0" (aka "bump sensor") button.
+        self.vision_0 = GuiButton(
+            data_manager,
+            'Bump Sensor',
+            250,
+            name='Distance of 0 (Bump Sensor)',
+            function_call=set_roomba_vision_range_0,
+            function_args=data_manager,
+        )
+        self.elements.append(self.vision_0)
+
+        # Initialize "roomba vision distance of 1" button.
+        self.vision_1 = GuiButton(
+            data_manager,
+            'Distance of 1',
+            290,
+            name='Distance of 1',
+            function_call=set_roomba_vision_range_1,
+            function_args=data_manager,
+        )
+        self.elements.append(self.vision_1)
+
+        # Initialize "roomba vision distance of 2" button.
+        self.vision_2 = GuiButton(
+            data_manager,
+            'Distance of 2',
+            330,
+            name='Distance of 2',
+            function_call=set_roomba_vision_range_2,
+            function_args=data_manager,
+        )
+        self.elements.append(self.vision_2)
+
+        # Initialize "roomba vision distance of 'all seeing'" button.
+        self.vision_full = GuiButton(
+            data_manager,
+            'Full Sight',
+            370,
+            name='Full Sight',
+            function_call=set_roomba_vision_range_full,
+            function_args=data_manager,
+        )
+        self.elements.append(self.vision_full)
 
 
 class GuiBackground:
@@ -162,10 +218,17 @@ class GuiButton:
     """
     A button for the GUI interface.
     """
-    def __init__(self, data_manager, text, pos_y, name='Gui Button', function_call=None):
+    def __init__(self, data_manager, text, pos_y, name='Gui Button', function_call=None, function_args=None):
         self.data_manager = data_manager
         self.name = str(name)
         self.function_call = function_call
+        if function_args is None:
+            self.function_args = None
+        else:
+            if isinstance(function_args, list) or isinstance(function_args, tuple):
+                self.function_args = function_args
+            else:
+                self.function_args = [function_args]
 
         # Determine bounds of button we're generating. Allows handling on click events.
         background_width = data_manager.gui_data['gui_w_end'] - data_manager.gui_data['gui_w_start'] - 40
@@ -221,12 +284,15 @@ class GuiButton:
         Allows external logic (such as main event loop) to trigger expected button press logic, on click.
         :return: Corresponding return value for bound function call.
         """
-        logger.info('    Clicked button "{0}:'.format(self.name))
+        logger.info('    Clicked button "{0}":'.format(self.name))
 
         if self.function_call is None:
             raise RuntimeError('Button does not have a bound function call!')
 
-        return self.function_call()
+        if self.function_args:
+            return self.function_call(*self.function_args)
+        else:
+            return self.function_call()
 
     class GuiButtonSprite(sdl2.ext.Entity):
         """

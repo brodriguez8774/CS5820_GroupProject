@@ -45,6 +45,8 @@ class DataManager:
         self.gui = None
         self.tile_set = None
         self.roomba = None
+        self.ai_active = False
+        self.roomba_vision_range = 1
         self.ideal_trash_paths = None
         self.graph = networkx.Graph()
         self.graph.data = {
@@ -659,8 +661,7 @@ def calc_trash_distances(data_manager):
 def calc_traveling_salesman(data_manager, debug=False):
     """
     Calculates the approximately-ideal overall path to visit all trash tiles.
-    :param data_manager:
-    :return:
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
     debug = True
 
@@ -804,6 +805,54 @@ def calc_traveling_salesman(data_manager, debug=False):
                         tile_y,
                     )
                     data_manager.debug_entities.append(debug_entity)
+
+
+def toggle_roomba_ai(data_manager):
+    """
+    Toggles roomba AI on or off. Program start default is off.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.info('Toggling roomba ai.')
+    if data_manager.ai_active:
+        data_manager.ai_active = False
+    else:
+        data_manager.ai_active = True
+
+
+def set_roomba_vision_range_0(data_manager):
+    """
+    Adjusts roomba AI sight to see 0 tiles out from current location.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.info('Setting roomba vision to "0 tiles" (bump sensor).')
+    data_manager.roomba_vision = 0
+
+
+def set_roomba_vision_range_1(data_manager):
+    """
+    Adjusts roomba AI sight to see 1 tiles out from current location.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.info('Setting roomba vision to "1 tiles".')
+    data_manager.roomba_vision = 1
+
+
+def set_roomba_vision_range_2(data_manager):
+    """
+    Adjusts roomba AI sight to see 2 tiles out from current location.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.info('Setting roomba vision to "2 tiles".')
+    data_manager.roomba_vision = 2
+
+
+def set_roomba_vision_range_full(data_manager):
+    """
+    Adjusts roomba AI sight to see all tiles on map.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.info('Setting roomba vision to "full sight".')
+    data_manager.roomba_vision = -1
 
 
 def clear_debug_entities(data_manager):
