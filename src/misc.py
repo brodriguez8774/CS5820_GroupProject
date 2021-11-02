@@ -356,6 +356,8 @@ def calc_trash_distances(data_manager):
                             )
                             data_manager.debug_entities.append(debug_entity)
 
+        calculated_set = _calc_roomba_distance(calculated_set, debug=debug)
+
         # Optionally print out calculated path set to console.
         if debug:
             logger.info('calculated_paths:')
@@ -370,6 +372,92 @@ def calc_trash_distances(data_manager):
                 logger.debug('({0})'.format(start_tile_id))
                 for end_tile_id, calculated_path in start_set.items():
                     logger.debug('    to ({0}):   {1}'.format(end_tile_id, calculated_path))
+
+        return calculated_set
+
+    def _calc_roomba_distance(calculated_set, debug=False):
+        """"""
+        # Tell function to use variables in larger function scope.
+        nonlocal priority_queue
+        nonlocal handled_tiles
+
+        trash_tiles = data_manager.graph.data['trash_tiles']
+        roomba_x, roomba_y = data_manager.roomba.sprite.tile
+        roomba_tile_id = get_id_from_coord(roomba_x, roomba_y)
+        roomba_tile = get_tile_from_id(data_manager, roomba_tile_id)
+
+        calculated_set['roomba'] = {}
+
+        # Find distance from current trash pile to each other trash pile.
+        for end_tile_id in trash_tiles:
+            # Reset data structures for new tile.
+            priority_queue = []
+            handled_tiles = {}
+            final_path = []
+
+            # Ensure tiles are different.
+            if roomba_tile_id != end_tile_id:
+
+                # Parse out coordinates for tile.
+                end_tile_x, end_tile_y = get_tile_coord_from_id(end_tile_id)
+
+                # Initialize queue by calculating first tile distance and setting as first element.
+                curr_id = get_id_from_tile(roomba_tile)
+                curr_path = [curr_id]
+                _calc_neighbor_costs(roomba_tile, end_tile_x, end_tile_y, 1, curr_path)
+                logger.debug('    to ({0}, {1}): {2}'.format(end_tile_x, end_tile_y, priority_queue))
+
+                # Iterate until we make it to our desired ending tile.
+                # Always use priority queue to check the shortest-distance tile.
+                iterate = True
+                while iterate:
+                    # Parse out data for next tile.
+                    curr_tile_data = priority_queue.pop(0)
+                    curr_tile_id = curr_tile_data['id']
+                    logger.debug('Handling {0}: {1}'.format(curr_tile_id, curr_tile_data))
+                    curr_tile_backward_cost = curr_tile_data['backward_cost']
+                    curr_tile_path = curr_tile_data['path']
+                    curr_tile = get_tile_from_id(data_manager, curr_tile_id)
+
+                    # Check if tile is at desired end position.
+                    curr_tile_x, curr_tile_y = curr_tile.sprite.tile
+                    if curr_tile_x == end_tile_x and curr_tile_y == end_tile_y:
+                        # Found path. Stop checking further tiles.
+                        final_path = curr_tile_path
+                        iterate = False
+
+                        # Save found path for future reference.
+                        calculated_set['roomba'][end_tile_id] = final_path
+                    else:
+                        # Not yet at final tile.
+                        # Calculate distance costs of fellow neighbor tiles.
+                        _calc_neighbor_costs(
+                            curr_tile,
+                            end_tile_x,
+                            end_tile_y,
+                            curr_tile_backward_cost,
+                            curr_tile_path,
+                        )
+                        logger.debug('    to ({0}, {1}): {2}'.format(end_tile_x, end_tile_y, priority_queue))
+
+                # Optionally display debug tile sprites.
+                if debug:
+                    from src.entities.object_entities import DebugTile
+
+                    # Loop through all found tiles in final path. Display debug sprites for each.
+                    for tile_id in final_path:
+                        tile_x, tile_y = get_tile_coord_from_id(tile_id)
+                        debug_tile_sprite = data_manager.sprite_factory.from_image(
+                            RESOURCES.get_path('search_overlay.png')
+                        )
+                        debug_entity = DebugTile(
+                            data_manager.world,
+                            debug_tile_sprite,
+                            data_manager,
+                            tile_x,
+                            tile_y,
+                        )
+                        data_manager.debug_entities.append(debug_entity)
 
         return calculated_set
 
