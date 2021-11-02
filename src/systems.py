@@ -4,6 +4,7 @@ These are subsystems added to the "world manager" object, that basically control
 """
 
 # System Imports.
+import random
 import sdl2.ext
 from abc import ABC
 
@@ -38,18 +39,26 @@ class AbstractMovementSystem(ABC):
         :param sprite: Entity sprite data.
         :return: True on movement success | False otherwise.
         """
-        # Set new sprite location, for movement attempt.
         orig_location = sprite.y
-        sprite.y -= 50
+        orig_x, orig_y = sprite.tile
 
-        # Verify that sprite's new location is within north (upper) bounds.
-        # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
-        north_max = max(self.min_x, self.data_manager.tile_data['max_pixel_north'])
-        sprite.y = max(north_max, sprite.y)
+        # Get corresponding tile wall data.
+        tile_walls = self.data_manager.tile_set.tiles[orig_y][orig_x].walls
+
+        # Check if direction is free of obstructions.
+        if not tile_walls.has_wall_north:
+            # Set new sprite location, for movement attempt.
+            sprite.y -= 50
+
+            # Verify that sprite's new location is within north (upper) bounds.
+            # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
+            north_max = max(self.min_x, self.data_manager.tile_data['max_pixel_north'])
+            sprite.y = max(north_max, sprite.y)
 
         # Check if movement occurred.
         if orig_location != sprite.y:
             # Call general "movement" logic, for entity having moved in any direction at all.
+            logger.debug('Moved north.')
             self._handle_move(sprite)
 
             # Movement successful.
@@ -64,23 +73,31 @@ class AbstractMovementSystem(ABC):
         :param sprite: Entity sprite data.
         :return: True on movement success | False otherwise.
         """
-        # Set new sprite location, for movement attempt.
         orig_location = sprite.x
-        sprite.x += 50
+        orig_x, orig_y = sprite.tile
 
-        # Get sprite size in pixels.
-        sprite_width, sprite_height = sprite.size
+        # Get corresponding tile wall data.
+        tile_walls = self.data_manager.tile_set.tiles[orig_y][orig_x].walls
 
-        # Verify that sprite's new location is within east (right) bounds.
-        # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
-        sprite_right = sprite.x + sprite_width
-        east_max = min(self.max_x, self.data_manager.tile_data['max_pixel_east'])
-        if sprite_right > east_max:
-            sprite.x = east_max - sprite_width
+        # Check if direction is free of obstructions.
+        if not tile_walls.has_wall_east:
+            # Set new sprite location, for movement attempt.
+            sprite.x += 50
+
+            # Get sprite size in pixels.
+            sprite_width, sprite_height = sprite.size
+
+            # Verify that sprite's new location is within east (right) bounds.
+            # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
+            sprite_right = sprite.x + sprite_width
+            east_max = min(self.max_x, self.data_manager.tile_data['max_pixel_east'])
+            if sprite_right > east_max:
+                sprite.x = east_max - sprite_width
 
         # Check if movement occurred.
         if orig_location != sprite.x:
             # Call general "movement" logic, for entity having moved in any direction at all.
+            logger.debug('Moved east.')
             self._handle_move(sprite)
 
             # Movement successful.
@@ -95,23 +112,31 @@ class AbstractMovementSystem(ABC):
         :param sprite: Entity sprite data.
         :return: True on movement success | False otherwise.
         """
-        # Set new sprite location, for movement attempt.
         orig_location = sprite.y
-        sprite.y += 50
+        orig_x, orig_y = sprite.tile
 
-        # Get sprite size in pixels.
-        sprite_width, sprite_height = sprite.size
+        # Get corresponding tile wall data.
+        tile_walls = self.data_manager.tile_set.tiles[orig_y][orig_x].walls
 
-        # Verify that sprite's new location is within south (bottom) bounds.
-        # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
-        sprite_lower = sprite.y + sprite_height
-        south_max = min(self.max_y, self.data_manager.tile_data['max_pixel_south'])
-        if sprite_lower > south_max:
-            sprite.y = south_max - sprite_height
+        # Check if direction is free of obstructions.
+        if not tile_walls.has_wall_south:
+            # Set new sprite location, for movement attempt.
+            sprite.y += 50
+
+            # Get sprite size in pixels.
+            sprite_width, sprite_height = sprite.size
+
+            # Verify that sprite's new location is within south (bottom) bounds.
+            # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
+            sprite_lower = sprite.y + sprite_height
+            south_max = min(self.max_y, self.data_manager.tile_data['max_pixel_south'])
+            if sprite_lower > south_max:
+                sprite.y = south_max - sprite_height
 
         # Check if movement occurred.
         if orig_location != sprite.y:
             # Call general "movement" logic, for entity having moved in any direction at all.
+            logger.debug('Moved south.')
             self._handle_move(sprite)
 
             # Movement successful.
@@ -126,18 +151,26 @@ class AbstractMovementSystem(ABC):
         :param sprite: Entity sprite data.
         :return: True on movement success | False otherwise.
         """
-        # Set new sprite location, for movement attempt.
         orig_location = sprite.x
-        sprite.x -= 50
+        orig_x, orig_y = sprite.tile
 
-        # Verify that sprite's new location is within west (left) bounds.
-        # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
-        west_max = max(self.min_x, self.data_manager.tile_data['max_pixel_west'])
-        sprite.x = max(west_max, sprite.x)
+        # Get corresponding tile wall data.
+        tile_walls = self.data_manager.tile_set.tiles[orig_y][orig_x].walls
+
+        # Check if direction is free of obstructions.
+        if not tile_walls.has_wall_west:
+            # Set new sprite location, for movement attempt.
+            sprite.x -= 50
+
+            # Verify that sprite's new location is within west (left) bounds.
+            # We use the more restrictive of either "the provided limit class limit" or "defined window limit".
+            west_max = max(self.min_x, self.data_manager.tile_data['max_pixel_west'])
+            sprite.x = max(west_max, sprite.x)
 
         # Check if movement occurred.
         if orig_location != sprite.x:
             # Call general "movement" logic, for entity having moved in any direction at all.
+            logger.debug('Moved west.')
             self._handle_move(sprite)
 
             # Movement successful.
@@ -235,6 +268,7 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
         self.min_y = min_y
         self.max_x = max_x
         self.max_y = max_y
+        self.prev_direction = 'north'
 
     def process(self, world, componenttypes):
         """
@@ -243,41 +277,132 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
         :param componenttypes: Tuple of relevant tuples for system.
         """
         for ai_tick, sprite in componenttypes:
-        #     print('ai_tick: {0}'.format(ai_tick))
-        #     print('sprite: {0}'.format(sprite))
 
-            if ai_tick.active and ai_tick.check_counter():
-                print('\n')
-                print('ai_tick: {0}'.format(ai_tick))
-                print('sprite: {0}'.format(sprite))
+            # Proceed if tick rate is met and ai is set to be active..
+            if ai_tick.active and ai_tick.check_counter() and self.data_manager.ai_active:
+                # AI is active and tick event is occurring. Move roomba, based on current setting.
 
-                # Determine optimal distance to reach tiles, excluding inclusion of walls.
-                ai_tick.search_optimal_distance()
+                # Check vision range.
+                if self.data_manager.roomba_vision == 0:
+                    # Roomba has no vision range. Acting as bump sensor.
+                    logger.info('Moving with "bump sensor".')
+                    self.move_bump_sensor(sprite)
 
-                # # Move roomba.
-                # self.move_east(sprite)
+                elif self.data_manager.roomba_vision == -1:
+                    # Roomba has full tile sight.
+                    logger.info('Moving with "full tile sight".')
+                    self.move_full_sight(sprite)
 
-        # for ai_tick, search_tick, sprite in componenttypes:
-        #
-        #     print('ai_tick: {0}'.format(ai_tick))
-        #     print('search_tick: {0}'.format(search_tick))
-        #     print('sprite: {0}'.format(sprite))
-        #
-        #     if ai_tick.active and ai_tick.check_counter():
-        #         # Move roomba.
-        #         self.move_east(sprite)
+                else:
+                    # Roomba has limited tile range.
+                    logger.info('Moving with "limited tile range".')
+                    self.move_limited_vision(sprite)
 
-    # def process(self, world, componenttypes):
-    #     """
-    #     System handling during a single world processing tick.
-    #     :param world: World instance calling the process tick.
-    #     :param componenttypes: Tuple of relevant tuples for system.
-    #     """
-    #     for ai_tick, search, sprite in componenttypes:
-    #
-    #         if ai_tick.active and ai_tick.check_counter():
-    #             # Calculate optimal distance.
-    #             search.search_optimal_distance()
-    #
-    #             # Move roomba.
-    #             self.move_east(sprite)
+    def move_bump_sensor(self, sprite):
+        """
+        Move roomba with "bump sensor" setting.
+
+        Roomba will attempt to "continue in the same direction" until it hits a wall.
+        At such a point, it will choose a random non-backtracking direction and attempt that.
+        Only backtracks when no other valid options exist.
+        :param sprite: Roomba sprite entity.
+        """
+        orig_x, orig_y = sprite.tile
+        logger.debug('current_location: ({0}, {1})'.format(orig_x, orig_y))
+
+        # First check previous direction. Attempt to continue going that way, if possible.
+        has_moved = False
+        if self.prev_direction == 'north':
+            # Attempt to move roomba.
+            logger.debug('Attempting to continue north.')
+            has_moved = self.move_north(sprite)
+        elif self.prev_direction == 'east':
+            # Attempt to move roomba.
+            logger.debug('Attempting to continue east.')
+            has_moved = self.move_east(sprite)
+        elif self.prev_direction == 'south':
+            # Attempt to move roomba.
+            logger.debug('Attempting to continue south.')
+            has_moved = self.move_south(sprite)
+        elif self.prev_direction == 'west':
+            # Attempt to move roomba.
+            logger.debug('Attempting to continue west.')
+            has_moved = self.move_west(sprite)
+
+        # Check if roomba has moved. If not, a barrier was in the way. Choose a random direction.
+        if not has_moved:
+            # Failed to move. Get new direction.
+            prev_direction = self.prev_direction
+            viable_directions = ['north', 'east', 'south', 'west']
+            logger.debug('prev_direction: {0}'.format(prev_direction))
+            logger.debug('viable_directions: {0}'.format(viable_directions))
+            if self.prev_direction in ['north', 'south']:
+                viable_directions.remove('north')
+                viable_directions.remove('south')
+            elif self.prev_direction in ['east', 'west']:
+                viable_directions.remove('east')
+                viable_directions.remove('west')
+
+            # Attempt one of the other directions.
+            while not has_moved and len(viable_directions) > 0:
+                logger.debug('viable_directions: {0}'.format(viable_directions))
+                new_dir_index = random.randint(0, len(viable_directions) - 1)
+                new_dir = viable_directions.pop(new_dir_index)
+                logger.debug('new_dir: {0}'.format(new_dir))
+
+                if new_dir == 'north':
+                    # Attempt to move roomba.
+                    has_moved = self.move_north(sprite)
+                    prev_direction = 'north'
+                elif new_dir == 'east':
+                    # Attempt to move roomba.
+                    has_moved = self.move_east(sprite)
+                    prev_direction = 'east'
+                elif new_dir == 'south':
+                    # Attempt to move roomba.
+                    has_moved = self.move_south(sprite)
+                    prev_direction = 'south'
+                elif new_dir == 'west':
+                    # Attempt to move roomba.
+                    has_moved = self.move_west(sprite)
+                    prev_direction = 'west'
+
+            # Check one last time if roomba has moved.
+            if not has_moved:
+                logger.debug('Still has not moved, backtracking.')
+                # Roomba still has not moved. That means three walls are blocked off on tile, and the only way
+                # to move is by backtracking.
+                if self.prev_direction == 'north':
+                    # Attempt to move roomba.
+                    has_moved = self.move_south(sprite)
+                    prev_direction = 'south'
+                elif self.prev_direction == 'east':
+                    # Attempt to move roomba.
+                    has_moved = self.move_west(sprite)
+                    prev_direction = 'west'
+                elif self.prev_direction == 'south':
+                    # Attempt to move roomba.
+                    has_moved = self.move_north(sprite)
+                    prev_direction = 'north'
+                elif self.prev_direction == 'west':
+                    # Attempt to move roomba.
+                    has_moved = self.move_east(sprite)
+                    prev_direction = 'east'
+
+            # Final validation that roomba has moved. If not, then logic error occurred.
+            if not has_moved:
+                raise RuntimeError('Roomba failed to move. Logic error occurred.')
+
+            # Update for new movement direction.
+            logger.debug('Setting "prev_direction" to {0}'.format(prev_direction))
+            self.prev_direction = prev_direction
+
+    def move_full_sight(self, sprite):
+        """"""
+        # Move roomba.
+        self.move_east(sprite)
+
+    def move_limited_vision(self, sprite):
+        """"""
+        # Move roomba.
+        self.move_east(sprite)

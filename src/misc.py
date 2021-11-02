@@ -46,7 +46,7 @@ class DataManager:
         self.tile_set = None
         self.roomba = None
         self.ai_active = False
-        self.roomba_vision_range = 1
+        self.roomba_vision = 1
         self.ideal_trash_paths = None
         self.graph = networkx.Graph()
         self.graph.data = {
