@@ -11,6 +11,7 @@ from abc import ABC
 # User Imports.
 from src.entities.system_entities import AI, Movement, SearchOptimalDistance
 from src.logging import init_logging
+from src.misc import calc_trash_distances, calc_traveling_salesman, get_tile_coord_from_id
 
 
 # Initialize logger.
@@ -195,6 +196,10 @@ class AbstractMovementSystem(ABC):
         logger.debug('roomba_location: {0}'.format(roomba_location))
         if roomba_location[0] == tile_x and roomba_location[1] == tile_y and curr_tile.trashpile.exists:
             curr_tile.trashpile.clean()
+
+        # Recalculate path distances for new roomba location.
+        self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
+        calc_traveling_salesman(self.data_manager)
 
 
 class MovementSystem(sdl2.ext.Applicator, AbstractMovementSystem):
@@ -398,9 +403,50 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
             self.prev_direction = prev_direction
 
     def move_full_sight(self, sprite):
-        """"""
-        # Move roomba.
-        self.move_east(sprite)
+        """
+        Move roomba with "full sight" setting.
+
+        Assumes some "outside entity" knows what the full environment setup is, and is feeding the roomba this
+        information. Roomba intelligently attempts to take the "most efficient path" to get to all trash piles.
+        :param sprite: Roomba sprite entity.
+        """
+        # Get first set in "calculated ideal path".
+        end_tile_group_id = self.data_manager.ideal_overall_path['ordering'][1]
+        path_set = self.data_manager.ideal_trash_paths['roomba'][end_tile_group_id]
+        print('path_set: {0}'.format(path_set))
+
+        # Get first tile in path set.
+        curr_tile_id = path_set[0]
+        desired_next_tile_id = path_set[1]
+        curr_tile_x, curr_tile_y = get_tile_coord_from_id(curr_tile_id)
+        desired_tile_x, desired_tile_y = get_tile_coord_from_id(desired_next_tile_id)
+
+        print('curr_tile: ({0}, {1})'.format(curr_tile_x, curr_tile_y))
+        print('desired_tile: ({0}, {1})'.format(desired_tile_x, desired_tile_y))
+
+        # Determine which direction we move, in order to reach desired tile.
+        if curr_tile_x != desired_tile_x:
+            # Moving east/west.
+            if curr_tile_x < desired_tile_x:
+                # Move east.
+                self.move_east(sprite)
+                self.prev_direction = 'east'
+            else:
+                # Move west.
+                self.move_west(sprite)
+                self.prev_direction = 'west'
+        elif curr_tile_y != desired_tile_y:
+            # Moving north/south.
+            if curr_tile_y < desired_tile_y:
+                # Move south.
+                self.move_south(sprite)
+                self.prev_direction = 'south'
+            else:
+                # Move north.
+                self.move_north(sprite)
+                self.prev_direction = 'north'
+        else:
+            raise RuntimeError('Unable to determine where to move.')
 
     def move_limited_vision(self, sprite):
         """"""

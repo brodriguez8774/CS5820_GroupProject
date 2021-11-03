@@ -9,7 +9,7 @@ import sdl2.ext
 # User Imports.
 from src.entities import GuiCore, Roomba, TileSet
 from src.logging import init_logging
-from src.misc import DataManager, handle_key_press, handle_mouse_click
+from src.misc import calc_trash_distances, calc_traveling_salesman, DataManager, handle_key_press, handle_mouse_click
 from src.systems import AISystem, MovementSystem, SoftwareRendererSystem
 
 
@@ -23,6 +23,8 @@ RESOURCES = sdl2.ext.Resources(__file__, './src/images/')
 # Initialize window width/height.
 WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
+# WINDOW_WIDTH = 400
+# WINDOW_HEIGHT = 200
 WINDOW_WIDTH_MIN = 400
 WINDOW_HEIGHT_MIN = 200
 
@@ -52,7 +54,7 @@ def main():
     movement = MovementSystem(data_manager, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
 
     # Add subsystems to world manager.
-    # world.add_system(ai)
+    world.add_system(ai)
     world.add_system(movement)
     world.add_system(sprite_renderer)
 
@@ -219,6 +221,10 @@ def initialize_data():
 
     # Initialize GUI object data.
     data_manager.gui = GuiCore(data_manager)
+
+    # Calculate path distances for initial setup.
+    data_manager.ideal_trash_paths = calc_trash_distances(data_manager)
+    calc_traveling_salesman(data_manager)
 
     # Return generated window object.
     return data_manager

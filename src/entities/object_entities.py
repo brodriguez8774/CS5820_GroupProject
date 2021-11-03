@@ -277,7 +277,7 @@ class TileSet:
         # Ensure all paths are accessible by roomba.
         self.tiles[0][0].walls.bipartite_color_validation()
 
-        # Recalculate trash distances for new wall setup.
+        # Recalculate path distances for new wall setup.
         self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
         calc_traveling_salesman(self.data_manager)
 
@@ -302,8 +302,9 @@ class TileSet:
                     if self.tiles[row_index][col_index].trashpile.exists:
                         self.tiles[row_index][col_index].trashpile.clean()
 
-        # Recalculate trash distances for new trash pile setup.
+        # Recalculate path distances for new trash pile setup.
         self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
+        calc_traveling_salesman(self.data_manager)
 
 
 class Trash(sdl2.ext.Entity):

@@ -48,6 +48,7 @@ class DataManager:
         self.ai_active = False
         self.roomba_vision = 1
         self.ideal_trash_paths = None
+        self.ideal_overall_path = None
         self.graph = networkx.Graph()
         self.graph.data = {
             'trash_tiles': []
@@ -164,8 +165,9 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             logger.info('    Decrementing tile walls.')
             tile.walls.decrement_wall_state()
 
-        # Recalculate trash distances for new tile wall setup.
+        # Recalculate path distances for new tile wall setup.
         data_manager.ideal_trash_paths = calc_trash_distances(data_manager)
+        calc_traveling_salesman(data_manager)
 
 # endregion GUI Logic Functions
 
@@ -663,8 +665,6 @@ def calc_traveling_salesman(data_manager, debug=False):
     Calculates the approximately-ideal overall path to visit all trash tiles.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
-    debug = True
-
     # Clear all debug entities.
     clear_debug_entities(data_manager)
 
@@ -673,10 +673,10 @@ def calc_traveling_salesman(data_manager, debug=False):
     trash_tile_set = data_manager.graph.data['trash_tiles']
     trash_paths = data_manager.ideal_trash_paths
 
-    print('\n\n\n\n')
-    print(' ==== TRAVELING SALESMAN ===== ')
-    print('\n')
-    print('trash_paths: {0}'.format(trash_paths))
+    logger.info('\n\n\n\n')
+    logger.info(' ==== TRAVELING SALESMAN ===== ')
+    logger.info('\n')
+    logger.info('trash_paths: {0}'.format(trash_paths))
 
     # Initialize path by just going to trash tiles in original ordering.
     curr_total_dist = 999999
@@ -772,6 +772,9 @@ def calc_traveling_salesman(data_manager, debug=False):
         if swapped_total_dist < curr_total_dist:
             calculated_path['ordering'][conn_1_index_1] = conn_2_id_1
             calculated_path['ordering'][conn_2_index_1] = conn_1_id_1
+
+    # Save found path.
+    data_manager.ideal_overall_path = calculated_path
 
     # Optionally display debug tile sprites.
     if debug:
