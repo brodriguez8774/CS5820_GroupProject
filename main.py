@@ -23,10 +23,10 @@ RESOURCES = sdl2.ext.Resources(__file__, './src/images/')
 # Initialize window width/height.
 WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
-# WINDOW_WIDTH = 400
-# WINDOW_HEIGHT = 200
-WINDOW_WIDTH_MIN = 400
-WINDOW_HEIGHT_MIN = 200
+# WINDOW_WIDTH = 500
+# WINDOW_HEIGHT = 450
+WINDOW_WIDTH_MIN = 500
+WINDOW_HEIGHT_MIN = 450
 
 
 def main():
@@ -168,6 +168,8 @@ def initialize_data():
         'gui_h_end': gui_h_end,
         'gui_center_w': gui_center_w,
         'gui_center_h': gui_center_h,
+        'optimal_counter': 999999,
+        'total_move_counter': -1,
     }
     tile_data = {
         'tile_w_start': tile_w_start,

@@ -23,11 +23,21 @@ class SoftwareRendererSystem(sdl2.ext.SoftwareSpriteRenderSystem):
     System that handles displaying sprites to renderer window.
     """
     def __init__(self, window):
+        self.data_manager = None
         super(SoftwareRendererSystem, self).__init__(window)
 
     def render(self, components):
+        # Run tick to update general interface.
         sdl2.ext.fill(self.surface, sdl2.ext.Color(0, 0, 0))
         super(SoftwareRendererSystem, self).render(components)
+
+        # Also update dynamic GUI text elements.
+        self.data_manager.gui.optimal_counter_text.update(
+            'Optimal Solution Cost: {0}'.format(self.data_manager.gui_data['optimal_counter']),
+        )
+        self.data_manager.gui.total_move_counter_text.update(
+            'Moves: {0}'.format(self.data_manager.gui_data['total_move_counter']),
+        )
 
 
 class AbstractMovementSystem(ABC):

@@ -49,6 +49,12 @@ class GuiCore:
             5,
             data_manager.gui_data['gui_h_start'] + 5,
         )
+        self.total_move_counter_text = GuiText(
+            data_manager,
+            'Moves:',
+            data_manager.gui_data['gui_w_start'] - 80,
+            data_manager.gui_data['gui_h_start'] + 5,
+        )
         self.settings_header_text = GuiText(
             data_manager,
             'Settings:',
@@ -253,9 +259,9 @@ class GuiText:
         self.font = fcmatch('monospace').file
 
         # Initialize text sprite.
-        self.update_text(text)
+        self.update(text)
 
-    def update_text(self, text):
+    def update(self, text):
         """
         Update's text entity to display new text value.
         :param text: Text string to display.
@@ -267,7 +273,7 @@ class GuiText:
         # Initialize button text.
         text_color = sdl2.SDL_Color(250, 250, 250)  # White text.
         font_manager = sdl2.ext.FontManager(self.font, size=12, color=text_color)
-        text_sprite = self.data_manager.sprite_factory.from_text(text, fontmanager=font_manager)
+        text_sprite = self.data_manager.sprite_factory.from_text(str(text), fontmanager=font_manager)
 
         # Create sprite entity to display text value.
         self.text_entity = self.Text(self.data_manager.world, text_sprite, self.data_manager, self.pos_x, self.pos_y)

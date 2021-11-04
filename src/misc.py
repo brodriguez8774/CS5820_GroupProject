@@ -62,6 +62,9 @@ class DataManager:
             'inactive': 0,
         }
 
+        # Also make the Sprite Renderer aware of current Data Manager object.
+        sprite_renderer.data_manager = self
+
 
 # endregion Data Structures
 
@@ -822,9 +825,12 @@ def calc_traveling_salesman(data_manager, debug=False):
         if swapped_total_dist < curr_total_dist:
             calculated_path['ordering'][conn_1_index_1] = conn_2_id_1
             calculated_path['ordering'][conn_2_index_1] = conn_1_id_1
+            calculated_path['total_cost'] = swapped_total_dist
 
     # Save found path.
     data_manager.ideal_overall_path = calculated_path
+    data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
+    data_manager.gui_data['total_move_counter'] += 1
 
     # Optionally display debug tile sprites.
     if debug:
