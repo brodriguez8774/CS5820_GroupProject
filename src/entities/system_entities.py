@@ -1174,23 +1174,35 @@ class TrashPile:
         :return: Bool indicating if trash was successfully placed.
         """
         if self.exists:
-            logger.info('Tile ({0}, {1}) already has trash.'.format(self.tile_x, self.tile_y))
+            # Trash already present. Skip placing.
+            logger.info('Tile ({0}, {1}) already has trash. Skipping trash placement.'.format(self.tile_x, self.tile_y))
             return False
         else:
-            logger.info('Placed trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
+            # First, check if roomba is at tile.
+            roomba_x, roomba_y = self.data_manager.roomba.sprite.tile
+            if self.tile_x == roomba_x and self.tile_y == roomba_y:
+                # Roomba is at tile. Skip placing.
+                logger.info(
+                    'Tile ({0}, {1}) already has roomba. Skipping trash placement.'.format(self.tile_x, self.tile_y),
+                )
+                return False
 
-            # Update tile data.
-            self.trash.sprite.depth = self.data_manager.sprite_depth['trash']
+            else:
+                # Trash and roomba not present at tile. Attempt to place.
+                logger.info('Placed trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
 
-            # Update internal trackers.
-            self.exists = True
+                # Update tile data.
+                self.trash.sprite.depth = self.data_manager.sprite_depth['trash']
 
-            # Update graph data.
-            tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
-            if tile_id not in self.data_manager.graph.data['trash_tiles']:
-                self.data_manager.graph.data['trash_tiles'].append(tile_id)
+                # Update internal trackers.
+                self.exists = True
 
-            return True
+                # Update graph data.
+                tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
+                if tile_id not in self.data_manager.graph.data['trash_tiles']:
+                    self.data_manager.graph.data['trash_tiles'].append(tile_id)
+
+                return True
 
     def clean(self):
         """
