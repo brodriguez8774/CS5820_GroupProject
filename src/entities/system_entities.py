@@ -8,6 +8,7 @@ import random
 
 # User Imports.
 from src.logging import init_logging
+from src.misc import get_tile_coord_from_id
 
 
 # Initialize logger.
@@ -672,8 +673,7 @@ class Walls:
             curr_problem_child = red_tiles.pop(0)
 
             # Get actual problem tile.
-            pos_x = int(curr_problem_child[0])
-            pos_y = int(curr_problem_child[3])
+            pos_x, pos_y = get_tile_coord_from_id(curr_problem_child)
             tile = self.data_manager.tile_set.tiles[pos_y][pos_x]
 
             # Fetch neighbor tiles.
@@ -758,8 +758,7 @@ class Walls:
 
             # Grab tile at start of list.
             tile_id = pending_tile_list.pop(0)
-            pos_x = int(tile_id[0])
-            pos_y = int(tile_id[3])
+            pos_x, pos_y = get_tile_coord_from_id(tile_id)
 
             # Get literal tile entity.
             curr_tile = self.data_manager.tile_set.tiles[pos_y][pos_x]

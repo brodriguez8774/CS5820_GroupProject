@@ -229,8 +229,9 @@ def get_tile_coord_from_id(tile_id):
     :param tile_id: Identifier for tile.
     :return: Tuple of (x_coord, y_coord) for tile.
     """
-    tile_x = int(tile_id[0])
-    tile_y = int(tile_id[3])
+    id_split = str(tile_id).split(', ')
+    tile_x = int(id_split[0])
+    tile_y = int(id_split[1])
 
     return tile_x, tile_y
 
