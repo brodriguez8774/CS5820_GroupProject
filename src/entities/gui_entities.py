@@ -29,7 +29,6 @@ from src.misc import (
 logger = init_logging(__name__)
 
 
-
 class GuiCore:
     """
     Core GUI class. Holds/controls all other gui entities.
@@ -43,11 +42,37 @@ class GuiCore:
         # Initialize general gui background.
         self.background = GuiBackground(data_manager)
 
+        # Initialize GUI text.
+        self.optimal_counter_text = GuiText(
+            data_manager,
+            'Optimal Solution Cost:',
+            5,
+            data_manager.gui_data['gui_h_start'] + 5,
+        )
+        self.settings_header_text = GuiText(
+            data_manager,
+            'Settings:',
+            data_manager.gui_data['gui_w_start'] + 10,
+            data_manager.gui_data['gui_h_start'] + 5,
+        )
+        self.randomizer_header_text = GuiText(
+            data_manager,
+            'Randomizers:',
+            data_manager.gui_data['gui_w_start'] + 10,
+            data_manager.gui_data['gui_h_start'] + 75,
+        )
+        self.roomba_header_text = GuiText(
+            data_manager,
+            'Roomba Settings:',
+            data_manager.gui_data['gui_w_start'] + 10,
+            data_manager.gui_data['gui_h_start'] + 240,
+        )
+
         # Initialize "toggle ai" button.
         self.toggle_ai = GuiButton(
             data_manager,
             'Toggle AI',
-            20,
+            30,
             name='Toggle AI',
             function_call=toggle_roomba_ai,
             function_args=data_manager,
@@ -58,7 +83,7 @@ class GuiCore:
         self.rand_walls = GuiButton(
             data_manager,
             'Randomize Walls (E)',
-            90,
+            100,
             name='RandWalls Button (Equal Randomization)',
             function_call=data_manager.tile_set.randomize_tile_walls_equal,
         )
@@ -66,7 +91,7 @@ class GuiCore:
         self.rand_walls = GuiButton(
             data_manager,
             'Randomize Walls (W)',
-            130,
+            140,
             name='RandWalls Button (Weighted Randomization)',
             function_call=data_manager.tile_set.randomize_tile_walls_weighted,
         )
@@ -76,7 +101,7 @@ class GuiCore:
         self.rand_trash = GuiButton(
             data_manager,
             'Randomize Trash',
-            170,
+            180,
             name='RandTrash Button',
             function_call=data_manager.tile_set.randomize_trash,
         )
@@ -86,7 +111,7 @@ class GuiCore:
         self.vision_0 = GuiButton(
             data_manager,
             'Bump Sensor',
-            250,
+            260,
             name='Distance of 0 (Bump Sensor)',
             function_call=set_roomba_vision_range_0,
             function_args=data_manager,
@@ -97,7 +122,7 @@ class GuiCore:
         self.vision_1 = GuiButton(
             data_manager,
             'Distance of 1',
-            290,
+            300,
             name='Distance of 1',
             function_call=set_roomba_vision_range_1,
             function_args=data_manager,
@@ -108,7 +133,7 @@ class GuiCore:
         self.vision_2 = GuiButton(
             data_manager,
             'Distance of 2',
-            330,
+            340,
             name='Distance of 2',
             function_call=set_roomba_vision_range_2,
             function_args=data_manager,
@@ -119,7 +144,7 @@ class GuiCore:
         self.vision_full = GuiButton(
             data_manager,
             'Full Sight',
-            370,
+            380,
             name='Full Sight',
             function_call=set_roomba_vision_range_full,
             function_args=data_manager,
@@ -212,6 +237,54 @@ class GuiBackground:
 
             # Set entity depth mapping.
             self.sprite.depth = 2
+
+
+class GuiText:
+    """
+    Text for the GUI interface.
+    """
+    def __init__(self, data_manager, text, pos_x, pos_y):
+        self.data_manager = data_manager
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.text_entity = None
+
+        # Set font to system's default monospace font.
+        self.font = fcmatch('monospace').file
+
+        # Initialize text sprite.
+        self.update_text(text)
+
+    def update_text(self, text):
+        """
+        Update's text entity to display new text value.
+        :param text: Text string to display.
+        """
+        # Remove previous text entity, if there is one.
+        if self.text_entity:
+            self.text_entity.delete()
+
+        # Initialize button text.
+        text_color = sdl2.SDL_Color(250, 250, 250)  # White text.
+        font_manager = sdl2.ext.FontManager(self.font, size=12, color=text_color)
+        text_sprite = self.data_manager.sprite_factory.from_text(text, fontmanager=font_manager)
+
+        # Create sprite entity to display text value.
+        self.text_entity = self.Text(self.data_manager.world, text_sprite, self.data_manager, self.pos_x, self.pos_y)
+
+    class Text(sdl2.ext.Entity):
+        def __init__(self, world, sprite, data_manager, pos_x, pos_y):
+            # Set entity display image.
+            self.sprite = sprite
+
+            # Define world systems which affect entity.
+            # None so far.
+
+            # Set entity location tracking.
+            self.sprite.position = pos_x, pos_y
+
+            # Set entity depth mapping.
+            self.sprite.depth = 5
 
 
 class GuiButton:
