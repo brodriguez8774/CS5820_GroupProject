@@ -225,7 +225,7 @@ def initialize_data():
     data_manager.gui = GuiCore(data_manager)
 
     # Calculate path distances for initial setup.
-    data_manager.ideal_trash_paths = calc_trash_distances(data_manager)
+    calc_trash_distances(data_manager)
     calc_traveling_salesman(data_manager)
 
     # Return generated window object.

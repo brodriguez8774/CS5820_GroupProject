@@ -169,7 +169,7 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
             tile.walls.decrement_wall_state()
 
         # Recalculate path distances for new tile wall setup.
-        data_manager.ideal_trash_paths = calc_trash_distances(data_manager)
+        calc_trash_distances(data_manager)
         calc_traveling_salesman(data_manager)
 
 
@@ -283,13 +283,14 @@ def calc_distance_cost(start_tile_x, start_tile_y, end_tile_x, end_tile_y):
     return distance
 
 
-def calc_trash_distances(data_manager):
+def calc_trash_distances(data_manager, roomba_only=False):
     """
     Calculates the "ideal" distance from every trash pile to every other trash pile.
     Accounts for walls and barriers.
 
     This function should be called every time any wall or trash entity is added/removed/otherwise changed.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    :param roomba_only: Bool indicating if only roomba paths should be calculated.
     :return: Set of all calculated "ideal paths" from each trash tile to every other trash tile.
     """
     priority_queue = []
@@ -413,7 +414,11 @@ def calc_trash_distances(data_manager):
                             )
                             data_manager.debug_entities.append(debug_entity)
 
-        calculated_set = _calc_roomba_distance(calculated_set, debug=debug)
+        # Save calculated data to data manager.
+        data_manager.ideal_trash_paths = calculated_set
+
+        # Also update distance from roomba to all trash tiles.
+        _calc_roomba_distance(debug=debug)
 
         # Optionally print out calculated path set to console.
         if debug:
@@ -430,10 +435,10 @@ def calc_trash_distances(data_manager):
                 for end_tile_id, calculated_path in start_set.items():
                     logger.debug('    to ({0}):   {1}'.format(end_tile_id, calculated_path))
 
-        return calculated_set
-
-    def _calc_roomba_distance(calculated_set, debug=False):
-        """"""
+    def _calc_roomba_distance(debug=False):
+        """
+        Calculates distances from roomba to each trash tile.
+        """
         # Tell function to use variables in larger function scope.
         nonlocal priority_queue
         nonlocal handled_tiles
@@ -443,6 +448,7 @@ def calc_trash_distances(data_manager):
         roomba_tile_id = get_id_from_coord(roomba_x, roomba_y)
         roomba_tile = get_tile_from_id(data_manager, roomba_tile_id)
 
+        calculated_set = data_manager.ideal_trash_paths
         calculated_set['roomba'] = {}
 
         # Find distance from current trash pile to each other trash pile.
@@ -516,7 +522,8 @@ def calc_trash_distances(data_manager):
                         )
                         data_manager.debug_entities.append(debug_entity)
 
-        return calculated_set
+        # Save calculated data to data manager.
+        data_manager.ideal_trash_paths = calculated_set
 
     def _calc_neighbor_costs(curr_tile, end_tile_x, end_tile_y, curr_backward_cost, curr_path, debug=False):
         """
@@ -710,13 +717,20 @@ def calc_trash_distances(data_manager):
             )
 
     # Call actual function logic, now that inner functions are defined.
-    return _calc_trash_distances()
+    if roomba_only and data_manager.ideal_trash_paths is not None:
+        # Save computations by only calculating roomba distance to trash tiles.
+        _calc_roomba_distance()
+    else:
+        # Calculate distance from all trash tiles to all other trash tiles. Also distance of roomba to all trash tiles.
+        # Much more computationally expensive, but required for initialization, such as when walls change.
+        _calc_trash_distances()
 
 
-def calc_traveling_salesman(data_manager, debug=False):
+def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
     """
     Calculates the approximately-ideal overall path to visit all trash tiles.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    :param calc_new: Bool indicating if previously calculated path data should be discarded. Such as wall entity update.
     """
     # Clear all debug entities.
     clear_debug_entities(data_manager)
@@ -726,17 +740,23 @@ def calc_traveling_salesman(data_manager, debug=False):
     trash_tile_set = data_manager.graph.data['trash_tiles']
     trash_paths = data_manager.ideal_trash_paths
 
+    # Reset path values if calculating from scratch.
+    curr_total_dist = 999999
+    calculated_path = {
+        'ordering': [roomba_tile_id],
+        'total_cost': curr_total_dist,
+    }
+    if calc_new:
+        data_manager.ideal_overall_path = calculated_path
+        data_manager.gui_data['optimal_counter'] = curr_total_dist
+        data_manager.gui_data['total_move_counter'] = 0
+
     logger.info('\n\n\n\n')
     logger.info(' ==== TRAVELING SALESMAN ===== ')
     logger.info('\n')
     logger.info('trash_paths: {0}'.format(trash_paths))
 
     # Initialize path by just going to trash tiles in original ordering.
-    curr_total_dist = 999999
-    calculated_path = {
-        'ordering': [roomba_tile_id],
-        'total_cost': curr_total_dist,
-    }
     start_tile_id = None
     end_tile_id = None
     for tile_id in trash_tile_set:
@@ -827,10 +847,17 @@ def calc_traveling_salesman(data_manager, debug=False):
             calculated_path['ordering'][conn_2_index_1] = conn_1_id_1
             calculated_path['total_cost'] = swapped_total_dist
 
-    # Save found path.
-    data_manager.ideal_overall_path = calculated_path
-    data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
-    data_manager.gui_data['total_move_counter'] += 1
+    # Take optimal calculated distance. Compare against previously found optimal.
+    # Only override if new path is superior.
+    if (
+        data_manager.ideal_overall_path is None or
+        data_manager.ideal_overall_path['ordering'] == ['{0}, {1}'.format(roomba_x, roomba_y)] or
+        calculated_path['total_cost'] < data_manager.ideal_overall_path['total_cost']
+    ):
+        # New calculated path is more efficient. Save values.
+        data_manager.ideal_overall_path = calculated_path
+        data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
+        data_manager.gui_data['total_move_counter'] += 1
 
     # Optionally display debug tile sprites.
     if debug:

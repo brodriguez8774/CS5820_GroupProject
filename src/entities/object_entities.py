@@ -278,7 +278,7 @@ class TileSet:
         self.tiles[0][0].walls.bipartite_color_validation()
 
         # Recalculate path distances for new wall setup.
-        self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
+        calc_trash_distances(self.data_manager)
         calc_traveling_salesman(self.data_manager)
 
     def randomize_trash(self):
@@ -303,7 +303,7 @@ class TileSet:
                         self.tiles[row_index][col_index].trashpile.clean()
 
         # Recalculate path distances for new trash pile setup.
-        self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
+        calc_trash_distances(self.data_manager)
         calc_traveling_salesman(self.data_manager)
 
 

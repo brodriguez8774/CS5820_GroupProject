@@ -208,8 +208,8 @@ class AbstractMovementSystem(ABC):
             curr_tile.trashpile.clean()
 
         # Recalculate path distances for new roomba location.
-        self.data_manager.ideal_trash_paths = calc_trash_distances(self.data_manager)
-        calc_traveling_salesman(self.data_manager)
+        calc_trash_distances(self.data_manager, roomba_only=True)
+        calc_traveling_salesman(self.data_manager, calc_new=False)
 
 
 class MovementSystem(sdl2.ext.Applicator, AbstractMovementSystem):
@@ -421,7 +421,6 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
         # Get first set in "calculated ideal path".
         end_tile_group_id = self.data_manager.ideal_overall_path['ordering'][1]
         path_set = self.data_manager.ideal_trash_paths['roomba'][end_tile_group_id]
-        print('path_set: {0}'.format(path_set))
 
         # Get first tile in path set.
         curr_tile_id = path_set[0]
