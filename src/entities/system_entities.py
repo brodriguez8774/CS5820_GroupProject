@@ -1164,7 +1164,11 @@ class TrashPile:
 
         # Default with trash on roughly 10% of all tiles.
         total_tiles = data_manager.tile_data['tile_w_count'] * data_manager.tile_data['tile_h_count']
-        if random.randint(0, (total_tiles % 10)) < 1:
+        upper_limit = total_tiles
+        if upper_limit > 100:
+            upper_limit = 100
+        upper_limit = int(upper_limit / 10)
+        if random.randint(0, upper_limit) < 1:
             self.place()
 
     def place(self):
