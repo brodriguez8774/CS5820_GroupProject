@@ -90,81 +90,6 @@ class AI:
             # AI is still ticking to next trigger.
             return False
 
-    # def search_optimal_distance(self):
-    #     """"""
-    #     roomba_x, roomba_y = self.data_manager.roomba.sprite.tile
-    #     print('roomba loc: ({0}, {1})'.format(roomba_x, roomba_y))
-    #     print('trash_tiles: {0}'.format(self.data_manager.graph.data['trash_tiles']))
-    #
-    #     # # Calculate distance to first trash tile.
-    #     # total_distance = 0
-    #     # for tile_id in self.data_manager.graph.data['trash_tiles']:
-    #     #     tile_x = int(tile_id[0])
-    #     #     tile_y = int(tile_id[3])
-    #     #     distance = abs(tile_x - roomba_x) + abs(tile_y - roomba_y)
-    #     #     total_distance += distance
-    #     #     print('({0}, {1})'.format(tile_x, tile_y))
-    #     #     print('    distance: {0}'.format(distance))
-    #
-    #     # print('total_distance: {0}'.format(total_distance))
-    #     start_tile_id = self.data_manager.graph.data['trash_tiles'][0]
-    #     end_tile_id = self.data_manager.graph.data['trash_tiles'][-1]
-    #     start_tile = self.data_manager.tile_set.get_tile_from_id(start_tile_id)
-    #     end_tile = self.data_manager.tile_set.get_tile_from_id(end_tile_id)
-    #
-    #     # Clear debug tile sprites for new iteration, if any are present.
-    #     for sprite in self.debug_set:
-    #         sprite.delete()
-    #
-    #     self.a_star_search(start_tile, end_tile, debug=True)
-    #
-    # def a_star_search(self, start_tile, end_tile, debug=False):
-    #     """"""""
-    #     from .object_entities import DebugTile
-    #
-    #     # Get tile coordinates.
-    #     start_tile_x, start_tile_y = start_tile.sprite.tile
-    #     end_tile_x, end_tile_y = end_tile.sprite.tile
-    #
-    #     # Initialize priority queue by calculating cost of starting tile.
-    #     start_cost = self._calc_distance_cost(start_tile_x, start_tile_y, end_tile_x, end_tile_y)
-    #     self.pending_list.append({'tile': start_tile, 'cost': start_cost})
-    #
-    #     print('pending_list: {0}'.format(self.pending_list))
-    #
-    #     while len(self.pending_list) > 0:
-    #         # Get smallest cost tile, according to queue.
-    #         curr_tile = self.pending_list.pop(0)
-    #
-    #         # Find all valid neighbors of tile.
-    #         # This includes all directly-adjacent tiles that are not blocked by a wall.
-    #         self._calc_forward_cost(curr_tile)
-    #         # self._calc_distance_cost(curr_tile, end_tile)
-    #
-    #     # Optionally display debug tile sprites.
-    #     if debug:
-    #         debug_tile_sprite = self.data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
-    #         self.debug_set.append(DebugTile(self.data_manager.world, debug_tile_sprite, self.data_manager, start_tile_x, start_tile_y))
-    #         debug_tile_sprite = self.data_manager.sprite_factory.from_image(RESOURCES.get_path('search_overlay.png'))
-    #         self.debug_set.append(DebugTile(self.data_manager.world, debug_tile_sprite, self.data_manager, end_tile_x, end_tile_y))
-    #
-    # def _calc_neighbor_costs(self, curr_tile):
-    #     # Check if adjacent tiles are accessible.
-    #     if not curr_tile.walls.has_wall_north:
-    #         # North tile is accessible. Check distance.
-    #         pass
-    #     if not curr_tile.walls.has_wall_east:
-    #         # East tile is accessible. Check distance.
-    #         pass
-    #     if not curr_tile.walls.has_wall_south:
-    #         # South tile is accessible. Check distance.
-    #         pass
-    #     if not curr_tile.walls.has_wall_west:
-    #         # West tile is accessible. Check distance.
-    #         pass
-    #
-    #     return
-
     def _calc_distance_cost(self, curr_tile_x, curr_tile_y, end_tile_x, end_tile_y):
         """"""
         distance = abs(curr_tile_x - end_tile_x) + abs(curr_tile_y - end_tile_y)
@@ -173,27 +98,6 @@ class AI:
 
     def _calc_forward_cost(self, curr_tile, end_tile):
         """"""
-
-
-class Search:
-    """
-    Holds search algorithm data.
-    """
-    def __init__(self, data_manager, debug_tile_entity):
-        self.data_manager = data_manager
-        self.debug_tile = debug_tile_entity
-
-
-class SearchOptimalDistance:
-    """
-    Calculates the "ideal optimal distance" to reach all trash entities, from the roomba's current location.
-    """
-    def __init__(self, data_manager):
-        # Call parent logic.
-        super().__init__()
-
-        # Set class variables.
-        self.data_manager = data_manager
 
 # endregion Active Systems
 

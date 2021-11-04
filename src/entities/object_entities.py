@@ -8,7 +8,7 @@ import random
 import sdl2.ext
 
 # User Imports.
-from .system_entities import AI, Movement, TrashPile, Search, Walls
+from .system_entities import AI, Movement, TrashPile, Walls
 from src.logging import init_logging
 from src.misc import calc_trash_distances, calc_traveling_salesman
 

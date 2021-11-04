@@ -9,7 +9,7 @@ import sdl2.ext
 from abc import ABC
 
 # User Imports.
-from src.entities.system_entities import AI, Movement, SearchOptimalDistance
+from src.entities.system_entities import AI, Movement
 from src.logging import init_logging
 from src.misc import calc_trash_distances, calc_traveling_salesman, get_tile_coord_from_id
 
@@ -264,8 +264,6 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
 
         # Save component types values. Necessary for SDL2 system handling.
         self.componenttypes = AI, sdl2.ext.Sprite
-        # self.componenttypes = SearchOptimalDistance, sdl2.ext.Sprite
-        # self.componenttypes = AI, SearchOptimalDistance, sdl2.ext.Sprite
 
         # Save class variables.
         self.data_manager = data_manager
