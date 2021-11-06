@@ -11,7 +11,7 @@ from abc import ABC
 # User Imports.
 from src.entities.system_entities import AI, Movement
 from src.logging import init_logging
-from src.misc import calc_trash_distances, calc_traveling_salesman, get_tile_coord_from_id
+from src.misc import calc_trash_distances, calc_traveling_salesman, get_tile_coord_from_id, get_tile_from_id
 
 
 # Initialize logger.
@@ -446,7 +446,7 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
             logger.debug('Setting "prev_direction" to {0}'.format(prev_direction))
             self.prev_direction = prev_direction
 
-    def move_full_sight(self, sprite):
+    def move_full_sight(self, sprite, path_set=None):
         """
         Move roomba with "full sight" setting.
 
@@ -454,9 +454,10 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
         information. Roomba intelligently attempts to take the "most efficient path" to get to all trash piles.
         :param sprite: Roomba sprite entity.
         """
-        # Get first set in "calculated ideal path".
-        end_tile_group_id = self.data_manager.ideal_overall_path['ordering'][1]
-        path_set = self.data_manager.ideal_trash_paths['roomba'][end_tile_group_id]
+        if path_set is None:
+            # Get first set in "calculated ideal path".
+            end_tile_group_id = self.data_manager.ideal_overall_path['ordering'][1]
+            path_set = self.data_manager.ideal_trash_paths['roomba'][end_tile_group_id]
 
         # Get first tile in path set.
         curr_tile_id = path_set[0]
@@ -489,6 +490,131 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
             raise RuntimeError('Unable to determine where to move.')
 
     def move_limited_vision(self, sprite):
-        """"""
-        # Move roomba.
-        self.move_east(sprite)
+        """
+        Move roomba with "limited vision" setting.
+
+        Roomba does not have "full sight", but can see some squares within a certain tile radius.
+        For sake of easier implementation, roomba has x-ray vision and can see through walls.
+
+        On failure to find any trash within vision radius, roomba defaults to "bump sensor" movement.
+        :param sprite: Roomba sprite entity.
+        """
+        # Get current radius setting.
+        vision_radius = self.data_manager.roomba_vision
+        if vision_radius < 1:
+            err_msg = 'Roomba "limited vision" setting must have a positive integer for range. Found :{0}'.format(
+                vision_radius,
+            )
+            raise RuntimeError(err_msg)
+
+        # Compile list of all tiles within current vision range.
+        tiles_in_vision = []
+        roomba_x, roomba_y = sprite.tile
+        x_index = 0
+        while x_index <= vision_radius:
+            y_index = 0
+
+            while x_index + y_index <= vision_radius:
+
+                # Handle for (+x/+y) tiles.
+                tile_x = roomba_x + x_index
+                tile_y = roomba_y + y_index
+
+                # Skip bad tile coord locations.
+                if (
+                    # Skip tile roomba is on.
+                    (roomba_x == tile_x and roomba_y == tile_y) or
+                    # Skip already-checked tiles.
+                    ('{0}, {1}'.format(tile_x, tile_y) in tiles_in_vision) or
+                    # Skip tiles with invalid x-axises.
+                    (tile_x < 0 or tile_x > (self.data_manager.tile_data['tile_w_count'] - 1)) or
+                    # Skip tiles with invalid y-axises.
+                    (tile_y < 0 or tile_y > (self.data_manager.tile_data['tile_h_count'] - 1))
+                ):
+                    pass
+                else:
+                    # Append tile to list.
+                    tiles_in_vision.append('{0}, {1}'.format(tile_x, tile_y))
+
+                # Handle for (+x/-y) tiles.
+                tile_x = roomba_x + x_index
+                tile_y = roomba_y - y_index
+
+                # Skip bad tile coord locations.
+                if (
+                    # Skip tile roomba is on.
+                    (roomba_x == tile_x and roomba_y == tile_y) or
+                    # Skip already-checked tiles.
+                    ('{0}, {1}'.format(tile_x, tile_y) in tiles_in_vision) or
+                    # Skip tiles with invalid x-axises.
+                    (tile_x < 0 or tile_x > (self.data_manager.tile_data['tile_w_count'] - 1)) or
+                    # Skip tiles with invalid y-axises.
+                    (tile_y < 0 or tile_y > (self.data_manager.tile_data['tile_h_count'] - 1))
+                ):
+                    pass
+                else:
+                    # Append tile to list.
+                    tiles_in_vision.append('{0}, {1}'.format(tile_x, tile_y))
+
+                # Handle for (-x/+y) tiles.
+                tile_x = roomba_x - x_index
+                tile_y = roomba_y + y_index
+
+                # Skip bad tile coord locations.
+                if (
+                    # Skip tile roomba is on.
+                    (roomba_x == tile_x and roomba_y == tile_y) or
+                    # Skip already-checked tiles.
+                    ('{0}, {1}'.format(tile_x, tile_y) in tiles_in_vision) or
+                    # Skip tiles with invalid x-axises.
+                    (tile_x < 0 or tile_x > (self.data_manager.tile_data['tile_w_count'] - 1)) or
+                    # Skip tiles with invalid y-axises.
+                    (tile_y < 0 or tile_y > (self.data_manager.tile_data['tile_h_count'] - 1))
+                ):
+                    pass
+                else:
+                    # Append tile to list.
+                    tiles_in_vision.append('{0}, {1}'.format(tile_x, tile_y))
+
+                # Handle for (-x/-y) tiles.
+                tile_x = roomba_x - x_index
+                tile_y = roomba_y - y_index
+
+                # Skip bad tile coord locations.
+                if (
+                    # Skip tile roomba is on.
+                    (roomba_x == tile_x and roomba_y == tile_y) or
+                    # Skip already-checked tiles.
+                    ('{0}, {1}'.format(tile_x, tile_y) in tiles_in_vision) or
+                    # Skip tiles with invalid x-axises.
+                    (tile_x < 0 or tile_x > (self.data_manager.tile_data['tile_w_count'] - 1)) or
+                    # Skip tiles with invalid y-axises.
+                    (tile_y < 0 or tile_y > (self.data_manager.tile_data['tile_h_count'] - 1))
+                ):
+                    pass
+                else:
+                    # Append tile to list.
+                    tiles_in_vision.append('{0}, {1}'.format(tile_x, tile_y))
+
+                y_index += 1
+
+            x_index += 1
+
+        # Ensure no duplicates are in set.
+        tiles_in_vision = list(set(tiles_in_vision))
+
+        # Loop through set of tiles and go to first found trash tile (if any).
+        has_moved = False
+        for tile_id in tiles_in_vision:
+            next_tile = get_tile_from_id(self.data_manager, tile_id)
+
+            # Check if trash exists at location.
+            if next_tile.trashpile.exists:
+                # Trash exists. Attempt to move to location.
+                self.move_full_sight(sprite, path_set=['{0}, {1}'.format(roomba_x, roomba_y), tile_id])
+                has_moved = True
+                break
+
+        if has_moved is False:
+            # Failed to find any tiles within range. Revert to "bump sensor" mode.
+            self.move_bump_sensor(sprite)
