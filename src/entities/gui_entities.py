@@ -151,9 +151,9 @@ class GuiCore:
         # Initialize "roomba vision distance of 2" button.
         self.vision_2 = GuiButton(
             data_manager,
-            'Distance of 2',
+            'Partial Vision (2)',
             340,
-            name='Distance of 2',
+            name='Partial Vision (2)',
             function_call=set_roomba_vision_range_2,
             function_args=data_manager,
         )
@@ -162,9 +162,9 @@ class GuiCore:
         # Initialize "roomba vision distance of 4" button.
         self.vision_4 = GuiButton(
             data_manager,
-            'Distance of 4',
+            'Partial Vision (4)',
             380,
-            name='Distance of 4',
+            name='Partial Vision (4)',
             function_call=set_roomba_vision_range_4,
             function_args=data_manager,
         )
@@ -173,9 +173,9 @@ class GuiCore:
         # Initialize "roomba vision distance of 'all seeing'" button.
         self.vision_full = GuiButton(
             data_manager,
-            'Full Sight',
+            'Full Vision',
             420,
-            name='Full Sight',
+            name='Full Vision',
             function_call=set_roomba_vision_range_full,
             function_args=data_manager,
         )
