@@ -18,8 +18,8 @@ from fclist import fcmatch
 from src.logging import init_logging
 from src.misc import (
     set_roomba_vision_range_0,
-    set_roomba_vision_range_1,
     set_roomba_vision_range_2,
+    set_roomba_vision_range_4,
     set_roomba_vision_range_full,
     toggle_roomba_ai,
     toggle_roomba_failure,
@@ -148,27 +148,27 @@ class GuiCore:
         )
         self.elements.append(self.vision_0)
 
-        # Initialize "roomba vision distance of 1" button.
-        self.vision_1 = GuiButton(
-            data_manager,
-            'Distance of 1',
-            340,
-            name='Distance of 1',
-            function_call=set_roomba_vision_range_1,
-            function_args=data_manager,
-        )
-        self.elements.append(self.vision_1)
-
         # Initialize "roomba vision distance of 2" button.
         self.vision_2 = GuiButton(
             data_manager,
             'Distance of 2',
-            380,
+            340,
             name='Distance of 2',
             function_call=set_roomba_vision_range_2,
             function_args=data_manager,
         )
         self.elements.append(self.vision_2)
+
+        # Initialize "roomba vision distance of 4" button.
+        self.vision_4 = GuiButton(
+            data_manager,
+            'Distance of 4',
+            380,
+            name='Distance of 4',
+            function_call=set_roomba_vision_range_4,
+            function_args=data_manager,
+        )
+        self.elements.append(self.vision_4)
 
         # Initialize "roomba vision distance of 'all seeing'" button.
         self.vision_full = GuiButton(

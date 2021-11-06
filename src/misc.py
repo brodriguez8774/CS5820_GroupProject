@@ -47,7 +47,7 @@ class DataManager:
         self.roomba = None
         self.ai_active = False
         self.ai_can_fail = False
-        self.roomba_vision = 1
+        self.roomba_vision = 2
         self.ideal_trash_paths = None
         self.ideal_overall_path = None
         self.graph = networkx.Graph()
@@ -187,24 +187,24 @@ def set_roomba_vision_range_0(data_manager):
     data_manager.roomba_vision = 0
 
 
-def set_roomba_vision_range_1(data_manager):
-    """
-    Adjusts roomba AI sight to see 1 tiles out from current location.
-    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
-    """
-    logger.debug('set_roomba_vision_range_1()')
-    logger.info('Setting roomba vision to "1 tiles".')
-    data_manager.roomba_vision = 1
-
-
 def set_roomba_vision_range_2(data_manager):
     """
-    Adjusts roomba AI sight to see 2 tiles out from current location.
+    Adjusts roomba AI sight to see 1 tiles out from current location.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
     logger.debug('set_roomba_vision_range_2()')
     logger.info('Setting roomba vision to "2 tiles".')
     data_manager.roomba_vision = 2
+
+
+def set_roomba_vision_range_4(data_manager):
+    """
+    Adjusts roomba AI sight to see 2 tiles out from current location.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.debug('set_roomba_vision_range_4()')
+    logger.info('Setting roomba vision to "4 tiles".')
+    data_manager.roomba_vision = 4
 
 
 def set_roomba_vision_range_full(data_manager):
