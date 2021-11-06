@@ -71,15 +71,17 @@ Upon placing/changing/removing any wall or trash entities, the program will reca
 
 Pathing is calculated in two parts:
 * First, program uses A* algorithm to calculate the "optimal path" between every trash tile to every other trash tile.
-Unfortunately, with many trash tiles present, this can be expensive. This could theoretically be optimized via something
-like multithreading.
+Unfortunately, with many trash tiles present, this can be expensive.
+  * Could theoretically be optimized via something like multithreading.
+  * Implementation itself also likely could be optimized in places.
 * Once the A* logic is complete, program then uses a semi-naive "TravelingSalesman" algorithm to determine the best path
-that visits all trash tiles at least once, starting from the current roomba location. This algorithm was more
-complicated than expected, and no actual outside references were used to figure it out. It definitely be improved in
-some aspects, but at least it seems to give an acceptable solution a majority of the time.
+that visits all trash tiles at least once, starting from the current roomba location.
+  * This algorithm was more complicated than expected, and no actual outside references were used to figure it out.
+  * Implementation can definitely be improved in some aspects, but at least it seems to give an acceptable solution
+  a majority of the time.
 
-On roomba movement, only the TravelingSalesman algorithm is recalculated, in hopes of finding a better path than the
-previously found solution. If no better solution is found, then previous solution is kept.
+On roomba movement event, only the TravelingSalesman algorithm is recalculated, in hopes of finding a better path than
+the previously found solution. If no better solution is found, then previous solution is kept.
 
 ### AI Modes
 As mentioned above in "project options", the AI has four possible movement modes.<br>
@@ -114,6 +116,16 @@ less it tracks "desired future movement" as well.
 Some AI modes, particularly the "less intelligent" ones could probably be greatly improved by implementing some kind of
 "track tiles visited" logic. It would likely help significantly with the roomba "getting stuck" or otherwise "being
 unable to visit all trash tiles".
+
+
+## Other Notes
+Early on, I expected to need a literal graph data structure. However, the original structure of data ended up being
+sufficient for the needs of this program. The graph data structure is being created, but only minimally referenced.
+
+Ideally, one of two things should happen:
+* The graph data structure and all references to it should be taken out. This would likely be easiest.
+* Entire program data should be reworked to almost exclusively use the graph data structure, instead of current custom
+class structure. This might be a lot of work, for minimal to no benefit (at least none visible at the current time).
 
 
 ## References
