@@ -515,7 +515,6 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
             y_index = 0
 
             while x_index + y_index <= vision_radius:
-
                 # Handle for (+x/+y) tiles.
                 tile_x = roomba_x + x_index
                 tile_y = roomba_y + y_index
@@ -611,7 +610,8 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
             # Check if trash exists at location.
             if next_tile.trashpile.exists:
                 # Trash exists. Attempt to move to location.
-                self.move_full_sight(sprite, path_set=['{0}, {1}'.format(roomba_x, roomba_y), tile_id])
+                path_set = self.data_manager.ideal_trash_paths['roomba'][tile_id]
+                self.move_full_sight(sprite, path_set=path_set)
                 has_moved = True
                 break
 
