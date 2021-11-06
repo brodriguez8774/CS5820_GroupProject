@@ -22,6 +22,7 @@ from src.misc import (
     set_roomba_vision_range_2,
     set_roomba_vision_range_full,
     toggle_roomba_ai,
+    toggle_roomba_failure,
 )
 
 
@@ -65,13 +66,13 @@ class GuiCore:
             data_manager,
             'Randomizers:',
             data_manager.gui_data['gui_w_start'] + 10,
-            data_manager.gui_data['gui_h_start'] + 75,
+            data_manager.gui_data['gui_h_start'] + 115,
         )
         self.roomba_header_text = GuiText(
             data_manager,
             'Roomba Settings:',
             data_manager.gui_data['gui_w_start'] + 10,
-            data_manager.gui_data['gui_h_start'] + 240,
+            data_manager.gui_data['gui_h_start'] + 280,
         )
 
         # Initialize "toggle ai" button.
@@ -85,11 +86,22 @@ class GuiCore:
         )
         self.elements.append(self.toggle_ai)
 
+        # Initialize "toggle failure" button.
+        self.toggle_failure_button = GuiButton(
+            data_manager,
+            'Toggle Failure',
+            70,
+            name='Toggle Failure',
+            function_call=toggle_roomba_failure,
+            function_args=data_manager,
+        )
+        self.elements.append(self.toggle_failure_button)
+
         # Initialize "randomize tile walls" buttons.
         self.rand_walls = GuiButton(
             data_manager,
             'Randomize Walls (E)',
-            100,
+            140,
             name='RandWalls Button (Equal Randomization)',
             function_call=data_manager.tile_set.randomize_tile_walls_equal,
         )
@@ -97,7 +109,7 @@ class GuiCore:
         self.rand_walls = GuiButton(
             data_manager,
             'Randomize Walls (W)',
-            140,
+            180,
             name='RandWalls Button (Weighted Randomization)',
             function_call=data_manager.tile_set.randomize_tile_walls_weighted,
         )
@@ -107,7 +119,7 @@ class GuiCore:
         self.rand_trash = GuiButton(
             data_manager,
             'Randomize Trash',
-            180,
+            220,
             name='RandTrash Button',
             function_call=data_manager.tile_set.randomize_trash,
         )
@@ -117,7 +129,7 @@ class GuiCore:
         self.vision_0 = GuiButton(
             data_manager,
             'Bump Sensor',
-            260,
+            300,
             name='Distance of 0 (Bump Sensor)',
             function_call=set_roomba_vision_range_0,
             function_args=data_manager,
@@ -128,7 +140,7 @@ class GuiCore:
         self.vision_1 = GuiButton(
             data_manager,
             'Distance of 1',
-            300,
+            340,
             name='Distance of 1',
             function_call=set_roomba_vision_range_1,
             function_args=data_manager,
@@ -139,7 +151,7 @@ class GuiCore:
         self.vision_2 = GuiButton(
             data_manager,
             'Distance of 2',
-            340,
+            380,
             name='Distance of 2',
             function_call=set_roomba_vision_range_2,
             function_args=data_manager,
@@ -150,7 +162,7 @@ class GuiCore:
         self.vision_full = GuiButton(
             data_manager,
             'Full Sight',
-            380,
+            420,
             name='Full Sight',
             function_call=set_roomba_vision_range_full,
             function_args=data_manager,

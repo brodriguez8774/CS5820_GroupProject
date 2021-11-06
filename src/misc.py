@@ -46,6 +46,7 @@ class DataManager:
         self.tile_set = None
         self.roomba = None
         self.ai_active = False
+        self.ai_can_fail = False
         self.roomba_vision = 1
         self.ideal_trash_paths = None
         self.ideal_overall_path = None
@@ -176,19 +177,6 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
         calc_traveling_salesman(data_manager)
 
 
-def toggle_roomba_ai(data_manager):
-    """
-    Toggles roomba AI on or off. Program start default is off.
-    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
-    """
-    logger.debug('toggle_roomba_ai()')
-    logger.info('Toggling roomba ai.')
-    if data_manager.ai_active:
-        data_manager.ai_active = False
-    else:
-        data_manager.ai_active = True
-
-
 def set_roomba_vision_range_0(data_manager):
     """
     Adjusts roomba AI sight to see 0 tiles out from current location.
@@ -227,6 +215,34 @@ def set_roomba_vision_range_full(data_manager):
     logger.debug('set_roomba_vision_range_full()')
     logger.info('Setting roomba vision to "full sight".')
     data_manager.roomba_vision = -1
+
+
+def toggle_roomba_ai(data_manager):
+    """
+    Toggles roomba AI on or off. Program start default is off.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.debug('toggle_roomba_ai()')
+    if data_manager.ai_active:
+        logger.info('Toggling roomba ai to "off".')
+        data_manager.ai_active = False
+    else:
+        logger.info('Toggling roomba ai to "on".')
+        data_manager.ai_active = True
+
+
+def toggle_roomba_failure(data_manager):
+    """
+    Toggles roomba "failure chance" on or off. Program start default is off.
+    :param data_manager: Data manager data structure. Consolidates useful program data to one location.
+    """
+    logger.debug('toggle_roomba_failure()')
+    if data_manager.ai_can_fail:
+        logger.info('Toggling roomba failure rate to "off".')
+        data_manager.ai_can_fail = False
+    else:
+        logger.info('Toggling roomba failure rate to "10% failure chance on movement".')
+        data_manager.ai_can_fail = True
 
 
 # endregion GUI Logic Functions

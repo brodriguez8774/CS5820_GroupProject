@@ -70,7 +70,7 @@ class AbstractMovementSystem(ABC):
         if orig_location != sprite.y:
             # Call general "movement" logic, for entity having moved in any direction at all.
             logger.debug('Moved north.')
-            self._handle_move(sprite)
+            self._handle_move(sprite, orig_x, orig_y)
 
             # Movement successful.
             return True
@@ -109,7 +109,7 @@ class AbstractMovementSystem(ABC):
         if orig_location != sprite.x:
             # Call general "movement" logic, for entity having moved in any direction at all.
             logger.debug('Moved east.')
-            self._handle_move(sprite)
+            self._handle_move(sprite, orig_x, orig_y)
 
             # Movement successful.
             return True
@@ -148,7 +148,7 @@ class AbstractMovementSystem(ABC):
         if orig_location != sprite.y:
             # Call general "movement" logic, for entity having moved in any direction at all.
             logger.debug('Moved south.')
-            self._handle_move(sprite)
+            self._handle_move(sprite, orig_x, orig_y)
 
             # Movement successful.
             return True
@@ -182,7 +182,7 @@ class AbstractMovementSystem(ABC):
         if orig_location != sprite.x:
             # Call general "movement" logic, for entity having moved in any direction at all.
             logger.debug('Moved west.')
-            self._handle_move(sprite)
+            self._handle_move(sprite, orig_x, orig_y)
 
             # Movement successful.
             return True
@@ -190,7 +190,7 @@ class AbstractMovementSystem(ABC):
             # Movement failed. Some barrier was in the way.
             return False
 
-    def _handle_move(self, sprite):
+    def _handle_move(self, sprite, orig_x, orig_y):
         """
         Generalized logic that applies upon roomba moving in any direction.
         :param sprite: Entity sprite data.
@@ -207,12 +207,30 @@ class AbstractMovementSystem(ABC):
         if roomba_location[0] == tile_x and roomba_location[1] == tile_y and curr_tile.trashpile.exists:
             curr_tile.trashpile.clean()
 
+        # Handle if roomba is set to allow "failing".
+        # Such an instance causes 10% chance of trash pile appearing in square roomba just left.
+        roomba_failed = False
+        if self.data_manager.ai_can_fail:
+            roomba_failed = self._trigger_failure(orig_x, orig_y)
+
         # Recalculate path distances for new roomba location.
-        calc_trash_distances(self.data_manager, roomba_only=True)
-        calc_traveling_salesman(self.data_manager, calc_new=False)
+        calc_trash_distances(self.data_manager, roomba_only=(not roomba_failed))
+        calc_traveling_salesman(self.data_manager, calc_new=roomba_failed)
 
         # Update for a movement.
         self.data_manager.gui_data['total_move_counter'] += 1
+
+    def _trigger_failure(self, tile_x, tile_y):
+        """
+        If toggled on, roomba has 10% chance of "failing" upon leaving any square.
+        Causes roomba to generate a new trash pile in square it was just in.
+        :return: True if roomba failure occurred | False otherwise.
+        """
+        if random.randint(0, 9) < 1:
+            # Trigger failure.
+            self.data_manager.tile_set.tiles[tile_y][tile_x].trashpile.place()
+            return True
+        return False
 
 
 class MovementSystem(sdl2.ext.Applicator, AbstractMovementSystem):
