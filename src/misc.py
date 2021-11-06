@@ -740,8 +740,6 @@ def calc_trash_distances(data_manager, roomba_only=False):
                 {'id': tile_id, 'forward_cost': forward_cost, 'backward_cost': backward_cost, 'path': path},
             )
 
-    logger.info('Calculating path costs.')
-
     # Call actual function logic, now that inner functions are defined.
     if roomba_only and data_manager.ideal_trash_paths is not None:
         # Save computations by only calculating roomba distance to trash tiles.
@@ -759,7 +757,6 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
     :param calc_new: Bool indicating if previously calculated path data should be discarded. Such as wall entity update.
     """
     logger.debug('calc_traveling_salesman()')
-    logger.info('Calculating ideal path.')
 
     # Clear all debug entities.
     clear_debug_entities(data_manager)
@@ -851,6 +848,9 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
                 else:
                     curr_total_dist += len(trash_paths[start_tile_id][end_tile_id]) - 1
 
+        # Update calculated set for distance found to traverse set.
+        calculated_path['total_cost'] = curr_total_dist
+
         # Swap and recalculate distance.
         swapped_total_dist = 0
         swapped_path = list(calculated_path['ordering'])
@@ -871,7 +871,9 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
                     swapped_total_dist += len(trash_paths[start_tile_id][end_tile_id]) - 1
 
         # Check if swapping sets will decrease overall distance travelled.
+        logger.debug('curr_dist: {0}    swapped_dist: {1}'.format(curr_total_dist, swapped_total_dist))
         if swapped_total_dist < curr_total_dist:
+            logger.debug('Found more efficient path. Swapping.')
             calculated_path['ordering'][conn_1_index_1] = conn_2_id_1
             calculated_path['ordering'][conn_2_index_1] = conn_1_id_1
             calculated_path['total_cost'] = swapped_total_dist
@@ -883,13 +885,9 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
         data_manager.ideal_overall_path['ordering'] == ['{0}, {1}'.format(roomba_x, roomba_y)] or
         calculated_path['total_cost'] < data_manager.ideal_overall_path['total_cost']
     ):
-        # New calculated path is more NOT more efficient. Revert to previously found values.
-        calculated_path = data_manager.ideal_overall_path
-
-    # Save best-found values and update counters.
-    data_manager.ideal_overall_path = calculated_path
-    data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
-    data_manager.gui_data['total_move_counter'] += 1
+        # New calculated path is more more efficient. Update path values.
+        data_manager.ideal_overall_path = calculated_path
+        data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
 
     # Optionally display debug tile sprites.
     if debug:

@@ -211,6 +211,9 @@ class AbstractMovementSystem(ABC):
         calc_trash_distances(self.data_manager, roomba_only=True)
         calc_traveling_salesman(self.data_manager, calc_new=False)
 
+        # Update for a movement.
+        self.data_manager.gui_data['total_move_counter'] += 1
+
 
 class MovementSystem(sdl2.ext.Applicator, AbstractMovementSystem):
     """
@@ -427,9 +430,6 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
         desired_next_tile_id = path_set[1]
         curr_tile_x, curr_tile_y = get_tile_coord_from_id(curr_tile_id)
         desired_tile_x, desired_tile_y = get_tile_coord_from_id(desired_next_tile_id)
-
-        print('curr_tile: ({0}, {1})'.format(curr_tile_x, curr_tile_y))
-        print('desired_tile: ({0}, {1})'.format(desired_tile_x, desired_tile_y))
 
         # Determine which direction we move, in order to reach desired tile.
         if curr_tile_x != desired_tile_x:
