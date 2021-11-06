@@ -1223,8 +1223,9 @@ class TrashPile:
             # Update trash entity data.
             tile_id = '{0}, {1}'.format(self.tile_x, self.tile_y)
             self.data_manager.graph.data['trash_tiles'].remove(tile_id)
-            if self.data_manager.ideal_overall_path['ordering'][1] == tile_id:
-                self.data_manager.ideal_overall_path['ordering'].pop(1)
+            # Remove tile from path ordering, if present.
+            if tile_id in self.data_manager.ideal_overall_path['ordering']:
+                self.data_manager.ideal_overall_path['ordering'].remove(tile_id)
         else:
             logger.info('No trash to clean at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
 
