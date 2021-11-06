@@ -32,11 +32,26 @@ class SoftwareRendererSystem(sdl2.ext.SoftwareSpriteRenderSystem):
         super(SoftwareRendererSystem, self).render(components)
 
         # Also update dynamic GUI text elements.
+        # Set "optimal calculated solution" text.
         self.data_manager.gui.optimal_counter_text.update(
             'Optimal Solution Cost: {0}'.format(self.data_manager.gui_data['optimal_counter']),
         )
+        # Set "total moves taken" counter text.
         self.data_manager.gui.total_move_counter_text.update(
             'Moves: {0}'.format(self.data_manager.gui_data['total_move_counter']),
+        )
+        # Set "current ai search setting" text.
+        ai_setting_text = 'AI Setting: {0}'
+        if self.data_manager.roomba_vision == 0:
+            ai_setting_text = ai_setting_text.format('Bump Sensor (0 Vision)')
+        elif self.data_manager.roomba_vision < 0:
+            ai_setting_text = ai_setting_text.format('Full Vision')
+        else:
+            ai_setting_text = ai_setting_text.format('{0} Tiles of Vision'.format(self.data_manager.roomba_vision))
+        self.data_manager.gui.ai_setting_text.update(ai_setting_text)
+        # Set "can fail" text.
+        self.data_manager.gui.ai_failure_text.update(
+            'Failure Chance: {0}'.format('10%' if self.data_manager.ai_can_fail else '0%'),
         )
 
 

@@ -56,6 +56,18 @@ class GuiCore:
             data_manager.gui_data['gui_w_start'] - 80,
             data_manager.gui_data['gui_h_start'] + 5,
         )
+        self.ai_setting_text = GuiText(
+            data_manager,
+            'AI Setting:',
+            5,
+            data_manager.gui_data['gui_h_end'] - 25,
+        )
+        self.ai_failure_text = GuiText(
+            data_manager,
+            'Failure Chance: 0%',
+            data_manager.gui_data['gui_w_start'] - 150,
+            data_manager.gui_data['gui_h_end'] - 25,
+        )
         self.settings_header_text = GuiText(
             data_manager,
             'Settings:',
