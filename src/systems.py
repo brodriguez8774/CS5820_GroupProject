@@ -329,23 +329,30 @@ class AISystem(sdl2.ext.Applicator, AbstractMovementSystem):
 
             # Proceed if tick rate is met and ai is set to be active..
             if ai_tick.active and ai_tick.check_counter() and self.data_manager.ai_active:
-                # AI is active and tick event is occurring. Move roomba, based on current setting.
-
-                # Check vision range.
-                if self.data_manager.roomba_vision == 0:
-                    # Roomba has no vision range. Acting as bump sensor.
-                    logger.info('Moving with "bump sensor".')
-                    self.move_bump_sensor(sprite)
-
-                elif self.data_manager.roomba_vision == -1:
-                    # Roomba has full tile sight.
-                    logger.info('Moving with "full tile sight".')
-                    self.move_full_sight(sprite)
+                # AI is active and tick event is occurring. Check if AI has anything to do.
+                if len(self.data_manager.graph.data['trash_tiles']) < 1:
+                    # No trash tiles to clean. Stop ai.
+                    self.data_manager.ai_active = False
+                    logger.info('All trash gathered. Stopping AI.')
 
                 else:
-                    # Roomba has limited tile range.
-                    logger.info('Moving with "limited tile range".')
-                    self.move_limited_vision(sprite)
+                    # Move roomba, based on current setting.
+
+                    # Check vision range.
+                    if self.data_manager.roomba_vision == 0:
+                        # Roomba has no vision range. Acting as bump sensor.
+                        logger.info('Moving with "bump sensor".')
+                        self.move_bump_sensor(sprite)
+
+                    elif self.data_manager.roomba_vision == -1:
+                        # Roomba has full tile sight.
+                        logger.info('Moving with "full tile sight".')
+                        self.move_full_sight(sprite)
+
+                    else:
+                        # Roomba has limited tile range.
+                        logger.info('Moving with "limited tile range".')
+                        self.move_limited_vision(sprite)
 
     def move_bump_sensor(self, sprite):
         """
