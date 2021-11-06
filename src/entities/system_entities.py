@@ -44,6 +44,8 @@ class Movement:
         :param tile_y: Tile row (y-axis) of entity.
         :return: Corresponding (x,y) pixel grid coordinates that match tile location.
         """
+        logger.debug('Movement.calculate_pix_from_tile()')
+
         pos_x = (tile_x * 50) + self.data_manager.tile_data['max_pixel_west']
         pos_y = (tile_y * 50) + self.data_manager.tile_data['max_pixel_north']
 
@@ -78,6 +80,8 @@ class AI:
         This is based on the "_ai_tick_rate" value. Smaller values means it triggers faster.
         :return: True if AI has met tick rate and should trigger | False otherwise.
         """
+        logger.debug('AI.check_counter()')
+
         # Increment counter.
         self._timer_counter += 1
 
@@ -90,15 +94,6 @@ class AI:
         else:
             # AI is still ticking to next trigger.
             return False
-
-    def _calc_distance_cost(self, curr_tile_x, curr_tile_y, end_tile_x, end_tile_y):
-        """"""
-        distance = abs(curr_tile_x - end_tile_x) + abs(curr_tile_y - end_tile_y)
-        print('tile_cost for ({0}, {1}) to ({2}, {3}): {4}'.format(curr_tile_x, curr_tile_y, end_tile_x, end_tile_y, distance))
-        return distance
-
-    def _calc_forward_cost(self, curr_tile, end_tile):
-        """"""
 
 # endregion Active Systems
 
@@ -168,10 +163,12 @@ class Walls:
 
     @property
     def wall_state(self):
+        logger.debug('Walls.wall_state()')
         return self._wall_state
 
     @wall_state.setter
     def wall_state(self, value):
+        logger.debug('Walls.wall_state()')
         # Verify is int.
         if not isinstance(value, int):
             raise TypeError('Variable "wall_state" must be an integer.')
@@ -291,10 +288,12 @@ class Walls:
 
     @property
     def has_wall_north(self):
+        logger.debug('Walls.has_wall_north()')
         return self._has_wall_north
 
     @has_wall_north.setter
     def has_wall_north(self, value):
+        logger.debug('Walls.has_wall_north()')
         # Validate passed value.
         if not isinstance(value, bool):
             raise TypeError('Must be boolean.')
@@ -362,10 +361,13 @@ class Walls:
 
     @property
     def has_wall_east(self):
+        logger.debug('Walls.has_wall_east()')
         return self._has_wall_east
 
     @has_wall_east.setter
     def has_wall_east(self, value):
+        logger.debug('Walls.has_wall_east()')
+
         # Validate passed value.
         if not isinstance(value, bool):
             raise TypeError('Must be boolean.')
@@ -433,10 +435,13 @@ class Walls:
 
     @property
     def has_wall_south(self):
+        logger.debug('Walls.has_wall_south()')
         return self._has_wall_south
 
     @has_wall_south.setter
     def has_wall_south(self, value):
+        logger.debug('Walls.has_wall_south()')
+
         # Validate passed value.
         if not isinstance(value, bool):
             raise TypeError('Must be boolean.')
@@ -504,10 +509,13 @@ class Walls:
 
     @property
     def has_wall_west(self):
+        logger.debug('Walls.has_wall_west()')
         return self._has_wall_west
 
     @has_wall_west.setter
     def has_wall_west(self, value):
+        logger.debug('Walls.has_wall_west()')
+
         # Validate passed value.
         if not isinstance(value, bool):
             raise TypeError('Must be boolean.')
@@ -583,6 +591,8 @@ class Walls:
         :param wall_state: Integer value of current potential new wall configuration for tile.
         :return: True if new state is valid for wall | False otherwise.
         """
+        logger.debug('Walls.validate_wall_state()')
+
         # Verify state is within expected bounds.
         if wall_state < 0:
             return False
@@ -600,6 +610,8 @@ class Walls:
         Checks if tile entity has "extra walls", outside of minimum the tile is required to have (depending on position).
         :return: True if tile has "extra walls" | False otherwise.
         """
+        logger.debug('Walls.check_has_extra_walls()')
+
         # Do easy check for any walls.
         if not self.has_walls:
             # No walls at all.
@@ -660,6 +672,8 @@ class Walls:
         """
         Validates wall placement by using 2-coloring on the tile graph to ensure all nodes are reachable by the roomba.
         """
+        logger.debug('Walls.bipartite_color_validation()')
+
         # Get initial color state of tiles.
         green_tiles, red_tiles = self.calc_bipartite_color()
 
@@ -737,6 +751,8 @@ class Walls:
         Calculates all tiles accessible by roomba entity. These are marked as "green", all other tiles are "red".
         :return: (Array of green tiles, array of red tiles).
         """
+        logger.debug('Walls.calc_bipartite_color()')
+
         # Get roomba location.
         roomba_x, roomba_y = self.data_manager.roomba.sprite.tile
 
@@ -815,6 +831,8 @@ class Walls:
         Increases wall state counter.
         Ensures walls update in predictable order.
         """
+        logger.debug('Walls.increment_wall_state()')
+
         wall_state = self.wall_state + 1
 
         # Loop until valid "next increment" state is found.
@@ -836,6 +854,8 @@ class Walls:
         Decreases wall state counter.
         Ensures walls update in predictable order.
         """
+        logger.debug('Walls.decrement_wall_state()')
+
         wall_state = self.wall_state - 1
 
         # Loop until valid "next decrement" state is found.
@@ -857,6 +877,8 @@ class Walls:
         Determine new state counter, based on internal wall data.
         :return:
         """
+        logger.debug('Walls.get_new_state()')
+
         # All walls inactive.
         if (
 
@@ -1000,6 +1022,8 @@ class Walls:
         Sets walls to random configuration value.
         :param weighted: Bool indicating if randomization should use weighted generation or not.
         """
+        logger.debug('Walls.randomize_walls()')
+
         # Handle based on mode.
         if not weighted:
             # Give all states an equal chance.
@@ -1038,6 +1062,8 @@ class Walls:
         This is not true for certain edge-case tiles. In such an edge-case, logic is tailored to try to avoid
         the possibility of infinite/long loops, while still being as random as possible.
         """
+        logger.debug('Walls._weighted_randomize_walls()')
+
         # Get random value for tile count. Default 25% chance of each.
         rand_val = random.randint(0, 3)
 
@@ -1061,6 +1087,8 @@ class Walls:
         """
         Logic for assigning 3 randomized walls to tile, if possible.
         """
+        logger.debug('Walls._assign_0_walls()')
+
         # Update variables for wall assignment.
         tried_0 = True
         potential_states = [0]
@@ -1072,6 +1100,8 @@ class Walls:
         """
         Logic for assigning 3 randomized walls to tile, if possible.
         """
+        logger.debug('Walls._assign_1_wall()')
+
         # Update variables for wall assignment.
         tried_1 = True
         potential_states = [1, 2, 3, 4]
@@ -1083,6 +1113,8 @@ class Walls:
         """
         Logic for assigning 3 randomized walls to tile, if possible.
         """
+        logger.debug('Walls._assign_2_walls()')
+
         # Update variables for wall assignment.
         tried_2 = True
         potential_states = [5, 6, 7, 8, 9, 10]
@@ -1094,6 +1126,8 @@ class Walls:
         """
         Logic for assigning 3 randomized walls to tile, if possible.
         """
+        logger.debug('Walls._assign_3_walls()')
+
         # Update variables for wall assignment.
         tried_3 = True
         potential_states = [11, 12, 13, 14]
@@ -1105,6 +1139,8 @@ class Walls:
         """
         General logic for assigning randomized wall when using weights.
         """
+        logger.debug('Walls._assign_wall()')
+
         valid_state = False
         wall_state = -1
 
@@ -1176,6 +1212,8 @@ class TrashPile:
         Attempts to place trash on file.
         :return: Bool indicating if trash was successfully placed.
         """
+        logger.debug('TrashPile.place()')
+
         if self.exists:
             # Trash already present. Skip placing.
             logger.info('Tile ({0}, {1}) already has trash. Skipping trash placement.'.format(self.tile_x, self.tile_y))
@@ -1211,6 +1249,8 @@ class TrashPile:
         """
         Attempts to clean tile of trash, if any is present.
         """
+        logger.debug('TrashPile.clean()')
+
         if self.exists:
             logger.info('Cleaned trash at tile ({0}, {1}).'.format(self.tile_x, self.tile_y))
 

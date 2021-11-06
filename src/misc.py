@@ -77,6 +77,8 @@ def handle_key_press(data_manager, event):
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     :param event: Event instance to handle. Only confirmed "key press" events should be passed here.
     """
+    logger.debug('handle_key_press()')
+
     roomba = data_manager.roomba
 
     # Handle if arrow direction was pressed.
@@ -101,6 +103,8 @@ def handle_mouse_click(data_manager, button_state, pos_x, pos_y):
     :param pos_x: Mouse click x coordinate.
     :param pos_y: Mouse click y coordinate.
     """
+    logger.debug('handle_mouse_click()')
+
     logger.info('pos_x.value: {0}    pos_y.value: {1}'.format(pos_x, pos_y))
     logger.info('buttonstate: {0}'.format(button_state))
 
@@ -178,6 +182,7 @@ def toggle_roomba_ai(data_manager):
     Toggles roomba AI on or off. Program start default is off.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
+    logger.debug('toggle_roomba_ai()')
     logger.info('Toggling roomba ai.')
     if data_manager.ai_active:
         data_manager.ai_active = False
@@ -190,6 +195,7 @@ def set_roomba_vision_range_0(data_manager):
     Adjusts roomba AI sight to see 0 tiles out from current location.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
+    logger.debug('set_roomba_vision_range_0()')
     logger.info('Setting roomba vision to "0 tiles" (bump sensor).')
     data_manager.roomba_vision = 0
 
@@ -199,6 +205,7 @@ def set_roomba_vision_range_1(data_manager):
     Adjusts roomba AI sight to see 1 tiles out from current location.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
+    logger.debug('set_roomba_vision_range_1()')
     logger.info('Setting roomba vision to "1 tiles".')
     data_manager.roomba_vision = 1
 
@@ -208,6 +215,7 @@ def set_roomba_vision_range_2(data_manager):
     Adjusts roomba AI sight to see 2 tiles out from current location.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
+    logger.debug('set_roomba_vision_range_2()')
     logger.info('Setting roomba vision to "2 tiles".')
     data_manager.roomba_vision = 2
 
@@ -217,6 +225,7 @@ def set_roomba_vision_range_full(data_manager):
     Adjusts roomba AI sight to see all tiles on map.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
+    logger.debug('set_roomba_vision_range_full()')
     logger.info('Setting roomba vision to "full sight".')
     data_manager.roomba_vision = -1
 
@@ -232,6 +241,7 @@ def get_tile_coord_from_id(tile_id):
     :param tile_id: Identifier for tile.
     :return: Tuple of (x_coord, y_coord) for tile.
     """
+    logger.debug('get_tile_coord_from_id()')
     id_split = str(tile_id).split(', ')
     tile_x = int(id_split[0])
     tile_y = int(id_split[1])
@@ -246,6 +256,7 @@ def get_tile_from_id(data_manager, tile_id):
     :param tile_id: Id of tile to get entity for.
     :return: Corresponding tile entity.
     """
+    logger.debug('get_tile_from_id()')
     tile_x, tile_y = get_tile_coord_from_id(tile_id)
     return data_manager.tile_set.tiles[tile_y][tile_x]
 
@@ -257,6 +268,7 @@ def get_id_from_coord(tile_x, tile_y):
     :param tile_y: Tile y coordinate.
     :return: Corresponding tile id.
     """
+    logger.debug('get_id_from_coord()')
     return '{0}, {1}'.format(tile_x, tile_y)
 
 
@@ -266,6 +278,7 @@ def get_id_from_tile(tile_entity):
     :param tile_entity: Tile entity to generate id for.
     :return: Corresponding tile id.
     """
+    logger.debug('get_id_from_tile()')
     tile_x, tile_y = tile_entity.sprite.tile
     return get_id_from_coord(tile_x, tile_y)
 
@@ -279,6 +292,7 @@ def calc_distance_cost(start_tile_x, start_tile_y, end_tile_x, end_tile_y):
     :param end_tile_y: The y coordinate of the tile to end at.
     :return: Calculated distance between tiles.
     """
+    logger.debug('calc_distance_cost()')
     distance = abs(start_tile_x - end_tile_x) + abs(start_tile_y - end_tile_y)
     return distance
 
@@ -293,6 +307,8 @@ def calc_trash_distances(data_manager, roomba_only=False):
     :param roomba_only: Bool indicating if only roomba paths should be calculated.
     :return: Set of all calculated "ideal paths" from each trash tile to every other trash tile.
     """
+    logger.debug('calc_trash_distances()')
+
     priority_queue = []
     handled_tiles = {}
 
@@ -303,6 +319,8 @@ def calc_trash_distances(data_manager, roomba_only=False):
         """
         Start of function logic.
         """
+        logger.debug('calc_trash_distances()._calc_trash_distances()')
+
         # Tell function to use variables in larger function scope.
         nonlocal priority_queue
         nonlocal handled_tiles
@@ -439,6 +457,8 @@ def calc_trash_distances(data_manager, roomba_only=False):
         """
         Calculates distances from roomba to each trash tile.
         """
+        logger.debug('calc_trash_distances()._calc_roomba_distance()')
+
         # Tell function to use variables in larger function scope.
         nonlocal priority_queue
         nonlocal handled_tiles
@@ -536,6 +556,8 @@ def calc_trash_distances(data_manager, roomba_only=False):
         :param curr_path: Path taken to reach current tile.
         :param debug: Bool indicating if debug sprites should display.
         """
+        logger.debug('calc_trash_distances()._calc_neighbor_costs()')
+
         from src.entities.object_entities import DebugTile
 
         # Tell function to use variables in larger function scope.
@@ -683,6 +705,8 @@ def calc_trash_distances(data_manager, roomba_only=False):
         :param backward_cost: Distance travelled so far, to reach current tile.
         :param path: List of all tiles in current path to reach current location.
         """
+        logger.debug('calc_trash_distances()._add_to_priority_queue()')
+
         # Tell function to use variables in larger function scope.
         nonlocal priority_queue
         nonlocal handled_tiles
@@ -734,6 +758,7 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     :param calc_new: Bool indicating if previously calculated path data should be discarded. Such as wall entity update.
     """
+    logger.debug('calc_traveling_salesman()')
     logger.info('Calculating ideal path.')
 
     # Clear all debug entities.
@@ -905,6 +930,8 @@ def clear_debug_entities(data_manager):
     Removes all debug entities, so that the screen does not become cluttered with redundant/overlapping debug info.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     """
+    logger.debug('clear_debug_entities()')
+
     # Delete each entity so it no longer displays on render.
     for debug_entity in data_manager.debug_entities:
         debug_entity.delete()

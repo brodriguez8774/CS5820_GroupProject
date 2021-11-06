@@ -171,13 +171,6 @@ class TileSet:
         logger.info('graph.neighbors(1, 1): {0}'.format(list(data_manager.graph.neighbors('1, 1'))))
         logger.info('')
 
-    def get_tile_from_id(self, tile_id):
-        """"""
-        tile_x = int(tile_id[0])
-        tile_y = int(tile_id[3])
-
-        return self.tiles[tile_y][tile_x]
-
     def get_tile_id(self, tile, north_neighbor=False, east_neighbor=False, south_neighbor=False, west_neighbor=False):
         """
         Returns the "graph node" identifier for corresponding tile.
@@ -204,7 +197,6 @@ class TileSet:
 
         # Get coordinate values from tile.
         tile_x, tile_y = tile.sprite.tile
-
         logger.info('tile: {0}, {1}'.format(tile_x, tile_y))
 
         # Check if we get north neighboring tile id.
@@ -249,6 +241,7 @@ class TileSet:
         Wrapper for wall randomization.
         Calls with all tile configurations having equal weight.
         """
+        logger.debug('TileSet.randomize_tile_walls_equal()')
         logger.info('Randomizing tile walls (equal randomization).')
         self._randomize_tile_walls(weighted=False)
 
@@ -258,6 +251,7 @@ class TileSet:
         Calls with certain tile configurations having larger weights.
         Generally speaking, tiles walls will be more sparsely populated.
         """
+        logger.debug('TileSet.randomize_tile_walls_weighted()')
         logger.info('Randomizing tile walls (weighted randomization).')
         self._randomize_tile_walls(weighted=True)
 
@@ -265,6 +259,8 @@ class TileSet:
         """
         Randomizes walls on all tiles, while still abiding by wall validation logic.
         """
+        logger.debug('TileSet._randomize_tile_walls()')
+
         # Get each tile row.
         for row_index in range(self.sprite_data['tile_h_count']):
 
@@ -285,6 +281,7 @@ class TileSet:
         """
         Randomizes trash entities on all tiles.
         """
+        logger.debug('TileSet.randomize_trash()')
         logger.info('Randomizing trash entity placement.')
 
         # Get each tile row.
