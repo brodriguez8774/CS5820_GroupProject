@@ -65,7 +65,6 @@ class DataManager:
         # Also make the Sprite Renderer aware of current Data Manager object.
         sprite_renderer.data_manager = self
 
-
 # endregion Data Structures
 
 
@@ -881,13 +880,15 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
     # Take optimal calculated distance. Compare against previously found optimal.
     # Only override if new path is superior.
     if (
-        data_manager.ideal_overall_path is None or
-        data_manager.ideal_overall_path['ordering'] == ['{0}, {1}'.format(roomba_x, roomba_y)] or
+        data_manager.ideal_overall_path['ordering'] == [roomba_tile_id] or
         calculated_path['total_cost'] < data_manager.ideal_overall_path['total_cost']
     ):
         # New calculated path is more more efficient. Update path values.
         data_manager.ideal_overall_path = calculated_path
-        data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
+        data_manager.ideal_overall_path['total_cost'] = calculated_path['total_cost']
+
+    # Ensure GUI always initializes to correct counter value.
+    data_manager.gui_data['optimal_counter'] = data_manager.ideal_overall_path['total_cost']
 
     # Optionally display debug tile sprites.
     if debug:
