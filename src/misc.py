@@ -765,11 +765,12 @@ def calc_trash_distances(data_manager, roomba_only=False):
         _calc_trash_distances()
 
 
-def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
+def calc_traveling_salesman(data_manager, calc_new=True, total_move_reset=True, debug=False):
     """
     Calculates the approximately-ideal overall path to visit all trash tiles.
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     :param calc_new: Bool indicating if previously calculated path data should be discarded. Such as wall entity update.
+    :param total_move_reset: Bool indicating if "total moves counter" should reset.
     """
     logger.debug('calc_traveling_salesman()')
 
@@ -790,6 +791,7 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
     if calc_new:
         data_manager.ideal_overall_path = calculated_path
         data_manager.gui_data['optimal_counter'] = curr_total_dist
+    if total_move_reset:
         data_manager.gui_data['total_move_counter'] = 0
 
     logger.debug('')

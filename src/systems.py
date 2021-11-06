@@ -230,7 +230,7 @@ class AbstractMovementSystem(ABC):
 
         # Recalculate path distances for new roomba location.
         calc_trash_distances(self.data_manager, roomba_only=(not roomba_failed))
-        calc_traveling_salesman(self.data_manager, calc_new=roomba_failed)
+        calc_traveling_salesman(self.data_manager, calc_new=roomba_failed, total_move_reset=False)
 
         # Update for a movement.
         self.data_manager.gui_data['total_move_counter'] += 1
