@@ -311,7 +311,7 @@ def calc_trash_distances(data_manager, roomba_only=False):
 
         # Get list of all known trash piles.
         trash_tiles = data_manager.graph.data['trash_tiles']
-        logger.info('trash_tiles: {0}'.format(trash_tiles))
+        logger.debug('trash_tiles: {0}'.format(trash_tiles))
 
         # Grab each tile with a trash pile.
         for start_tile_id in trash_tiles:
@@ -716,6 +716,8 @@ def calc_trash_distances(data_manager, roomba_only=False):
                 {'id': tile_id, 'forward_cost': forward_cost, 'backward_cost': backward_cost, 'path': path},
             )
 
+    logger.info('Calculating path costs.')
+
     # Call actual function logic, now that inner functions are defined.
     if roomba_only and data_manager.ideal_trash_paths is not None:
         # Save computations by only calculating roomba distance to trash tiles.
@@ -732,6 +734,8 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
     :param data_manager: Data manager data structure. Consolidates useful program data to one location.
     :param calc_new: Bool indicating if previously calculated path data should be discarded. Such as wall entity update.
     """
+    logger.info('Calculating ideal path.')
+
     # Clear all debug entities.
     clear_debug_entities(data_manager)
 
@@ -751,10 +755,10 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
         data_manager.gui_data['optimal_counter'] = curr_total_dist
         data_manager.gui_data['total_move_counter'] = 0
 
-    logger.info('\n\n\n\n')
-    logger.info(' ==== TRAVELING SALESMAN ===== ')
-    logger.info('\n')
-    logger.info('trash_paths: {0}'.format(trash_paths))
+    logger.debug('')
+    logger.debug(' ==== TRAVELING SALESMAN ===== ')
+    logger.debug('')
+    logger.debug('trash_paths: {0}'.format(trash_paths))
 
     # Initialize path by just going to trash tiles in original ordering.
     start_tile_id = None
@@ -854,10 +858,13 @@ def calc_traveling_salesman(data_manager, calc_new=True, debug=False):
         data_manager.ideal_overall_path['ordering'] == ['{0}, {1}'.format(roomba_x, roomba_y)] or
         calculated_path['total_cost'] < data_manager.ideal_overall_path['total_cost']
     ):
-        # New calculated path is more efficient. Save values.
-        data_manager.ideal_overall_path = calculated_path
-        data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
-        data_manager.gui_data['total_move_counter'] += 1
+        # New calculated path is more NOT more efficient. Revert to previously found values.
+        calculated_path = data_manager.ideal_overall_path
+
+    # Save best-found values and update counters.
+    data_manager.ideal_overall_path = calculated_path
+    data_manager.gui_data['optimal_counter'] = calculated_path['total_cost']
+    data_manager.gui_data['total_move_counter'] += 1
 
     # Optionally display debug tile sprites.
     if debug:
