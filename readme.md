@@ -8,6 +8,10 @@ A virtual roomba/vacuum AI project.
 Simulates a vacuum cleaner AI attempting to clean up a virtual room.
 
 
+## Languages
+Written using Python3.9. Tested in Ubuntu20.
+
+
 ## Installation
 First, set up a Python "virtual environment" (see
 https://git.brandon-rodriguez.com/python/example_projects/virtual_environments).
