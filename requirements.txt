@@ -6,11 +6,11 @@
 
 
 # Python SDL2 library dependencies.
-pysdl2
-pysdl2-dll
+PySDL2~=0.9.9
+pysdl2-dll~=2.0.16
 
 # System font-parsing dependencies.
-fclist
+fclist~=1.1.1
 
 # Graph datastructure library.
-networkx
+networkx~=2.6.3
