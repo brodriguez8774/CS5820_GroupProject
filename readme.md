@@ -9,7 +9,7 @@ Simulates a vacuum cleaner AI attempting to clean up a virtual room.
 
 
 ## Languages
-Written using Python3.9. Tested in Ubuntu20.
+Written using Python3.9. Tested in Ubuntu18 and Ubuntu20.
 
 
 ## Installation
