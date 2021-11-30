@@ -11,6 +11,7 @@ pysdl2-dll~=2.0.16
 
 # System font-parsing dependencies.
 fclist~=1.1.1
+# fclist-cffi~=1.1.2        # Use this instead if you get a fclist error when running pip install.
 
 # Graph datastructure library.
 networkx~=2.6.3

@@ -21,6 +21,15 @@ Then in a terminal with said environment, change to project root and run:
     pip install -r requirements.txt
 
 
+### Known installation issue on Ubuntu20 VirtualBox VMs
+
+You may run into an error when trying to install the `fclist` package, even when using Python3.9. In such a case, open
+up the requirements.txt file and comment the `fclist` line out. Then uncomment the `fclist-cffi` line.
+
+These packages appear to be interchangable, and doing this seems to allow package installation. The `fclist` package is
+still set as the default, if only because we've tested project runtime much more thoroughly with this package.
+
+
 ## Running the Project
 In a terminal with the above virtual environment loaded, change to project root and run:
 
