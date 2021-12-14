@@ -141,5 +141,11 @@ Ideally, one of two things should happen:
 class structure. This might be a lot of work, for minimal to no benefit (at least none visible at the current time).
 
 
+## Project Reports
+See external files:
+* Project Questions - <https://docs.google.com/document/d/1amuRA4Qd2CanVMU8ytJvwT1BMH5Uj176eCzmsgsgj2M/edit?usp=sharing>
+* Project Report - <https://docs.google.com/document/d/1w30dG3DVryHvOGfL0urhxZfBl5J9IeuotNScV00kdz8/edit?usp=sharing>
+* Project PowerPoint - <https://docs.google.com/presentation/d/1GzsgRee6amasWh3U-JC1CpoQovQr1f59hC9IJt0Brmk/edit?usp=sharing>
+
 ## References
 See `documents/references.md`.
